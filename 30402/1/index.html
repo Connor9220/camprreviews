@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta property="og:title" content="PR #30402 tray walkthrough">
+<meta property="og:image" content="poster.jpg">
+<title>PR 30402 Tray Walkthrough</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #f3f5f8;
+    --surface: #ffffff;
+    --ink: #1b2330;
+    --muted: #5b6678;
+    --line: #d9dee7;
+    --accent: #2f5d9e;
+    --accent-soft: #e3ebf6;
+    --bug: #b3261e;
+    --bug-soft: #fbe9e7;
+    --ok: #2e7d4f;
+    --sans: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #12161d;
+      --surface: #1a2029;
+      --ink: #e4e8ef;
+      --muted: #9aa5b6;
+      --line: #2c3440;
+      --accent: #7fa8e0;
+      --accent-soft: #1f2d42;
+      --bug: #f08a80;
+      --bug-soft: #3a1f1d;
+      --ok: #6cc592;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #12161d;
+    --surface: #1a2029;
+    --ink: #e4e8ef;
+    --muted: #9aa5b6;
+    --line: #2c3440;
+    --accent: #7fa8e0;
+    --accent-soft: #1f2d42;
+    --bug: #f08a80;
+    --bug-soft: #3a1f1d;
+    --ok: #6cc592;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 15px;
+    line-height: 1.55;
+    padding-inline: 16px;
+    padding-block: 28px 48px;
+  }
+  .wrap { max-width: 1040px; margin: 0 auto; display: grid; gap: 24px; }
+
+  header { display: grid; gap: 6px; }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: 6px 14px;
+  }
+  .eyebrow a { color: var(--accent); text-decoration: none; }
+  .eyebrow a:hover, .eyebrow a:focus-visible { text-decoration: underline; }
+  h1 {
+    font-size: clamp(22px, 3.2vw, 30px);
+    font-weight: 600;
+    line-height: 1.2;
+    margin: 0;
+    text-wrap: balance;
+  }
+  .lede { margin: 0; color: var(--muted); max-width: 68ch; }
+
+  .player {
+    background: #000;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+  }
+  .player video { display: block; width: 100%; height: auto; aspect-ratio: 1280 / 794; max-width: 100%; }
+
+  .grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 320px); gap: 24px; align-items: start; }
+  @media (max-width: 820px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+
+  h2 {
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 10px;
+  }
+
+  ol.chapters { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+  .chapter {
+    display: grid;
+    grid-template-columns: 52px minmax(0, 1fr);
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-radius: 6px;
+    padding: 9px 10px;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+  }
+  .chapter:hover { background: var(--accent-soft); }
+  .chapter:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+  .chapter[aria-current="true"] { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+  .chapter.bug[aria-current="true"] { background: var(--bug-soft); box-shadow: inset 3px 0 0 var(--bug); }
+  .t {
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--accent);
+    font-variant-numeric: tabular-nums;
+    padding-top: 1px;
+  }
+  .chapter.bug .t { color: var(--bug); }
+  .cap { font-weight: 500; display: block; }
+  .det { color: var(--muted); font-size: 13.5px; display: block; }
+  .tag {
+    font-family: var(--mono);
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    color: var(--bug);
+    border: 1px solid currentColor;
+    border-radius: 4px;
+    padding: 0 5px;
+    margin-right: 6px;
+    vertical-align: 1px;
+  }
+
+  aside { display: grid; gap: 16px; }
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 14px 16px;
+    display: grid;
+    gap: 8px;
+  }
+  dl { margin: 0; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 14px; font-size: 14px; }
+  dt { color: var(--muted); }
+  dd { margin: 0; font-family: var(--mono); font-size: 13px; overflow-wrap: anywhere; }
+  .panel p { margin: 0; font-size: 14px; }
+  .status { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; color: var(--ok); }
+  .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  footer { color: var(--muted); font-size: 13px; border-top: 1px solid var(--line); padding-top: 14px; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+<style>*,*::before,*::after{box-sizing:border-box} body{margin:0} img{max-width:100%}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="eyebrow">
+      <a href="https://github.com/FreeCAD/FreeCAD/pull/30402">FreeCAD PR #30402</a>
+      <span>CAM · Dressup linking</span>
+      <span>PR head fe503c3</span>
+    </div>
+    <h1>Multipass profile with start point and Lead In/Out on the class tray</h1>
+    <p class="lede">A captioned GUI walkthrough recorded by the campr review harness. It follows one Profile from a single pass to three passes per layer, then shows how Lead In/Out behaved on top of the new Line of Sight linking.</p>
+  </header>
+
+  <div class="player">
+    <video id="vid" src="tray.mp4" poster="poster.jpg" controls preload="metadata" playsinline></video>
+  </div>
+
+  <div class="grid">
+    <section aria-labelledby="ch-h">
+      <h2 id="ch-h">Chapters</h2>
+      <ol class="chapters" id="chapters"></ol>
+    </section>
+
+    <aside>
+      <div class="panel">
+        <h2>Setup</h2>
+        <dl>
+          <dt>Part</dt><dd>Class tray (CAM 101 Lesson 3)</dd>
+          <dt>Operation</dt><dd>Rough Profile, 3 passes, stepover 0.05 in</dd>
+          <dt>Start point</dt><dd>Front edge, X 5 in</dd>
+          <dt>Lead In/Out</dt><dd>Tangent in 1 in, arc out 90°</dd>
+          <dt>Clearance</dt><dd>8 in</dd>
+        </dl>
+      </div>
+      <div class="panel">
+        <h2>Finding</h2>
+        <p>With Linking set to Line of Sight, Lead In/Out treated each 1 mm hop between passes as a cut. It added lead-in and lead-out moves into the tray wall: 11 cuts, up to 3.2 mm deep.</p>
+        <p class="status">Fixed before the PR merged</p>
+      </div>
+    </aside>
+  </div>
+
+  <footer>Recorded 2026-09-27 on an isolated test display. Video 1:23, 1280 × 794. · <a href="../">All reviews</a></footer>
+</div>
+
+<script>
+  const chapters = [
+    [0.25, "Class tray, PR head fe503c3", "Rough Profile, Use Start Point at the front edge (X 5 in), Lead In/Out tangent in 1 in, arc out 90°, Num Passes 1"],
+    [5.05, "Start point: tangent lead-in, arc lead-out", "Top view of the front edge"],
+    [9.05, "Num Passes = 3", "Profile, Property View"],
+    [16.08, "Stepover = 0.05 in", "All 3 passes now start at the start point (issues #27878, #25684, #24022 fixed)"],
+    [23.55, "3 passes per layer, then step down", "Each pass gets its own lead-in/out, but the dressup goes to Clearance (8 in) after every pass: 12 times"],
+    [29.02, "Workaround: dressup Retract Threshold 4 in", "Lead In/Out stays down between passes (Clearance moves 13 → 2)"],
+    [36.55, "Dressup Retract Threshold back to 0", ""],
+    [44.05, "Profile: Collision Clearance 1 mm", "Expression OpToolDiameter cleared"],
+    [51.55, "Profile: Linking = Line of Sight", "New in this PR for Area operations"],
+    [59.05, "Raw Profile alone: clean 1 mm hops between passes", "Hops are G1 feed moves marked as linking"],
+    [63.05, "Lead In/Out on top of Line of Sight", "Each 1 mm hop treated as a cut: extra lead-in and arc lead-out into the tray wall. Gouge check: 11 cuts, up to 3.2 mm deep", true],
+    [66.59, "Same thing from the side", "Extra lead-in/out loops between passes, and 24 Clearance retracts", true],
+    [72.02, "Back to Retract Height: dressup clean again", "Line of Sight with Lead In/Out needs the dressup to skip linking moves"],
+    [79.55, "End", "PR #30402, class tray multipass + start point + Lead In/Out"],
+  ];
+
+  const vid = document.getElementById("vid");
+  const list = document.getElementById("chapters");
+  const fmt = s => `${Math.floor(s / 60)}:${String(Math.floor(s % 60)).padStart(2, "0")}`;
+
+  const buttons = chapters.map(([t, cap, det, bug]) => {
+    const li = document.createElement("li");
+    const b = document.createElement("button");
+    b.type = "button";
+    b.className = "chapter" + (bug ? " bug" : "");
+    b.setAttribute("aria-current", "false");
+    const time = document.createElement("span");
+    time.className = "t";
+    time.textContent = fmt(t);
+    const body = document.createElement("span");
+    const c = document.createElement("span");
+    c.className = "cap";
+    if (bug) {
+      const tag = document.createElement("span");
+      tag.className = "tag";
+      tag.textContent = "BUG";
+      c.append(tag);
+    }
+    c.append(cap);
+    body.append(c);
+    if (det) {
+      const d = document.createElement("span");
+      d.className = "det";
+      d.textContent = det;
+      body.append(d);
+    }
+    b.append(time, body);
+    b.addEventListener("click", () => {
+      vid.currentTime = t;
+      vid.play().catch(() => {});
+    });
+    li.append(b);
+    list.append(li);
+    return b;
+  });
+
+  let current = -1;
+  const mark = () => {
+    let i = 0;
+    for (let k = 0; k < chapters.length; k++) if (vid.currentTime + 0.05 >= chapters[k][0]) i = k;
+    if (i === current) return;
+    if (current >= 0) buttons[current].setAttribute("aria-current", "false");
+    buttons[i].setAttribute("aria-current", "true");
+    current = i;
+  };
+  vid.addEventListener("timeupdate", mark);
+  vid.addEventListener("seeked", mark);
+  mark();
+</script>
+
+</body>
+</html>

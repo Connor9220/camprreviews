@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="33016-5872679090-r3">
+<title>PR 33016 campr review</title>
+<meta property="og:title" content="PR #33016: CAM: Planar Surface patch and minor fixes">
+<meta property="og:image" content="poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33016">FreeCAD PR #33016</a><span>PR head 49d1581c945</span><span>main 3cbedc972c6</span><span>2026-09-28</span></div>
+<h1>CAM: Planar Surface patch and minor fixes</h1>
+</header>
+<p class="req">Requested by @sliptonic</p>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 1828 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid" src="demo.mp4" controls preload="metadata" playsinline poster="poster.jpg"></video><figcaption>Repro of finding 1: with Avoid Faces Overlap = 0 the Planar Surface op generates 223 commands, then raising it to 10 mm (past the 2.5 mm tool radius) makes opExecute throw TypeError: cannot unpack non-iterable NoneType object and the op goes Invalid.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Planar Surface job with an Avoid Face</span><span class="det">50x50x10 box with a Ø6 boss, Ø5 endmill, SurfaceScan, AvoidLastX_Faces = 1</span></span></button></li><li><button type="button" class="chapter" data-t="8.08"><span class="t">0:08</span><span><span class="cap">Avoid Faces Overlap = 0 : the op generates normally</span><span class="det">223 path commands on the PR build; the scan rows skirt the boss</span></span></button></li><li><button type="button" class="chapter" data-t="13.58"><span class="t">0:13</span><span><span class="cap">Raise Avoid Faces Overlap past the tool radius</span><span class="det">Tool radius is 2.5 mm - 10 mm makes avoid_overlap negative and collapses the avoid face to nothing</span></span></button></li><li><button type="button" class="chapter" data-t="22.08"><span class="t">0:22</span><span><span class="cap">opExecute throws - the op is marked Invalid</span><span class="det">TypeError: cannot unpack non-iterable NoneType object; build_avoid_boundary() still has return None paths. The path still drawn is the stale one - it is never regenerated, and reopening the document gives 0 commands</span></span></button></li><li><button type="button" class="chapter" data-t="28.58"><span class="t">0:28</span><span><span class="cap">On main the same input still cuts</span><span class="det">main only logs &#x27;Failed to generate boundary for avoid_faces&#x27;, keeps avoid_boundary = None and still outputs 113 commands; the PR turns that into a hard failure</span></span></button></li></ol>
+<section class="shots"><figure class="shot"><a href="finding1-typeerror.png"><img src="finding1-typeerror.png" alt="Finding 1 evidence: Avoid Faces Overlap = 0.3937 in (10 mm) in the Property View, no toolpath in the 3D view, and the Report view traceback ending in PlanarSurface.py:1766 &lt;class &#x27;TypeError&#x27;&gt;: cannot unpack non-iterable NoneType object."></a><figcaption>Finding 1 evidence: Avoid Faces Overlap = 0.3937 in (10 mm) in the Property View, no toolpath in the 3D view, and the Report view traceback ending in PlanarSurface.py:1766 &lt;class &#x27;TypeError&#x27;&gt;: cannot unpack non-iterable NoneType object.</figcaption></figure><figure class="shot"><a href="pr-path-avoid-detail.png"><img src="pr-path-avoid-detail.png" alt="Close-up of the same PR toolpath around the avoid face: scan rows stop either side of the boss and the rapids lift over it (Avoid Faces Overlap = 0, no gouges)."></a><figcaption>Close-up of the same PR toolpath around the avoid face: scan rows stop either side of the boss and the rapids lift over it (Avoid Faces Overlap = 0, no gouges).</figcaption></figure><figure class="shot"><a href="setup.png"><img src="setup.png" alt="Test setup on the PR build: 50x50x10 box with a 6 mm boss, 5 mm endmill, Planar Surface / SurfaceScan over the box top + boss top with AvoidLastX_Faces = 1 — the PR&#x27;s resulting toolpath."></a><figcaption>Test setup on the PR build: 50x50x10 box with a 6 mm boss, 5 mm endmill, Planar Surface / SurfaceScan over the box top + boss top with AvoidLastX_Faces = 1 — the PR&#x27;s resulting toolpath.</figcaption></figure></section>
+<section class="summary"><h1>PR #33016 — CAM: Planar Surface patch and minor fixes</h1>
+<p>Reviewed against <code>main</code> in a dedicated worktree with the PR applied and built.</p>
+<h2>What the PR does</h2>
+<ul>
+<li>Drops the <code>tolerance</code> argument from <code>create_boundary_face</code>, <code>build_optimized_boundary</code>,
+<code>generate_pattern_mask</code> and <code>build_avoid_boundary</code>, and with it the
+<code>epsilon = max(0.01, tolerance + 0.001)</code> buffer that used to be added to the pattern-mask
+offset and to the avoid-zone offset.</li>
+<li>Splits the Avoid Faces result in two: <code>avoid_boundary</code> (offset by <code>avoid_overlap</code>, used to punch
+the hole in the pattern mask) and <code>avoid_solid</code> (offset <code>0.0</code>, used to build the safe-STL
+keep-out pillar). <code>build_avoid_boundary</code> now returns a 2-tuple.</li>
+<li>Renames the <code>avoid_boundary</code> parameter of <code>surface_mesh.generate_stl</code> / <code>_shape_to_safe_stl</code>
+to <code>avoid_solid</code>, and updates the two touched unit tests.</li>
+</ul>
+<h2>What I checked</h2>
+<ul>
+<li>Full CAM unit suite on the PR build: <code>Ran 1828 tests ... OK (skipped=13, expected failures=4)</code>.</li>
+<li>Static walk of every call site of the four re-signatured functions
+(<code>surface_zlevel.py</code>, <code>PlanarSurface.py</code>, <code>surface_mesh.py</code>, <code>CAMTests/</code>) — the positional
+third argument of <code>build_optimized_boundary</code> changed meaning from <code>tolerance</code> to <code>avoids</code>, and
+every in-tree call site was updated correctly.</li>
+<li>A/B toolpath comparison (<code>main</code> vs PR) on a purpose-built job: 50×50×10 box with a Ø6×4 boss,
+Planar Surface / SurfaceScan, Ø5 endmill, base geometry = box top face + boss top face,
+<code>AvoidLastX_Faces = 1</code>.</li>
+</ul>
+<h2>Findings</h2>
+<h3>1. <code>build_avoid_boundary()</code> returning <code>None</code> crashes <code>opExecute</code> (regression)</h3>
+<p><code>surface_common.build_avoid_boundary()</code> still has two <code>return None</code> paths (nothing left to build
+from; boundary generation failed), but <code>PlanarSurface.opExecute()</code> now unpacks the result
+unconditionally:</p>
+<pre><code class="language-python">avoid_boundary, avoid_solid = surface_common.build_avoid_boundary(avoid_faces, avoid_overlap)
+</code></pre>
+<p>so the operation dies with <code>TypeError: cannot unpack non-iterable NoneType object</code>.</p>
+<p><code>avoid_overlap = tool_radius - obj.AvoidFacesOverlap.Value</code>, and <code>AvoidFacesOverlap</code> is only
+clamped at the bottom (<code>&lt; 0 → 0</code>), so any user value larger than the tool radius makes the offset
+negative and can collapse a small avoid face to nothing — an ordinary GUI input reaches this.</p>
+<p>Repro used (same document on both sides, <code>AvoidFacesOverlap = 10 mm</code>, Ø5 tool, boss radius 3 mm):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th><code>main</code></th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>op state</td>
+<td>Up-to-date</td>
+<td>Touched, <strong>Invalid</strong></td>
+</tr>
+<tr>
+<td>path commands</td>
+<td>113</td>
+<td>0</td>
+</tr>
+<tr>
+<td>report log</td>
+<td><code>surface_common.WARNING: Failed to generate boundary for avoid_faces.</code></td>
+<td>same warning, then <code>TypeError: cannot unpack non-iterable NoneType object</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>main</code> degrades gracefully (<code>avoid_boundary = None</code>, operation still generates a path); the PR
+produces no toolpath at all.</p>
+<h3>2. <code>build_avoid_boundary()</code> docstring no longer matches the code</h3>
+<ul>
+<li><code>Returns: Part.Shape: The offset avoid-zone boundary, or None ...</code> — it now returns
+<code>(avoid_boundary, avoid_solid)</code>.</li>
+<li>The prose still says the faces are offset &quot;with a small extra buffer to avoid path spikes on
+vertical walls&quot;; that buffer is exactly what this PR removed.</li>
+</ul>
+<h2>Observed but not reported as defects</h2>
+<p>With <code>AvoidFacesOverlap = 0</code> the same job still generates on both sides and
+<code>cam_gouge_check</code> reports <strong>no gouges</strong> for the PR path. The epsilon removal does change the
+result measurably:</p>
+<ul>
+<li>outer boundary grows ~0.025 mm, which adds one full scan row (feed bbox Ymin 5.0 → 2.5);
+228 → 223 commands, feed length 994 → 1044 mm.</li>
+<li>closest approach to the Avoid Face below its top plane (tool centre vs. boss axis, tangency at
+5.5 mm): <code>main</code> 5.5054 mm (+0.0054 clearance), PR 5.4999 mm (−0.00012). The path is now exactly
+tangent to the avoid geometry instead of standing off by the old epsilon. 0.12 µm is inside any
+machining tolerance, so this is noted rather than reported, but it is the margin the removed
+buffer used to provide.</li>
+</ul>
+<p>No <code>.ui</code> files are touched, so there is no panel change to GUI-check.</p>
+</section>
+<footer>Automated review by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, review written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviews</a></footer>
+</div>
+<script>
+const vid = document.getElementById("vid");
+const btns = [...document.querySelectorAll(".chapter")];
+btns.forEach(b => b.addEventListener("click", () => { vid.currentTime = +b.dataset.t; vid.play().catch(() => {}); }));
+if (vid && btns.length) vid.addEventListener("timeupdate", () => {
+  let i = 0;
+  btns.forEach((b, k) => { if (vid.currentTime + 0.05 >= +b.dataset.t) i = k; });
+  btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+});
+</script>
+</body>
+</html>

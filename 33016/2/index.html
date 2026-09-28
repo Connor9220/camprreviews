@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="33016-rereview-r4">
+<title>PR 33016 campr review</title>
+<meta property="og:title" content="PR #33016: CAM: Planar Surface patch and minor fixes">
+<meta property="og:image" content="poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33016">FreeCAD PR #33016</a><span>PR head edb6dcf7d33</span><span>main fc2a7b2cfac</span><span>2026-09-28</span></div>
+<h1>CAM: Planar Surface patch and minor fixes</h1>
+</header>
+<section class="notes"><h2>Requested by @Connor9220</h2><p>Re-review after the author&#x27;s new commits (reviewed head was 49d1581). The previous review found that build_avoid_boundary() can return None while PlanarSurface.opExecute() unpacks it, so AvoidFacesOverlap larger than the tool radius gives a TypeError and no path. Check whether that is fixed, the docstring nit, and anything new the added commits introduce.</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 1828 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid" src="demo.mp4" controls preload="metadata" playsinline poster="poster.jpg"></video><figcaption>Repro: Planar Surface with one avoided pad — the PR&#x27;s path feeds 5 mm up onto the avoided face at the keep-out edge, main does not.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Test setup</span><span class="det">80x60x20 block with a 20x20x5 pad. Planar Surface, 6 mm end mill, Base = top face + pad top, Avoid Last X Faces = 1, Avoid Faces Overlap = 0 mm.</span></span></button></li><li><button type="button" class="chapter" data-t="5.77"><span class="t">0:05</span><span><span class="cap">The pad is correctly skipped in plan view</span><span class="det">The scan lines stop short of the avoided pad on both sides.</span></span></button></li><li><button type="button" class="chapter" data-t="10.77"><span class="t">0:10</span><span><span class="cap">But look at the scan line beside the pad from the front</span><span class="det">Zooming on the left edge of the avoided pad, Z 20 (floor) to Z 25 (pad top).</span></span></button></li><li><button type="button" class="chapter" data-t="14.78"><span class="t">0:14</span><span><span class="cap">This PR: a G1 feed move climbs 5 mm onto the avoided pad</span><span class="det">G1 F19.22 X27.790537 Y18.000000 Z25.000000 - the green climb. Two of these per affected scan line (Y=18 and Y=42).</span></span></button></li><li><button type="button" class="chapter" data-t="20.77"><span class="t">0:20</span><span><span class="cap">Same setup on main: no such move</span><span class="det">main stops the cut at X27.758 Z20 and only rapids away (red). Max feed Z is 20.0 on main, 25.0 on this PR.</span></span></button></li><li><button type="button" class="chapter" data-t="24.78"><span class="t">0:24</span><span><span class="cap">Cause</span><span class="det">generate_pattern_mask() and build_avoid_boundary() lost the epsilon buffer, so the mask edge now sits exactly on the wall and the last sample point lands just outside it.</span></span></button></li></ol>
+<section class="shots"><figure class="shot"><a href="main_no_spike.png"><img src="main_no_spike.png" alt="Same view, same file, on main: the cut ends on the floor and only rapids (red) leave the area — no move above Z 20."></a><figcaption>Same view, same file, on main: the cut ends on the floor and only rapids (red) leave the area — no move above Z 20.</figcaption></figure><figure class="shot"><a href="pr_spike.png"><img src="pr_spike.png" alt="This PR, front view at the left edge of the avoided pad: a green G1 cutting move climbs from the floor (Z 20) to the pad top (Z 25) just outside the keep-out boundary."></a><figcaption>This PR, front view at the left edge of the avoided pad: a green G1 cutting move climbs from the floor (Z 20) to the pad top (Z 25) just outside the keep-out boundary.</figcaption></figure><figure class="shot"><a href="setup_pr_path.png"><img src="setup_pr_path.png" alt="Test setup: 80×60×20 block with a 20×20×5 pad, Planar Surface with a 6 mm end mill, the pad selected as the avoided face (Avoid Last X Faces = 1, Avoid Faces Overlap = 0). In plan view the pad is correctly skipped."></a><figcaption>Test setup: 80×60×20 block with a 20×20×5 pad, Planar Surface with a 6 mm end mill, the pad selected as the avoided face (Avoid Last X Faces = 1, Avoid Faces Overlap = 0). In plan view the pad is correctly skipped.</figcaption></figure></section>
+<section class="summary"><h1>PR #33016 — CAM: Planar Surface patch and minor fixes (re-review)</h1>
+<p>Re-review of head <code>edb6dcf</code> (previously reviewed head was <code>49d1581</code>).</p>
+<h2>TL;DR</h2>
+<ul>
+<li><strong>Fixed:</strong> the Avoid Faces Overlap crash from the last review is gone, and all 1828 CAM tests pass.</li>
+<li><strong>New problem:</strong> next to an avoided face, the toolpath now feeds up onto that face (a 5 mm climb)
+instead of retracting. Main retracts. Cause: the small 0.026 mm safety margin this PR removed.</li>
+<li><strong>Minor:</strong> docstring typos and stale descriptions, and the PR description mentions offset rounding
+that is no longer in the diff.</li>
+</ul>
+<h2>What I checked</h2>
+<ul>
+<li>Read the full diff against <code>main</code> and the two new commits (<code>d742bda</code>, <code>edb6dcf</code>) on top of the
+previously reviewed head.</li>
+<li>Checked every caller of the changed signatures (<code>create_boundary_face</code>, <code>build_optimized_boundary</code>,
+<code>build_avoid_boundary</code>, <code>generate_pattern_mask</code>, <code>_shape_to_safe_stl</code>, <code>generate_stl</code>) — all call
+sites and both test files are consistent with the new signatures; the dropped <code>tolerance</code> argument
+was already dead in the callee bodies.</li>
+<li>Unit tests: full CAM suite, 1828 tests, <code>OK (skipped=13, expected failures=4)</code>.</li>
+<li>Reproduced the previously reported <code>TypeError</code> scenario.</li>
+<li>A/B against <code>main</code> (same <code>.fcstd</code>, same build, CAM Python swapped per side) on two setups:
+a Planar Surface with an avoided island, and a Planar Surface on a pocket floor with vertical walls.</li>
+</ul>
+<h2>Fixed since the last review</h2>
+<p><strong>The <code>AvoidFacesOverlap</code> crash is fixed.</strong> At <code>49d1581</code> the success path returned a
+<code>(avoid_boundary, avoid_solid)</code> tuple while three early-return branches still returned a bare <code>None</code>,
+so <code>opExecute()</code>'s tuple unpack raised <code>TypeError</code>. All three now return <code>None, None</code>. I swept
+<code>AvoidFacesOverlap</code> = 0, 1, 2, 2.9, 3, 4, 5 and 10 mm against a 3 mm tool radius and a 20×20 avoided
+face: every value recomputes cleanly, including the degenerate ones where
+<code>build_avoid_boundary()</code> gives up and returns <code>(None, None)</code> with a warning.</p>
+<p>I also checked the new <code>avoid_boundary</code> / <code>avoid_solid</code> split for consistency, and it is sound: with
+overlap = 0 the mask hole is <code>face + tool_radius</code> and the safe-STL plate is the face itself, so the
+drop-cutter probe adds the radius exactly once instead of the doubled allowance <code>main</code> had. Raising
+the overlap shrinks both by the same amount, and the two stay in step.</p>
+<h2>Finding: removing the <code>epsilon</code> buffer puts cutting moves on the avoided face</h2>
+<p>The PR deletes the <code>epsilon = max(0.01, tolerance + 0.001)</code> buffer from both
+<code>generate_pattern_mask()</code> and <code>build_avoid_boundary()</code>, so the mask edge now sits exactly on the
+offset wall. The last sample point of a scan line can then land just outside the clip, and where the
+neighbouring geometry rises — i.e. next to an avoided face — the drop cutter lifts to the top of that
+face and the op emits a <strong>G1 feed move climbing onto the face it was told to avoid.</strong></p>
+<p>Setup (default settings otherwise): 80×60×20 block, 20×20×5 pad on top, 6 mm end mill, Base =
+block top face + pad top face, <code>Avoid Last X Faces</code> = 1, <code>Avoid Faces Overlap</code> = 0 mm,
+<code>LinearDeflection</code> = 0.025 mm.</p>
+<p>Scan line at Y = 18, this PR:</p>
+<pre><code>G1 F16.670000 X3.003145  Y18.000000 Z20.000000
+G1 F16.670000 X27.542663 Y18.000000 Z20.000000
+G1 F19.220000 X27.790537 Y18.000000 Z25.000000   &lt;- 5 mm climb onto the avoided pad
+G0 F0.000000  Z31.175000
+G0 F0.000000  X52.234504 Y18.000000
+G1 F5.000000  Z25.000000                          &lt;- plunge to pad height
+G1 F19.220000 X52.234504 Y18.000000 Z25.000000
+G1 F5.010000  X52.482128 Y18.000000 Z20.000000
+</code></pre>
+<p>Same file, same build, on <code>main</code>:</p>
+<pre><code>G1 F16.670000 X3.028187  Y18.000000 Z20.000000
+G1 F16.670000 X27.758341 Y18.000000 Z20.000000
+G0 F0.000000  Z31.175000
+</code></pre>
+<p>Path stats, <code>main</code> vs this PR: feed bounding box max Z <strong>20.0 → 25.0</strong>, upward feed moves
+<strong>0 → 2</strong>, feed length 1318 → 1414 mm, cycle time 3:44 → 3:56.</p>
+<p>At X = 27.79, Y = 18 the 3 mm-radius cutter is 2.98 mm from the pad corner at (30, 20), so at
+Z = 25 it is touching the corner of the avoided face. The offending point is 0.026 mm outside the
+mask edge — exactly the <code>epsilon</code> that was removed (<code>max(0.01, 0.025 + 0.001)</code>). This is the
+&quot;path spikes on vertical walls&quot; case the old comments described.</p>
+<p>The plain pocket-floor A/B showed no spikes — only the expected ±0.026 mm boundary shift
+(feed bbox X 23.027…56.973 on main vs 23.001…56.999 here), which by itself is a fine cleanup.
+The problem only shows up where the geometry beside the mask edge is <em>above</em> the cut plane, which
+is precisely the Avoid Faces case.</p>
+<p>Suggestion: keep a small buffer on the avoid-side offset (<code>tool_radius - avoid_overlap + epsilon</code>),
+or clip the sampled scan line strictly to the mask so no sample lands outside it.</p>
+<h2>Minor</h2>
+<ul>
+<li><code>build_avoid_boundary()</code> docstring: &quot;offest&quot; twice (<code>Outward/Inward offest by…</code>,
+<code>avoid_overlap (float): Offest value for boundaries.</code>), and <code>avoid_overlap</code>'s description no longer
+says what it means (it is the user's Avoid Faces Overlap, in mm).</li>
+<li>Same docstring describes <code>avoid_solid</code> as &quot;Inward offset by avoid_overlap only, representing the
+PHYSICAL extent of the avoided faces&quot; — those two clauses contradict each other; it is the physical
+extent only when the overlap is 0.</li>
+<li><code>surface_mesh.py</code>: the renamed <code>avoid_solid</code> parameter is still documented as
+<code>Pre-built Avoid Faces &quot;keep-out&quot; boundary</code> in both <code>_shape_to_safe_stl()</code> and <code>generate_stl()</code>,
+which is the old meaning.</li>
+<li>Leftover formatting in <code>build_avoid_boundary()</code>:
+<code>build_optimized_boundary(\n    fallback_faces,\n    0.0,\n)</code> on three lines.</li>
+<li>The PR description leads with &quot;Rounding Boundary Offset values&quot;; there is no rounding of offset
+values in the current diff, so the description looks stale.</li>
+</ul>
+<h2>Media</h2>
+<table>
+<thead>
+<tr>
+<th>file</th>
+<th>what it shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>demo.mp4</code></td>
+<td>the repro, step by step</td>
+</tr>
+<tr>
+<td><code>setup_pr_path.png</code></td>
+<td>the test setup and this PR's toolpath, plan/iso</td>
+</tr>
+<tr>
+<td><code>pr_spike.png</code></td>
+<td>this PR: cutting move climbing to the pad top</td>
+</tr>
+<tr>
+<td><code>main_no_spike.png</code></td>
+<td><code>main</code>: same view, no move above the floor</td>
+</tr>
+</tbody>
+</table>
+</section>
+<footer>Automated review by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, review written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviews</a></footer>
+</div>
+<script>
+const vid = document.getElementById("vid");
+const btns = [...document.querySelectorAll(".chapter")];
+btns.forEach(b => b.addEventListener("click", () => { vid.currentTime = +b.dataset.t; vid.play().catch(() => {}); }));
+if (vid && btns.length) vid.addEventListener("timeupdate", () => {
+  let i = 0;
+  btns.forEach((b, k) => { if (vid.currentTime + 0.05 >= +b.dataset.t) i = k; });
+  btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+});
+</script>
+</body>
+</html>
