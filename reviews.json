@@ -1,5 +1,12 @@
 [
  {
+  "pr": 33016,
+  "title": "CAM: Planar Surface patch and minor fixes",
+  "date": "2026-09-28",
+  "requester": "sliptonic",
+  "poster": false
+ },
+ {
   "pr": 30402,
   "title": "CAM: Area - Linking",
   "date": "2026-09-27",
