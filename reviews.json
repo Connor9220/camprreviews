@@ -4,7 +4,7 @@
   "title": "CAM: Planar Surface patch and minor fixes",
   "date": "2026-09-28",
   "requester": "sliptonic",
-  "poster": false
+  "poster": true
  },
  {
   "pr": 30402,
