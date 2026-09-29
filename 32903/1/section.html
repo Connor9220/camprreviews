@@ -1,0 +1,236 @@
+<section class="review" id="review-1" data-job="32903-5894131649" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-09-29 12:38 · PR head e63c17c4230 · main 6d2bd4d6fa3 · requested by @sliptonic</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 1909 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>A datum work plane on a block&#x27;s top face: the Profile cuts at the right height, but the Path Boundary dressup&#x27;s rapid and retract moves drop to Z 6.2 / 8.2 - inside a part whose top is at Z 20.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">A 100 x 100 x 20 block with a datum work plane on its top face</span><span class="det">The plane is Z-up, so no rotary machine is involved. Its origin sits on the face, at (50, 50, 20).</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="6.18"><span class="t">0:06</span><span><span class="cap">A Profile on that plane. Its depths are measured from the plane</span><span class="det">Stored Z 0 / 6.175 / 8.175 in the plane&#x27;s frame; placed to world Z 20 / 26.175 / 28.175. This is the 2.5D value the PR advertises, and it works.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="12.18"><span class="t">0:12</span><span><span class="cap">Now add a Path Boundary dressup over it (red)</span><span class="det">The dressup keeps two sides of the profile. It cuts at the right height: world Z 20, on top of the block.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="18.18"><span class="t">0:18</span><span><span class="cap">But its rapid and retract moves run inside the block</span><span class="det">The red approach and retract drop to Z 6.175 and Z 8.175 - the base operation&#x27;s Safe and Clearance heights, which are measured from the work plane, used here as world Z. The top of the part is at Z 20.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="24.18"><span class="t">0:24</span><span><span class="cap">The dressup was not moved into the work plane&#x27;s frame</span><span class="det">It reads the base operation&#x27;s placed path (world) but takes the base operation&#x27;s heights as they are (plane-relative), and its own Placement stays identity. Every other dressup in the PR got placeWithBase(); this one did not.</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/boundary_dressup_heights.png"><img src="1/boundary_dressup_heights.png" alt="Same scene from a low angle: the dressup&#x27;s red rapids sit 12-14 mm below the top of the 20 mm block, because the base operation&#x27;s plane-relative Safe and Clearance heights are used as world Z."></a><figcaption>Same scene from a low angle: the dressup&#x27;s red rapids sit 12-14 mm below the top of the 20 mm block, because the base operation&#x27;s plane-relative Safe and Clearance heights are used as world Z.</figcaption></figure><figure class="shot"><a href="1/boundary_dressup_iso.png"><img src="1/boundary_dressup_iso.png" alt="Green = the Profile, on top of the block. Red = the Path Boundary dressup: it cuts in the right place but its approach and retract dive down into the block."></a><figcaption>Green = the Profile, on top of the block. Red = the Path Boundary dressup: it cuts in the right place but its approach and retract dive down into the block.</figcaption></figure><figure class="shot"><a href="1/cleared_area_offset.png"><img src="1/cleared_area_offset.png" alt="Rest machining: green = the region the first operation actually cleared; blue = the region getClearedAreas() hands the next operation, 30 mm out in X and 10 mm in Y because the frame correction never runs."></a><figcaption>Rest machining: green = the region the first operation actually cleared; blue = the region getClearedAreas() hands the next operation, 30 mm out in X and 10 mm in Y because the frame correction never runs.</figcaption></figure><figure class="shot"><a href="1/datum_workplane_setup.png"><img src="1/datum_workplane_setup.png" alt="The setup: a Z-up work plane attached to the top face (its origin now defaults to the face centroid, 50/50/20) and a Profile generated in that plane&#x27;s frame."></a><figcaption>The setup: a Z-up work plane attached to the top face (its origin now defaults to the face centroid, 50/50/20) and a Profile generated in that plane&#x27;s frame.</figcaption></figure></div>
+<div class="summary"><h1>PR #32903 — CAM: Operations respect workplane frame</h1>
+<h2>TL;DR</h2>
+<ul>
+<li>One dressup was left behind by the move to plane coordinates: <strong>Path Boundary</strong> now rapids <em>inside</em> the part, 12–14 mm below the top of a 20 mm block.</li>
+<li><strong>Rest machining reads a previous operation's cleared area in the wrong place</strong> when two operations share a tool axis but not a plane origin — measured 30 mm out. The correction that was meant to fix this never runs.</li>
+<li><strong>An operation's Placement is now read-only and rewritten on every recompute.</strong> A document that positioned an operation with its Placement loses that offset silently the first time it recomputes.</li>
+<li><strong>A plain three-axis Profile changes where it plunges</strong> — same shape, different entry point — on a job with no work plane at all.</li>
+</ul>
+<p>Everything the PR description claims does work: a work plane's origin is really consumed now, depths on a datum plane read from the plane, the rotary gating moved from generation to the post, and the plane's Fixture is emitted. The findings below are gaps around the edges of that change.</p>
+<hr />
+<h2>What was checked</h2>
+<ul>
+<li>Read the full diff (49 files) and the PR text.</li>
+<li>Unit tests as built: <code>Ran 1909 tests … OK (skipped=13, expected failures=4)</code>.</li>
+<li>A/B against the PR's own base commit <code>fd593d363e2</code> with <code>cam_ab</code> (both sides run the same build with that side's CAM Python overlaid), on two saved jobs:
+<ul>
+<li><code>plain3axis.FCStd</code> — Profile + Pocket + Drilling + Tags dressup, <strong>no work plane anywhere</strong>.</li>
+<li><code>datum_boundary.FCStd</code> — a Z-up work plane on a top face, Profile + Path Boundary dressup.</li>
+</ul>
+</li>
+<li>GUI work in the review instance: work-plane creation on a three-axis job, depths on a datum plane, dressup behaviour, operation Placement, cleared-area reuse, legacy-post refusal.</li>
+</ul>
+<p>A note on method: an earlier A/B against the local <code>main</code> was misleading, because this worktree's <code>main</code> is behind the PR's base — the diff then included unrelated CAM changes (<code>Path/Preferences.py</code>, <code>PathJob.ui</code>, <code>PathCommands.py</code>, <code>SimpleCopy.py</code> …). Every A/B result quoted here is against <code>fd593d363e2</code>, the PR's actual base.</p>
+<hr />
+<h2>Findings</h2>
+<h3>1. The Path Boundary dressup was not moved into the operation's frame — it rapids inside the part</h3>
+<p><code>Path/Dressup/Gui/Boundary2.py</code> (the <code>CAM_DressupPathBoundary2</code> command) is the one dressup that did not get <code>PathDressup.placeWithBase()</code>. It still does</p>
+<pre><code class="language-python">wires = Path.Geom.wiresForPath(PathUtils.getPathWithPlacement(obj.Base))
+...
+clearanceHeight = baseOp.ClearanceHeight.Value
+safeHeight = baseOp.SafeHeight.Value
+</code></pre>
+<p>so it mixes two frames in one path: the <strong>cut</strong> moves come from the base operation's <em>placed</em> path (world coordinates, correct), while the <strong>linking</strong> moves are built from the base operation's Clearance and Safe heights, which after this PR are measured <em>from the work plane</em>.</p>
+<p>Measured on <code>datum_boundary.FCStd</code> (a 100 × 100 × 20 block, work plane on the top face at Z 20, 5 mm endmill):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Profile (base op)</th>
+<th>Path Boundary dressup</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Placement</td>
+<td>(50, 50, 20)</td>
+<td>identity</td>
+</tr>
+<tr>
+<td>stored Z</td>
+<td>0 / 6.175 / 8.175 (plane frame)</td>
+<td>6.175 / 8.175 / <strong>20.0</strong> (mixed)</td>
+</tr>
+</tbody>
+</table>
+<p>The dressup's whole G-code:</p>
+<pre><code class="language-gcode">G0 Z8.175000              ; &quot;clearance&quot; - 11.8 mm below the top of the part
+G0 X60.000000 Y-2.500000
+G0 Z6.175000              ; &quot;safe height&quot; - 13.8 mm below the top of the part
+G1 X0.000000 Y-2.500000 Z20.000001   ; feeds UP to the cut
+G2 I0.000000 J2.500000 X-2.500000 Y0.000000 Z20.000001
+G1 X-2.500000 Y100.000000 Z20.000001
+G2 I2.500000 J0.000000 X0.000000 Y102.500000 Z20.000001
+G1 X60.000000 Y102.500000 Z20.000001
+G0 Z8.175000              ; retracts INTO the part
+</code></pre>
+<p>Two rapids straight through solid material and a feed move used as an approach. See <code>boundary_dressup_iso.png</code>, <code>boundary_dressup_heights.png</code> and the video.</p>
+<p>Second consequence: because the dressup's own <code>Placement</code> stays identity, the post's <code>_expand_workplane_frames()</code> reads <code>item.source.Placement</code>, finds identity, and treats the dressup as an operation with no work plane. A <strong>tilted</strong> operation wrapped in this dressup is therefore neither refused nor rotated nor declared by a current post — its world-coordinate 3D path goes out as if it were a three-axis program. (The legacy-post guard is safe here: <code>_refuse_tilted_operations()</code> looks through <code>PathDressup.baseOp(op)</code>.)</p>
+<p>Under <code>cam_ab</code> the PR side also logged, on recompute:</p>
+<pre><code>Path/Dressup/Gui/Boundary2.py&quot;, line 187, in execute
+    linkingMoves = linking.get_linking_moves(**linkingArgs)
+RuntimeError: No collision-free path found between start and target positions
+</code></pre>
+<p>which is the linking generator noticing the inconsistency.</p>
+<p><strong>Repro</strong></p>
+<ol>
+<li>Box 100 × 100 × 20, create a Job.</li>
+<li>Create a work plane on the top face (<code>CAM_Workplane</code>).</li>
+<li>Profile on that face, <code>Workplane</code> = the new plane.</li>
+<li>Add a Path Boundary dressup with any boundary solid.</li>
+<li>Inspect the dressup: cut moves at Z 20, rapids at Z 6.175 / 8.175.</li>
+</ol>
+<hr />
+<h3>2. <code>getClearedAreas()</code> returns the cleared area in the wrong frame — the correction is dead code</h3>
+<p><code>Path/Op/Util.py</code>:</p>
+<pre><code class="language-python">cleared = op.Path.getClearedArea(diameter, localBox.ZMin + tol + dz, localBox)
+if back is not None and cleared is not None and hasattr(cleared, &quot;transformShape&quot;):
+    cleared.transformShape(back, False, False)
+</code></pre>
+<p><code>Path.Path.getClearedArea()</code> returns a <strong><code>Path.Area</code></strong>, which has no <code>transformShape</code>:</p>
+<pre><code class="language-python">&gt;&gt;&gt; ca = p.getClearedArea(5.0, -0.9, bb)
+&gt;&gt;&gt; type(ca), hasattr(ca, &quot;transformShape&quot;)
+(&lt;class 'Path.Area'&gt;, False)
+</code></pre>
+<p>so the <code>hasattr</code> guard silently swallows the back-transform every time. The bounding box <em>is</em> carried into the other operation's frame, the area <em>is</em> computed there — and then handed back in that frame instead of the caller's. The docstring (&quot;the cleared area computed there, and the result carried back&quot;) and <code>sameWorkplane()</code>'s new docstring (&quot;the one thing that has to move … which getClearedAreas() shifts by the plane origin&quot;) both describe behaviour that does not happen.</p>
+<p>Measured: a first operation cutting a 40 × 20 rectangle on a Z-up datum plane whose origin is at (30, 10, 0); a second operation with no plane; identical tool.</p>
+<pre><code>cleared area handed to op 2 : X -2.53 .. 42.53   Y -2.53 .. 22.53
+region actually cleared     : X 27.47 .. 72.53   Y  7.47 .. 32.53
+</code></pre>
+<p>30 mm out in X and 10 mm in Y — exactly the plane origin. Callers are <code>Path/Op/Area.py</code> (Pocket &amp; friends, <code>UseRestMachining</code>) and <code>Path/Op/Adaptive.py</code>. The effect is that a rest-machining operation skips material that is still there and re-cuts air somewhere else. Before this PR a Z-up plane's origin was not consumed at all, so this could not happen.</p>
+<p>See <code>cleared_area_offset.png</code>.</p>
+<p>Note also that <code>getClearedArea()</code>'s return type means the whole <code>back</code>/<code>localBox</code> machinery needs a different mechanism (transform the resulting <code>TopoShape</code>, or transform the <em>path</em> instead) rather than a guard.</p>
+<hr />
+<h3>3. An operation's Placement is now read-only and is rewritten on every recompute</h3>
+<p><code>Path/Op/Base.py</code> now ends <code>execute()</code> with</p>
+<pre><code class="language-python">frame = PathUtil.workplaneForOp(obj)
+if not obj.Placement.isSame(frame, 1e-9):
+    obj.Placement = frame
+</code></pre>
+<p>and lists <code>Placement</code> in <code>setEditorModes()</code> as read-only. For an operation with <strong>no</strong> work plane, <code>frame</code> is the identity, so any Placement the user had set is discarded:</p>
+<pre><code class="language-python">op.Placement = FreeCAD.Placement(FreeCAD.Vector(25, 0, 0), FreeCAD.Rotation())
+op.touch(); doc.recompute()
+op.Placement.Base     # -&gt; Vector (0.0, 0.0, 0.0)
+op.getEditorMode(&quot;Placement&quot;)   # -&gt; ['ReadOnly']
+</code></pre>
+<p>Before this PR nothing wrote <code>obj.Placement</code> (there was an explicit comment saying nothing should), the property was editable, and <code>PathUtils.getPathWithPlacement()</code> honoured it throughout — the legacy posts, Inspect and the simulators all read operations through it. So an existing document in which somebody offset an operation by its Placement loses that offset at the first recompute, silently and without an undo-able user action.</p>
+<p>This is clearly deliberate (the Placement <em>is</em> the frame now), but it is a capability removed from saved files and it is not in the PR description. Worth either a migration that turns a non-identity Placement into a work plane (<code>_adoptFrameAsWorkplane()</code> already exists for the older vector form) or a note in the release notes.</p>
+<hr />
+<h3>4. A plain three-axis Profile changes where it plunges</h3>
+<p><code>cam_ab</code>, <code>plain3axis.FCStd</code> (Profile + Pocket + Drilling + Tags dressup, <strong>no work plane, no machine</strong>), base <code>fd593d363e2</code> vs the PR:</p>
+<ul>
+<li><code>Pocket</code> — byte-identical (4234 characters of G-code).</li>
+<li><code>Drilling</code> — byte-identical.</li>
+<li><code>Profile</code> — differs.</li>
+<li><code>DressupTag</code> — differs (it follows the Profile).</li>
+</ul>
+<pre><code>base:  G0 X0.000000 Y-2.500000
+       G0 Z26.175000
+       G1 X0.000000 Y-2.500000 Z20.000001
+       G2 I0.000000 J2.500000 X-2.500000 Y0.000000 Z20.000001
+       G1 X-2.500000 Y80.000000 Z20.000001
+       ...
+
+PR:    G0 X-2.500000 Y0.000000
+       G0 Z26.175000
+       G1 X-2.500000 Y0.000000 Z20.000001
+       G1 X-2.500000 Y80.000000 Z20.000001
+       ...
+       G1 X0.000000 Y-2.500000 Z20.000001
+       G2 I0.000000 J2.500000 X-2.500000 Y0.000000 Z20.000001
+</code></pre>
+<p>Same wire, same direction, same length — the seam has rotated by one vertex, so the tool now plunges at the corner-arc end (−2.5, 0) instead of mid-edge (0, −2.5), and the leading corner arc becomes the closing one. Tag <em>positions</em> are unchanged; only the listing order and the entry point move.</p>
+<p>I could not pin this to a single commit within the PR (<code>UseStartPoint</code> is False in this job, so the <code>Area.py</code> <code>self.startPoint(obj)</code> change is not the cause), but it is inside the PR: the A/B is against the PR's own base and is deterministic (base-vs-base returns IDENTICAL).</p>
+<p>It is not a wrong toolpath, but it means &quot;a three-axis job is byte-identical to before&quot; — which the new code comments assert in several places — does not hold for closed profiles, and every existing Profile's plunge point moves.</p>
+<hr />
+<h2>Not in the PR description</h2>
+<p>The description lists four things: a Fixture property on the work plane, operations computing in the work plane frame, removing rotation gating from ops, adding gating to the post. These user-facing changes are in the diff but not mentioned.</p>
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Tested</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Every operation's <strong>and dressup's</strong> <code>Placement</code> becomes read-only and is overwritten from the work plane on each recompute; a Placement stored in an existing file is discarded (finding 3).</td>
+<td>tested</td>
+</tr>
+<tr>
+<td>Machine Editor: the <strong>&quot;DWO Supported&quot; checkbox is replaced by a &quot;Rotation Strategy&quot; combo</strong> with four options (Not declared / DWO / TWP / Post transform, the last refused at post time).</td>
+<td>not tested in the GUI (code + unit tests only)</td>
+</tr>
+<tr>
+<td><strong><code>.fcm</code> file format</strong>: <code>kinematics.rotation_strategy</code> added; <code>dwo_supported</code> is still written for older readers and still read when the new key is absent. <code>Kinematics.dwo_supported</code> becomes a read-only property.</td>
+<td>tested (unit tests, round-trip)</td>
+</tr>
+<tr>
+<td><strong>Four new machine-scope post-processor properties</strong> appear in the Machine Editor: &quot;Tilted work plane: control positions the rotaries / declare / align / cancel&quot;.</td>
+<td>not tested in the GUI</td>
+</tr>
+<tr>
+<td>A <strong>tilted work plane can now be created on a three-axis Job</strong> — creation no longer raises; the refusal moved to post time. <code>createWorkplane()</code> lost its <code>check_machine</code> argument.</td>
+<td>tested</td>
+</tr>
+<tr>
+<td>A work plane attached to a face now <strong>zeroes at the face's centroid</strong> (<code>AttachmentOffset</code>) instead of where the global origin projects onto the face. Combined with the origin now being consumed, depths for ops on such a plane change.</td>
+<td>tested</td>
+</tr>
+<tr>
+<td><strong>Legacy post-processors refuse any tilted operation</strong> (<code>&quot;Legacy post-processor 'linuxcnc_legacy_post' cannot position a rotary machine&quot;</code>). Disabled ops and ops outside a selection do not trigger it.</td>
+<td>tested</td>
+</tr>
+<tr>
+<td><strong>Rotary words A/B/C are no longer converted to inches</strong> in imperial output. A fix, but it changes existing 4th-axis imperial programs (e.g. the Axis Map dressup).</td>
+<td>tested (unit test)</td>
+</tr>
+<tr>
+<td>The <strong>ZCorrect dressup refuses to run on a tilted work plane</strong>, logs a warning and passes the path through unchanged.</td>
+<td>not tested</td>
+</tr>
+<tr>
+<td><strong>Sanity report</strong>: job min/max Z are now computed from the operations' placed paths rather than from the Job's own (empty) Path, so the numbers change; two new warnings are added (rotaries move between ops with an empty Pre-Rotary Move block; a work plane's Fixture is malformed or collides with the Job's Fixtures list).</td>
+<td>tested (min/max Z)</td>
+</tr>
+<tr>
+<td><code>applyPlacementToPath()</code> now <strong>swaps G2/G3 when the placement turns the path over</strong> and moves a canned cycle's <code>R</code> with the frame.</td>
+<td>not tested</td>
+</tr>
+<tr>
+<td><strong>Inspect</strong>: the Raw checkbox now shows the stored, un-placed path (with a new label line naming the frame origin) and its tooltip changed; the tool marker is drawn along the operation's tool axis instead of vertical.</td>
+<td>not tested</td>
+</tr>
+<tr>
+<td>Operations <strong>lose a prototype <code>RotaryPositions</code> property</strong> on document restore.</td>
+<td>not tested</td>
+</tr>
+<tr>
+<td><code>getPathWithPlacement()</code> / <code>applyPlacementToPath()</code> <strong>moved from <code>PathScripts.PathUtils</code> to <code>Path.Base.Util</code></strong>, re-exported under the old names (macros keep working).</td>
+<td>tested (import)</td>
+</tr>
+<tr>
+<td>The <strong>legacy boolean simulator</strong> now simulates in the operation's frame with a tilted tool; the default OpenGL simulator still uses the placed path and a vertical tool, so a tilted operation is not represented there.</td>
+<td>not tested</td>
+</tr>
+<tr>
+<td><code>Path/Post/TiltedWorkPlane.py</code> is a new module with three control dialects (<code>G68.2</code>, <code>G268</code>, <code>PLANE SPATIAL</code>); the dialect is a post-processor class attribute, so it changes with the selected post.</td>
+<td>tested (unit tests)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2>Test suite</h2>
+<p><code>Ran 1909 tests in 21.803s — OK (skipped=13, expected failures=4)</code>. No failures. The one <code>ERROR</code> line in the log is the pre-existing <code>AssetManager.exists: No store registered for name: None</code> message, not a test failure.</p>
+</div>
+</div>
+</details>
+</section>
