@@ -1,0 +1,284 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="31074-rereview-r1">
+<title>PR 31074 campr reviews</title>
+<meta property="og:title" content="PR #31074: CAM: Profile - Combine connected faces">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/31074">FreeCAD PR #31074</a><span>1 review</span></div>
+<h1>CAM: Profile - Combine connected faces</h1>
+</header>
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-09-29 17:44</span><span>Review 1 · head fb3303d · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="31074-rereview-r1" data-state="draft">
+<details class="run" open>
+<summary><span class="rn">Review 1</span><span class="meta">2026-09-29 17:44 · PR head fb3303dff19 · main efaf7b1c6ce · requested by @Connor9220</span></summary>
+<div class="body">
+<section class="draft"><h2>Draft: not posted to the PR yet</h2><p>This review is waiting for approval. The comment below is what would be posted.</p><div class="summary"><p><strong>TL;DR</strong></p>
+<ul>
+<li>#30876 is fixed. On the reporter's file, Individually now cuts the same outline as Collectively.</li>
+<li>Manual sort order is fixed. Pocket Shape with Sorting Mode = Manual follows the selection order again, and holes and islands inside holes are kept.</li>
+<li>No defects found. Profile holes and circles, Pocket Shape and Adaptive give the same toolpaths as main, and face merging is about 3.5× faster.</li>
+</ul>
+<p>No defects found in this re-review.</p>
+<p><strong>Issues</strong></p>
+<ul>
+<li>#30876: fixed (reproduced with the reporter's file on main and on this PR)</li>
+</ul>
+<p><strong>Not in the PR description</strong></p>
+<ul>
+<li>Profile now merges selected flat faces that touch or overlap, even at different heights, in both Individually and Collectively. For example, with a boss top and the face around it selected, main cut 3 loops and this PR cuts only the outer edge. (tested)</li>
+<li>Faces less than 0.01 mm apart now merge in Profile, Pocket Shape and Adaptive. The tolerance is fixed and does not use the Job's Geometry Tolerance. (tested)</li>
+<li>Pocket Z values change by about 1e-14 mm, which is why the TestSlicer change was needed. No effect on G-code. (tested)</li>
+</ul>
+</div></section><section class="notes"><h2>Requested by @Connor9220</h2><p>Re-review; prior head bc37c5d. We found keepOrder broken: inputs moved to Z-5, output at Z0, so Pocket SortingMode=Manual cut in X order (comment 5860878830). Author rewrote: no extrude, fuzzy cut, FaceMakerBullseye on cut.Wires[1:]. Check: Manual order kept; holes and islands-in-holes kept; Profile processHoles/processCircles; author file (#30876) Individually == Collectively; Adaptive and PocketShape callers; speed.</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 1837 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Issue #30876 file on main vs this PR (Individually and Collectively), then the boss-top + surrounding-face behaviour change</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Issue #30876 file: Profile set to Individually, on main (red)</span><span class="det">Loops around each small step face, plunging into the part</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="8.75"><span class="t">0:08</span><span><span class="cap">Same op with this PR (green)</span><span class="det">One outline around each part, same as Collectively</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="15.75"><span class="t">0:15</span><span><span class="cap">Collectively on the same parts (blue), for comparison</span><span class="det">Same outline at every step-down level; only the order differs</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="22.75"><span class="t">0:22</span><span><span class="cap">Behaviour change: boss top + surrounding face selected, main (red)</span><span class="det">main cuts 3 loops: outer edge, around the boss, inside the boss footprint</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="30.8"><span class="t">0:30</span><span><span class="cap">Same selection with this PR (green)</span><span class="det">Faces are merged into one silhouette: only the outer edge is cut</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/boss_main.png"><img src="1/boss_main.png" alt="Boss top + surrounding face selected, processHoles on, main (red): 3 loops (outer edge, around the boss, inside the boss footprint)"></a><figcaption>Boss top + surrounding face selected, processHoles on, main (red): 3 loops (outer edge, around the boss, inside the boss footprint)</figcaption></figure><figure class="shot"><a href="1/boss_pr.png"><img src="1/boss_pr.png" alt="Same selection with this PR (green): faces merged, only the outer edge is profiled"></a><figcaption>Same selection with this PR (green): faces merged, only the outer edge is profiled</figcaption></figure><figure class="shot"><a href="1/issue30876_main_individually.png"><img src="1/issue30876_main_individually.png" alt="Issue #30876 file, Profile Individually on main (red): extra loops around the lower step faces plunge into the part"></a><figcaption>Issue #30876 file, Profile Individually on main (red): extra loops around the lower step faces plunge into the part</figcaption></figure><figure class="shot"><a href="1/issue30876_pr_individually.png"><img src="1/issue30876_pr_individually.png" alt="Same op with this PR (green): one outline per part, same as Collectively"></a><figcaption>Same op with this PR (green): one outline per part, same as Collectively</figcaption></figure></div>
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>Issue #30876 is fixed.</strong> On the reporter's file, Profile set to Individually now cuts the same outline as Collectively, instead of extra loops that plunge into the part.</li>
+<li><strong>The keep-order bug from the last review is fixed.</strong> Pocket Shape with Sorting Mode = Manual cuts in the order you picked again, and holes and islands inside holes are kept.</li>
+<li><strong>No defects found.</strong> Profile holes/circles, Pocket Shape and Adaptive give exactly the same toolpaths as before, and face merging is about 3.5× faster.</li>
+<li><strong>Behaviour change not in the description:</strong> Profile now merges selected flat faces that touch, even at different heights. Selecting a boss top plus the face around it now profiles only the outer edge.</li>
+</ul>
+<hr />
+<p>Re-review of head <code>fb3303d</code> (prior head <code>bc37c5d</code>). Base for the A/B is the PR's parent in the review tree (<code>efaf7b1</code>); on the four changed files it is identical to <code>main</code>.</p>
+<h2>What changed since the last review</h2>
+<p>The earlier head moved the input faces to Z −5 but returned the result at Z 0. Because of that, the order-restore step could not match any faces. Pocket Shape with Sorting Mode = Manual then silently fell back to X order.</p>
+<p>The rewrite drops the extrude-and-fuse approach:</p>
+<ul>
+<li>Every face is moved to the same height <code>z</code>.</li>
+<li>The faces are cut from a bounding-box face with a fuzzy cut (<code>tol = 0.01</code>).</li>
+<li>The result faces are rebuilt from <code>cut.Wires[1:]</code> with <code>FaceMakerBullseye</code>.</li>
+</ul>
+<p>Inputs and outputs are now at the same height, so the order restore works again.</p>
+<h2>What I checked</h2>
+<h3>Unit tests</h3>
+<p>All 1837 tests pass (13 skipped, 4 expected failures). That includes the new <code>TestPathGeom.test80</code> / <code>test81</code> and the changed <code>TestSlicer</code>.</p>
+<h3>Geometry: <code>combineHorizontalFaces</code>, main vs PR, same inputs</h3>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>5 separate squares, scrambled input, <code>keepOrder=True</code></td>
+<td>input order kept</td>
+<td>input order kept</td>
+</tr>
+<tr>
+<td>Ring with a hole, a ring inside that hole, and an island inside that (3 nesting levels)</td>
+<td>3 faces: 6400 / 1200 / 100 mm², hole wires kept</td>
+<td>identical</td>
+</tr>
+<tr>
+<td>Two squares sharing an edge, plus one separate square</td>
+<td>2 faces (200 + 100)</td>
+<td>identical</td>
+</tr>
+<tr>
+<td>Two overlapping squares at Z +5 and Z −3</td>
+<td>1 face, 600 mm²</td>
+<td>identical</td>
+</tr>
+<tr>
+<td>Plate with a circular hole, plus a square</td>
+<td>circular hole kept (2 wires)</td>
+<td>identical</td>
+</tr>
+<tr>
+<td>150 random sets of 1–8 faces (rectangles, discs, square and round rings, random Z)</td>
+<td>–</td>
+<td>0 mismatches in face count or area vs main; total area always equals the union</td>
+</tr>
+<tr>
+<td>60 shuffled grids with islands inside holes at random Z, <code>keepOrder=True</code></td>
+<td>60/60 in order</td>
+<td>60/60 in order</td>
+</tr>
+<tr>
+<td>Time for the 150 random sets</td>
+<td>3.07 s</td>
+<td>0.87 s (about 3.5× faster)</td>
+</tr>
+</tbody>
+</table>
+<p>The randomized runs were a specific check on the <code>cut.Wires[1:]</code> shortcut, which assumes the first wire is always the bounding box. In every run, including ones where the cut splits into several faces (holes with islands), the bounding-box wire never reached the output.</p>
+<h3>Toolpaths: A/B in headless FreeCAD, main vs PR</h3>
+<p>I built a fixture with a plate with round and square through-holes, a stepped block (base plus boss), and a block with four pocket floors.</p>
+<table>
+<thead>
+<tr>
+<th>Op</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Profile, plate top face, processHoles + processCircles, <strong>Individually</strong></td>
+<td>identical to main</td>
+</tr>
+<tr>
+<td>Same, <strong>Collectively</strong></td>
+<td>identical to main</td>
+</tr>
+<tr>
+<td>Pocket Shape, 4 floors selected out of X order, <strong>Sorting Mode = Manual</strong></td>
+<td>identical to main; entry order 67.5 → 17.5 → 97.5 → 42.5 = the selection order</td>
+</tr>
+<tr>
+<td>Adaptive, same 4 floors</td>
+<td>identical to main (6978 commands, same point set)</td>
+</tr>
+<tr>
+<td>Profile, boss top + surrounding base face, processHoles on</td>
+<td><strong>changed</strong>: main 3 loops, PR 1 loop (see below)</td>
+</tr>
+<tr>
+<td><code>TestSlicer</code> fixtures (Pocket Shape, MillFace)</td>
+<td>same depth levels; Z values differ only at about 1e-14 mm</td>
+</tr>
+</tbody>
+</table>
+<p>The last row explains the <code>TestSlicer</code> change: Pocket Z values now vary by about 1e-14. That produced near-duplicate entries in the old exact-match set, which is why the test now uses <code>isRoughly</code>. It is not visible in G-code.</p>
+<h3>Issue #30876, reporter's file</h3>
+<p>Two linked models, each with 5 selected flat faces: one at Z 0 and four small step faces at Z −2.4.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ProfileIndividually</td>
+<td>289 commands, 31 rapids, 1358 mm feed. Extra loops around each Z −2.4 face cut into the part</td>
+<td>161 commands, 7 rapids, 672 mm feed. One outline per part</td>
+</tr>
+<tr>
+<td>ProfileCollectively</td>
+<td>559 commands</td>
+<td>559 commands (unchanged)</td>
+</tr>
+</tbody>
+</table>
+<p>At Z −6, Individually on the PR and Collectively cut the same 74 XY points; only the 2 loop-start points differ. Collectively uses StepDown 1 and Individually uses StepDown 6 in this file, so total lengths differ only because of the number of passes (about 328 mm per pass on both).</p>
+<p><img src="media/issue30876_main_individually.png" alt="main, Individually" />
+<img src="media/issue30876_pr_individually.png" alt="PR, Individually" /></p>
+<h3>Profile with edges or walls only</h3>
+<p>Profile now always passes its (possibly empty) flat-face list to the combine step. With only edges or only side walls selected, both ops still generate correct paths. The empty list does log <code>Geom.INFO: Zero working area to process. Check your selection and settings.</code> once per recompute. That is INFO level, so it is hidden at the default CAM log level (NOTICE) and only shows with verbose logging. This is a nit only; returning early when the face list is empty would avoid it.</p>
+<h2>Issues</h2>
+<ul>
+<li>#30876 (referenced as &quot;Fixes #30876&quot;): <strong>fixed</strong>. Reproduced on main and on the PR with the reporter's own file; Individually now matches Collectively.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li><strong>Profile merges touching or overlapping flat faces across heights, in both Individually and Collectively modes</strong> (tested). The description says &quot;Combined connected horizontal faces&quot;. It does not say that faces at different Z are merged into one silhouette, or that an inner edge of one face that another selected face fills is no longer profiled.
+<ul>
+<li>Example: boss top plus the surrounding base face, processHoles on. Main cut the outer edge, a loop around the boss, and a &quot;hole&quot; loop inside the boss footprint. The PR cuts only the outer edge.</li>
+<li>The old hole loop cut into the boss, so losing it is an improvement.</li>
+<li>Anyone who relied on this to profile a boss and its base in one op now needs to select the boss side walls instead.</li>
+</ul>
+</li>
+<li><strong>Faces less than 0.01 mm apart now merge</strong> in Profile, Pocket Shape and Adaptive, because of the fixed fuzzy tolerance (tested). A 0.005 mm gap gave 2 faces on main and 1 on the PR; 0.02 mm and 0.1 mm gaps stay separate. The tolerance is hard-coded and does not use the Job's Geometry Tolerance.</li>
+<li><strong>Pocket Z values move by about 1e-14 mm</strong> (tested). This is the reason for the <code>TestSlicer</code> change; it has no effect on G-code.</li>
+<li><code>combineHorizontalFaces</code> gains <code>z</code> and <code>tol</code> parameters (API only, not user-facing; covered by the new tests).</li>
+</ul>
+<p><img src="media/boss_main.png" alt="main, boss + base selected" />
+<img src="media/boss_pr.png" alt="PR, boss + base selected" /></p>
+<h2>Media</h2>
+<ul>
+<li><code>demo.mp4</code>: the #30876 file on main vs the PR (Individually and Collectively), then the boss-plus-base change.</li>
+<li>Screenshots as captioned above.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated reviews by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, reviews written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviewed PRs</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>

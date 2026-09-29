@@ -1,5 +1,15 @@
 [
  {
+  "pr": 31074,
+  "run": 1,
+  "job": "31074-rereview-r1",
+  "title": "CAM: Profile - Combine connected faces",
+  "date": "2026-09-29 17:44",
+  "requester": "Connor9220",
+  "head": "fb3303dff19",
+  "poster": true
+ },
+ {
   "pr": 32903,
   "run": 1,
   "job": "32903-5894131649-video2",
