@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="campr-job" content="32903-5894131649">
+<meta name="campr-job" content="32903-5894131649-amend1">
 <title>PR 32903 campr reviews</title>
 <meta property="og:title" content="PR #32903: CAM:  Operations respect workplane frame">
 <meta property="og:image" content="1/poster.jpg">
@@ -65,22 +65,23 @@ footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); p
 <div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/32903">FreeCAD PR #32903</a><span>1 review</span></div>
 <h1>CAM:  Operations respect workplane frame</h1>
 </header>
-<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-09-29 12:38</span><span>Review 1 · head e63c17c · requested by @sliptonic</span></a></li></ol></nav>
-<section class="review" id="review-1" data-job="32903-5894131649" data-state="final">
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-09-29 13:11</span><span>Review 1 · head e63c17c · requested by @sliptonic</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="32903-5894131649-amend1" data-state="final">
 <details class="run" open>
-<summary><span class="rn">Review 1</span><span class="meta">2026-09-29 12:38 · PR head e63c17c4230 · main 6d2bd4d6fa3 · requested by @sliptonic</span></summary>
+<summary><span class="rn">Review 1</span><span class="meta">2026-09-29 13:11 · PR head e63c17c4230 · main 6d2bd4d6fa3 · requested by @sliptonic</span></summary>
 <div class="body">
-
+<section class="notes"><h2>Requested by @sliptonic</h2><p>Use the multi-sided TWP test block (twp-test-block-job.FCStd: ops on several tilted faces incl. drilling and pockets) and both class trays. The -patched files and .nc outputs are from an earlier build of this PR (head dd9d5da383c) with our fixes; PR32903-test-report.md lists the bugs found then - check whether they are still fixed and whether anything regressed since.</p></section>
 <p class="tests">CAM unit tests with the PR applied: <code>Ran 1909 tests · OK (skipped=13, expected failures=4)</code></p>
 <figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>A datum work plane on a block&#x27;s top face: the Profile cuts at the right height, but the Path Boundary dressup&#x27;s rapid and retract moves drop to Z 6.2 / 8.2 - inside a part whose top is at Z 20.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">A 100 x 100 x 20 block with a datum work plane on its top face</span><span class="det">The plane is Z-up, so no rotary machine is involved. Its origin sits on the face, at (50, 50, 20).</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="6.18"><span class="t">0:06</span><span><span class="cap">A Profile on that plane. Its depths are measured from the plane</span><span class="det">Stored Z 0 / 6.175 / 8.175 in the plane&#x27;s frame; placed to world Z 20 / 26.175 / 28.175. This is the 2.5D value the PR advertises, and it works.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="12.18"><span class="t">0:12</span><span><span class="cap">Now add a Path Boundary dressup over it (red)</span><span class="det">The dressup keeps two sides of the profile. It cuts at the right height: world Z 20, on top of the block.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="18.18"><span class="t">0:18</span><span><span class="cap">But its rapid and retract moves run inside the block</span><span class="det">The red approach and retract drop to Z 6.175 and Z 8.175 - the base operation&#x27;s Safe and Clearance heights, which are measured from the work plane, used here as world Z. The top of the part is at Z 20.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="24.18"><span class="t">0:24</span><span><span class="cap">The dressup was not moved into the work plane&#x27;s frame</span><span class="det">It reads the base operation&#x27;s placed path (world) but takes the base operation&#x27;s heights as they are (plane-relative), and its own Placement stays identity. Every other dressup in the PR got placeWithBase(); this one did not.</span></span></button></li></ol>
-<div class="shots"><figure class="shot"><a href="1/boundary_dressup_heights.png"><img src="1/boundary_dressup_heights.png" alt="Same scene from a low angle: the dressup&#x27;s red rapids sit 12-14 mm below the top of the 20 mm block, because the base operation&#x27;s plane-relative Safe and Clearance heights are used as world Z."></a><figcaption>Same scene from a low angle: the dressup&#x27;s red rapids sit 12-14 mm below the top of the 20 mm block, because the base operation&#x27;s plane-relative Safe and Clearance heights are used as world Z.</figcaption></figure><figure class="shot"><a href="1/boundary_dressup_iso.png"><img src="1/boundary_dressup_iso.png" alt="Green = the Profile, on top of the block. Red = the Path Boundary dressup: it cuts in the right place but its approach and retract dive down into the block."></a><figcaption>Green = the Profile, on top of the block. Red = the Path Boundary dressup: it cuts in the right place but its approach and retract dive down into the block.</figcaption></figure><figure class="shot"><a href="1/cleared_area_offset.png"><img src="1/cleared_area_offset.png" alt="Rest machining: green = the region the first operation actually cleared; blue = the region getClearedAreas() hands the next operation, 30 mm out in X and 10 mm in Y because the frame correction never runs."></a><figcaption>Rest machining: green = the region the first operation actually cleared; blue = the region getClearedAreas() hands the next operation, 30 mm out in X and 10 mm in Y because the frame correction never runs.</figcaption></figure><figure class="shot"><a href="1/datum_workplane_setup.png"><img src="1/datum_workplane_setup.png" alt="The setup: a Z-up work plane attached to the top face (its origin now defaults to the face centroid, 50/50/20) and a Profile generated in that plane&#x27;s frame."></a><figcaption>The setup: a Z-up work plane attached to the top face (its origin now defaults to the face centroid, 50/50/20) and a Profile generated in that plane&#x27;s frame.</figcaption></figure></div>
+<div class="shots"><figure class="shot"><a href="1/boundary_dressup_heights.png"><img src="1/boundary_dressup_heights.png" alt="Same scene from a low angle: the dressup&#x27;s red rapids sit 12-14 mm below the top of the 20 mm block, because the base operation&#x27;s plane-relative Safe and Clearance heights are used as world Z."></a><figcaption>Same scene from a low angle: the dressup&#x27;s red rapids sit 12-14 mm below the top of the 20 mm block, because the base operation&#x27;s plane-relative Safe and Clearance heights are used as world Z.</figcaption></figure><figure class="shot"><a href="1/boundary_dressup_iso.png"><img src="1/boundary_dressup_iso.png" alt="Green = the Profile, on top of the block. Red = the Path Boundary dressup: it cuts in the right place but its approach and retract dive down into the block."></a><figcaption>Green = the Profile, on top of the block. Red = the Path Boundary dressup: it cuts in the right place but its approach and retract dive down into the block.</figcaption></figure><figure class="shot"><a href="1/cleared_area_offset.png"><img src="1/cleared_area_offset.png" alt="Rest machining: green = the region the first operation actually cleared; blue = the region getClearedAreas() hands the next operation, 30 mm out in X and 10 mm in Y because the frame correction never runs."></a><figcaption>Rest machining: green = the region the first operation actually cleared; blue = the region getClearedAreas() hands the next operation, 30 mm out in X and 10 mm in Y because the frame correction never runs.</figcaption></figure><figure class="shot"><a href="1/datum_workplane_setup.png"><img src="1/datum_workplane_setup.png" alt="The setup: a Z-up work plane attached to the top face (its origin now defaults to the face centroid, 50/50/20) and a Profile generated in that plane&#x27;s frame."></a><figcaption>The setup: a Z-up work plane attached to the top face (its origin now defaults to the face centroid, 50/50/20) and a Profile generated in that plane&#x27;s frame.</figcaption></figure><figure class="shot"><a href="1/profile_seam_flip.png"><img src="1/profile_seam_flip.png" alt="Two consecutive recomputes of the same unchanged three-axis Profile, overlaid (red = one run, green = the next). The cut wire is identical, but the short vertical plunge line sits in two different places, 3.5 mm apart at the corner. This flips at random on main as well as on the PR, which is why finding 4 is withdrawn."></a><figcaption>Two consecutive recomputes of the same unchanged three-axis Profile, overlaid (red = one run, green = the next). The cut wire is identical, but the short vertical plunge line sits in two different places, 3.5 mm apart at the corner. This flips at random on main as well as on the PR, which is why finding 4 is withdrawn.</figcaption></figure><figure class="shot"><a href="1/tray_a_over_b.png"><img src="1/tray_a_over_b.png" alt="Class tray, both versions overlaid in one view: thick white = tray A with no work plane, thin cyan and orange = tray B with a work plane on the top face, after recomputing both on this build. The coloured lines run down the middle of the white ones everywhere, including the lead-in tails at the front corner - the two world paths are byte-identical."></a><figcaption>Class tray, both versions overlaid in one view: thick white = tray A with no work plane, thin cyan and orange = tray B with a work plane on the top face, after recomputing both on this build. The coloured lines run down the middle of the white ones everywhere, including the lead-in tails at the front corner - the two world paths are byte-identical.</figcaption></figure><figure class="shot"><a href="1/twp_block_all_ops.png"><img src="1/twp_block_all_ops.png" alt="The multi-sided test block (model at 85% transparency), all 16 operations recomputed on this build. Green = cutting, red = rapids. Every path lands on the face its work plane belongs to: the top pocket and holes, the 30 degree facet on the right, the compound facet behind it, and the slot and hole in the front face."></a><figcaption>The multi-sided test block (model at 85% transparency), all 16 operations recomputed on this build. Green = cutting, red = rapids. Every path lands on the face its work plane belongs to: the top pocket and holes, the 30 degree facet on the right, the compound facet behind it, and the slot and hole in the front face.</figcaption></figure><figure class="shot"><a href="1/twp_facet30_ops.png"><img src="1/twp_facet30_ops.png" alt="The 30 degree facet close up: orange = the Adaptive pocket, yellow = the Deburr pass round its rim, blue = the Profile with its Lead In/Out, green = the two helixes, magenta = the engraved text. The engraving lies flat on the facet, which is bug 9 from the September report (BaseShapes read in world coordinates) fixed."></a><figcaption>The 30 degree facet close up: orange = the Adaptive pocket, yellow = the Deburr pass round its rim, blue = the Profile with its Lead In/Out, green = the two helixes, magenta = the engraved text. The engraving lies flat on the facet, which is bug 9 from the September report (BaseShapes read in world coordinates) fixed.</figcaption></figure></div>
 <div class="summary"><h1>PR #32903 — CAM: Operations respect workplane frame</h1>
 <h2>TL;DR</h2>
 <ul>
 <li>One dressup was left behind by the move to plane coordinates: <strong>Path Boundary</strong> now rapids <em>inside</em> the part, 12–14 mm below the top of a 20 mm block.</li>
 <li><strong>Rest machining reads a previous operation's cleared area in the wrong place</strong> when two operations share a tool axis but not a plane origin — measured 30 mm out. The correction that was meant to fix this never runs.</li>
 <li><strong>An operation's Placement is now read-only and rewritten on every recompute.</strong> A document that positioned an operation with its Placement loses that offset silently the first time it recomputes.</li>
-<li><strong>A plain three-axis Profile changes where it plunges</strong> — same shape, different entry point — on a job with no work plane at all.</li>
+<li>~~A plain three-axis Profile changes where it plunges.~~ <strong>Withdrawn</strong> — see &quot;Test block and trays&quot; below. The plunge point flips between two seams from one recompute to the next on <code>main</code> as well, so it is pre-existing Profile nondeterminism, not this PR.</li>
+<li>The September 24 test suite was re-run on this head: the <strong>multi-face TWP block and both class trays recompute clean, all eleven bugs from that report are still fixed, and nothing regressed.</strong> No new defect.</li>
 </ul>
 <p>Everything the PR description claims does work: a work plane's origin is really consumed now, depths on a datum plane read from the plane, the rotary gating moved from generation to the post, and the plane's Fixture is emitted. The findings below are gaps around the edges of that change.</p>
 <hr />
@@ -192,7 +193,13 @@ op.getEditorMode(&quot;Placement&quot;)   # -&gt; ['ReadOnly']
 <p>Before this PR nothing wrote <code>obj.Placement</code> (there was an explicit comment saying nothing should), the property was editable, and <code>PathUtils.getPathWithPlacement()</code> honoured it throughout — the legacy posts, Inspect and the simulators all read operations through it. So an existing document in which somebody offset an operation by its Placement loses that offset at the first recompute, silently and without an undo-able user action.</p>
 <p>This is clearly deliberate (the Placement <em>is</em> the frame now), but it is a capability removed from saved files and it is not in the PR description. Worth either a migration that turns a non-identity Placement into a work plane (<code>_adoptFrameAsWorkplane()</code> already exists for the older vector form) or a note in the release notes.</p>
 <hr />
-<h3>4. A plain three-axis Profile changes where it plunges</h3>
+<h3>4. A plain three-axis Profile changes where it plunges — WITHDRAWN</h3>
+<blockquote>
+<p><strong>Withdrawn.</strong> Re-testing against <code>main</code> (see &quot;Test block and trays&quot;) showed the same Profile
+flipping between the two seams from one recompute to the next, on <code>main</code> and on the PR alike.
+The A/B below caught that instability, not a change made by this PR. The rest of this section is
+kept for the record; the reproducibility bug it actually found is described in the new section.</p>
+</blockquote>
 <p><code>cam_ab</code>, <code>plain3axis.FCStd</code> (Profile + Pocket + Drilling + Tags dressup, <strong>no work plane, no machine</strong>), base <code>fd593d363e2</code> vs the PR:</p>
 <ul>
 <li><code>Pocket</code> — byte-identical (4234 characters of G-code).</li>
@@ -218,6 +225,7 @@ PR:    G0 X-2.500000 Y0.000000
 <p>Same wire, same direction, same length — the seam has rotated by one vertex, so the tool now plunges at the corner-arc end (−2.5, 0) instead of mid-edge (0, −2.5), and the leading corner arc becomes the closing one. Tag <em>positions</em> are unchanged; only the listing order and the entry point move.</p>
 <p>I could not pin this to a single commit within the PR (<code>UseStartPoint</code> is False in this job, so the <code>Area.py</code> <code>self.startPoint(obj)</code> change is not the cause), but it is inside the PR: the A/B is against the PR's own base and is deterministic (base-vs-base returns IDENTICAL).</p>
 <p>It is not a wrong toolpath, but it means &quot;a three-axis job is byte-identical to before&quot; — which the new code comments assert in several places — does not hold for closed profiles, and every existing Profile's plunge point moves.</p>
+<p><em>(The claim in the last sentence of the previous paragraph is what the re-test disproved: &quot;base-vs-base returns IDENTICAL&quot; was one sample of a coin flip. See the new section.)</em></p>
 <hr />
 <h2>Not in the PR description</h2>
 <p>The description lists four things: a Fixture property on the work plane, operations computing in the work plane frame, removing rotation gating from ops, adding gating to the post. These user-facing changes are in the diff but not mentioned.</p>
@@ -295,6 +303,200 @@ PR:    G0 X-2.500000 Y0.000000
 </tr>
 </tbody>
 </table>
+<hr />
+<h2>Test block and trays</h2>
+<p>The hand-built documents from the September 24 review (<code>PR32903-test-report.md</code>, head <code>06ea2110b8e</code>)
+were re-run on this head. Nothing was posted (<code>cam_post</code> is off in this run and the <code>NibblerBOT</code> /
+<code>NibblerBOT_AC_Trunnion</code> machine assets are not installed in the review instance), so everything below
+is path generation, depths and placements. Working copies were opened from a scratch directory; the
+originals in <code>assets/</code> were not modified.</p>
+<h3>What was run</h3>
+<table>
+<thead>
+<tr>
+<th>Document</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>twp-test-block-job.FCStd</code></td>
+<td>120 × 80 × 50 block, four work planes (30° facet, compound facet at azimuth 27° / tilt 38°, front face, and a 20°-off-vertical plane placed by hand), 16 top-level ops: MillFacing ×3, Adaptive ×2, Drilling ×3, Helix ×3, Pocket Shape, Profile + Lead In/Out, Profile + Ramp, Deburr, Engrave</td>
+</tr>
+<tr>
+<td><code>class-tray-A-no-workplane.FCStd</code></td>
+<td>three-axis tray: Adaptive + rough Profile + finish Profile, each Profile with a Lead In/Out dressup, <strong>no work plane</strong></td>
+</tr>
+<tr>
+<td><code>class-tray-B-workplane.FCStd</code></td>
+<td>the same job with a <code>CAM_Workplane</code> on the top face (origin at the face centroid, (95.25, 73.025, 25.4)) assigned to every op</td>
+</tr>
+</tbody>
+</table>
+<p>Every object in each document was touched and recomputed. No operation errored and no object stayed
+touched. Every stored path came back plane-relative, and every <code>Placement</code> — operations <strong>and both
+dressups</strong> — is its work plane's frame: <code>DressupLeadInOut</code> now carries WP Facet30's placement
+<code>(105, 40, 41.34) / pitch 30°</code> and <code>DressupRampEntry</code> carries WP Front's <code>(59.55, 0, 24.04) / roll 90°</code>,
+where the saved file had identity for both.</p>
+<h3>The eleven bugs from the September report</h3>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Was</th>
+<th>Now</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>canned-cycle <code>R</code> not transformed</td>
+<td>fixed: Drill Angled20's <code>R</code> moves 33.526 → 81.504 with the rapid it belongs to. (For a <em>tilted</em> frame <code>R</code> becomes the world Z of the retract point, which is meaningless as a retract along the tool axis — harmless only because TWP emits the cycle in plane coordinates. The report already flagged this.)</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>getOpSide</code> analysed base faces in world Z, OCCError on tilted holes</td>
+<td>fixed: <code>getOpSide()</code> transforms the base shape by <code>workplaneForOp(obj)</code> first. Called directly on all six tilted-plane ops in the block it returns <code>Inside</code> each time, no OCCError. Still no <code>try/except</code> fallback to the default.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>face-less op's model top from bounding-box corners</td>
+<td>fixed: <code>OpFinalDepth</code> is <strong>0.000</strong> for both <code>Face Facet30</code> and <code>Face Compound</code> (was 15.0 / 14.184)</td>
+</tr>
+<tr>
+<td>4</td>
+<td><code>StartPoint</code> not transformed</td>
+<td>fixed: see the tray A/B result below</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Lead In/Out read heights from the raw base path</td>
+<td>fixed: the dressup generates in the base op's frame, so its retract Z is that op's plane clearance</td>
+</tr>
+<tr>
+<td>6</td>
+<td>legacy posts applied Placement twice</td>
+<td><strong>not re-testable here</strong> (no posting); the <code>Postable</code> change is in the diff</td>
+</tr>
+<tr>
+<td>7, 8</td>
+<td>dressed op posted untilted; dressups got a world path with out-of-plane G2/G3</td>
+<td>fixed: <code>placeWithBase()</code> on every dressup but one — see finding 1, <code>Boundary2.py</code></td>
+</tr>
+<tr>
+<td>9</td>
+<td>Engrave <code>BaseShapes</code> not transformed</td>
+<td>fixed: the stored engrave path is at plane XY 10.41–15.60 / −14.00–24.55 (was world 114–118.5 / 26–64.5), and its auto depths are <code>OpStartDepth</code> 18.347 / <code>OpFinalDepth</code> 0 in the frame</td>
+</tr>
+<tr>
+<td>10</td>
+<td>rotary words unit-converted in inch output</td>
+<td><strong>not re-testable here</strong> (no posting); covered by <code>TestLinuxCNCPost.test_rotary_words_are_not_unit_converted</code></td>
+</tr>
+<tr>
+<td>11</td>
+<td>Side offered in the inherited plane</td>
+<td>fixed, and it needs bug 2's fix to work — which is now in</td>
+</tr>
+<tr>
+<td>12</td>
+<td>a property change dropped depths out of the frame</td>
+<td>fixed: changing <code>StepDown</code> on <code>Helix Facet30 Holes</code> leaves <code>StartDepth</code> 0 / <code>FinalDepth</code> −18 and 51 commands</td>
+</tr>
+</tbody>
+</table>
+<p>Nothing regressed between head <code>dd9d5da383c</code> (the build the <code>-patched</code> assets were made on) and this one.</p>
+<p>See <code>twp_block_all_ops.png</code> and <code>twp_facet30_ops.png</code>.</p>
+<h3>Tray A vs tray B: identical in the world</h3>
+<p>This is the sharpest result. Both trays were recomputed on this build and their <strong>world</strong> paths compared
+by md5 of <code>getPathWithPlacement(op).toGCode()</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Object</th>
+<th>tray A (no plane)</th>
+<th>tray B (plane on the top face)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Profile</code> (rough)</td>
+<td><code>e5d18e1ebe</code></td>
+<td><code>e5d18e1ebe</code></td>
+</tr>
+<tr>
+<td><code>Profile001</code> (finish)</td>
+<td><code>4607cf168e</code></td>
+<td><code>4607cf168e</code></td>
+</tr>
+<tr>
+<td><code>DressupLeadInOut</code></td>
+<td><code>c85b057122</code></td>
+<td><code>c85b057122</code></td>
+</tr>
+<tr>
+<td><code>DressupLeadInOut001</code></td>
+<td><code>7f4ccf72ed</code></td>
+<td><code>7f4ccf72ed</code></td>
+</tr>
+</tbody>
+</table>
+<p>Byte-identical, dressups included. The lead-ins start on the front edge in both, which is bugs 4 and 5
+closed on a job that actually has a plane origin. Only the Adaptive differs — 6048 vs 6064 commands,
+world bounding boxes agreeing to 0.002 mm, path length 9860.20 vs 9815.25 mm — which is the Adaptive
+generator's own run-to-run jitter, not the work plane: the two <code>-patched</code> <code>.nc</code> files in <code>assets/</code> show
+the same 0.001″ wander between two runs of the <em>same</em> build.</p>
+<p><code>tray_a_over_b.png</code> draws tray A's Lead In/Out paths as thick white lines in tray B's document, with
+tray B's own paths thin on top.</p>
+<p>A/B against <code>main</code> on tray B is <strong>not</strong> a meaningful comparison and is not quoted here: the file was
+saved by a PR build, so it carries a non-identity op <code>Placement</code> that <code>main</code> never writes but
+<code>getPathWithPlacement()</code> still applies, on top of the world-coordinate path <code>main</code> generates. That
+double-shift is an artefact of the file, not of <code>main</code>.</p>
+<h3>Rapids and gouges</h3>
+<p><code>cam_gouge_check</code> reads an operation's <strong>stored</strong> path and does not apply its <code>Placement</code>, so on a
+work-plane job it compares plane-frame coordinates against world solids. On tray B it reports &quot;8 cuts&quot;
+for <code>DressupLeadInOut</code> — the same world moves tray A passes cleanly — so its verdicts were only used
+where every <code>Placement</code> is identity. On tray A it is clean: <code>Adaptive</code> (rapids and links, 332 moves),
+<code>DressupLeadInOut</code> (12 rapids, 3 links, 45 cuts / 753 segments) and <code>DressupLeadInOut001</code> all report no
+gouges. On the TWP block it did not return inside the client timeout.</p>
+<p>Instead, every rapid of every non-Adaptive op in the block was swept against the job's model solids in
+world coordinates. <strong>No rapid has both ends inside the part.</strong> The only moves that pass through material
+are the combined X/Y/Z linking rapids that climb from cut depth to safe height — the ordinary
+FreeCAD linking form, unchanged by this PR.</p>
+<h3>Correction: the three-axis Profile plunge point (finding 4)</h3>
+<p><code>plain3axis.FCStd</code> A/B'd against <code>main</code> with <code>cam_ab</code> reproduced a Profile difference — but with the
+sides the other way round from the original run against the PR's base. Chasing that:</p>
+<ul>
+<li><code>main</code> vs <code>HEAD</code>, run twice with the same probe: first run <code>main</code> = <code>227b15c0</code>, <code>HEAD</code> = <code>925b9dd3</code>;
+second run <strong>both</strong> <code>227b15c0</code>.</li>
+<li>A probe that touches and recomputes the same Profile 12 times in one process:
+<ul>
+<li><code>main</code>: <code>227b 227b 925b 227b 925b 925b 925b 925b 925b 925b 227b 925b</code></li>
+<li>PR: <code>227b 925b 925b 227b 925b 925b 227b 925b 227b 925b 227b 925b</code></li>
+</ul>
+</li>
+<li>In the GUI instance, six recomputes of an untouched Profile gave <code>925b</code> five times then <code>227b</code>.</li>
+</ul>
+<p>The two values are the two seams: plunge at (0, −2.5) with the corner arc leading, or at (−2.5, 0) with
+it closing. Same wire, same direction, same length. Both appear on <code>main</code> and on the PR, at random,
+without any input changing.</p>
+<p>So finding 4 is <strong>withdrawn as a PR defect</strong>. What it actually found is a pre-existing reproducibility
+bug: a closed Profile's entry point is not stable from one recompute to the next, which means no
+Profile job is byte-reproducible and any A/B on a closed Profile needs repeating before it is believed.
+Worth its own issue against <code>main</code>, not this PR. <code>profile_seam_flip.png</code> shows the two runs overlaid:
+one wire, two plunge lines.</p>
+<h3>Findings 1 and 2 re-checked on this head</h3>
+<ul>
+<li><strong>Finding 1</strong> stands. <code>Path/Dressup/Gui/Boundary2.py</code> is the only dressup in the tree that did not get
+<code>PathDressup.placeWithBase()</code>; the PR added it to Array, Boundary, DogboneII, AxisMap, Dragknife,
+LeadInOut, Mirror, PlungeMilling, RampEntry, Tags and ZCorrect. Neither test document uses a Path
+Boundary dressup, so nothing here narrows or widens it.</li>
+<li><strong>Finding 2</strong> stands, and the PR's own test does not cover it.
+<code>TestPathWorkplaneFrame.test_parallelPlanesAtDifferentDepthsShareClearedArea</code> asserts only
+<code>len(getClearedAreas(cur, bb)) == 1</code>, and its two planes differ by a translation <strong>along their shared
+normal</strong>, so the in-plane X/Y that the dead back-transform would have corrected is zero either way.
+Neither test document uses rest machining.</li>
+</ul>
 <hr />
 <h2>Test suite</h2>
 <p><code>Ran 1909 tests in 21.803s — OK (skipped=13, expected failures=4)</code>. No failures. The one <code>ERROR</code> line in the log is the pre-existing <code>AssetManager.exists: No store registered for name: None</code> message, not a test failure.</p>

@@ -2,9 +2,9 @@
  {
   "pr": 32903,
   "run": 1,
-  "job": "32903-5894131649",
+  "job": "32903-5894131649-amend1",
   "title": "CAM:  Operations respect workplane frame",
-  "date": "2026-09-29 12:38",
+  "date": "2026-09-29 13:11",
   "requester": "sliptonic",
   "head": "e63c17c4230",
   "poster": true
