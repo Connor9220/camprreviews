@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="33038-5883937972">
+<title>PR 33038 campr reviews</title>
+<meta property="og:title" content="PR #33038: CAM: Refactor HandleMultipleFeatures">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33038">FreeCAD PR #33038</a><span>1 review</span></div>
+<h1>CAM: Refactor HandleMultipleFeatures</h1>
+</header>
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-09-29 01:16</span><span>Review 1 · head 309a474 · requested by @tarman3</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="33038-5883937972">
+<details class="run" open>
+<summary><span class="rn">Review 1</span><span class="meta">2026-09-29 01:16 · PR head 309a4744256 · main 5591937592c · requested by @tarman3</span></summary>
+<div class="body">
+<section class="draft"><h2>Draft: not posted to the PR yet</h2><p>This review is waiting for approval. The comment below is what would be posted.</p><div class="summary"><p><strong>TL;DR</strong></p>
+<ul>
+<li>The new Collectively option on Pocket Shape works — two separate pockets are cut together, level by level.</li>
+<li>Existing 3D Pocket jobs change by themselves: an op with base geometry on two model objects gains 350 mm of rapid travel (cycle 8:07 → 8:32) with nothing edited in the file.</li>
+<li>In the Job Setup Sheet the 3D Pocket entry for this setting is now blank and its dropdown throws instead of opening, and the Profile entry is gone — a stored Profile default is silently ignored.</li>
+<li>Operations already in a saved file never get the new setting; only newly created ones have it.</li>
+</ul>
+<p>Unit tests pass (1828 tests, OK). Profile toolpaths A/B identical.</p>
+<hr />
+<p><strong>1. The Setup Sheet entry for 3D Pocket is broken</strong></p>
+<p><code>Area.initOperation</code> assigns the enumeration as a tuple:</p>
+<pre><code class="language-python">obj.HandleMultipleFeatures = (&quot;Individually&quot;, &quot;Collectively&quot;)
+</code></pre>
+<p>The Setup Sheet builds a prototype object, and <code>SetupSheetOpPrototype.PropertyEnumeration.setValue</code>
+only records the enum list when it is a <code>list</code> (<code>if list == type(value)</code>). With a tuple the list is
+stored as the <em>value</em> and <code>self.enums</code> is never created. <code>Pocket.SetupProperties()</code> still registers
+the property, so the row is displayed and is unusable.</p>
+<p>Repro: open a Job → edit the Setup Sheet → 3D Pocket page. The Handle Multiple Features Value cell
+is empty (every other enumeration shows &quot;an Enumeration&quot;); tick &quot;Set&quot; and click the cell:</p>
+<pre><code>File &quot;Path/Base/Gui/SetupSheetOpPrototype.py&quot;, line 71, in widget
+    Path.Log.track(self.prop.name, self.prop.getEnumValues())
+File &quot;Path/Base/SetupSheetOpPrototype.py&quot;, line 97, in getEnumValues
+    return self.enums
+AttributeError: 'PropertyEnumeration' object has no attribute 'enums'
+</code></pre>
+<p>No dropdown opens, so the default cannot be set. Assigning a list instead of a tuple fixes it.</p>
+<p><strong>2. Existing 3D Pocket operations get a different toolpath</strong></p>
+<p>3D Pocket defaults to <code>Collectively</code> and already does its own collective handling (it fuses the
+selected faces per base object). Dropping the <code>obj.Proxy.__module__ == &quot;Path.Op.Profile&quot;</code> guard means
+the generic compound step in <code>opExecute</code> now also runs for it whenever the op yields more than one
+shape — e.g. base geometry on two model objects. The two models used to be finished one after the
+other; now they are interleaved level by level.</p>
+<p>Repro: a Job with two model objects, a 3D Pocket with pocket floors selected on both, StepDown 1 mm.
+Same file recomputed on both sides:</p>
+<p>&lt;details&gt;&lt;summary&gt;A/B numbers&lt;/summary&gt;</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>upstream/main</th>
+<th>this PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>moves</td>
+<td>681</td>
+<td>689</td>
+</tr>
+<tr>
+<td>rapid travel</td>
+<td>1430.27 mm</td>
+<td>1783.03 mm</td>
+</tr>
+<tr>
+<td>feed length</td>
+<td>6071.95 mm</td>
+<td>6125.19 mm</td>
+</tr>
+<tr>
+<td>first cut X</td>
+<td>18.0</td>
+<td>20.839</td>
+</tr>
+<tr>
+<td>cycle time</td>
+<td>00:08:07</td>
+<td>00:08:32</td>
+</tr>
+</tbody>
+</table>
+<p>&lt;/details&gt;</p>
+<p>If this is intended, it is worth saying so in the description — it changes saved jobs on reopen.</p>
+<p><strong>3. Profile loses its Setup Sheet default</strong></p>
+<p><code>HandleMultipleFeatures</code> was dropped from <code>areaOpProperties()</code>, which is what builds
+<code>Profile.SetupProperties()</code>, while <code>PathAreaOp.SetupProperties()</code> still returns <code>[]</code>. So the Profile
+page of the Setup Sheet no longer lists the setting, and a job that already stores
+<code>ProfileHandleMultipleFeatures = Collectively</code> is ignored: a new Profile operation in that job comes
+out <code>Individually</code>. Verified in a test job.</p>
+<p>Moving the name into <code>PathAreaOp.SetupProperties()</code> (and removing the special case from
+<code>Pocket.SetupProperties()</code>) would cover Profile, Pocket Shape and 3D Pocket consistently — after
+finding 1 is fixed, otherwise the broken editor spreads to the other ops.</p>
+<p><strong>4. Operations in existing files never gain the property</strong></p>
+<p>It is added in <code>initOperation</code> only; <code>Area.py</code> has no <code>opOnDocumentRestored</code> hook and the name is not
+in <code>SetupProperties()</code>. A Pocket Shape operation restored from a file saved before this PR still has
+no <code>HandleMultipleFeatures</code> after a save/close/reopen cycle, so the new option is only available on
+operations created after upgrading. Nothing crashes (both call sites use <code>getattr(..., False)</code>), but
+existing pockets have to be re-created to use the feature.</p>
+<p><strong>Not in the PR description</strong></p>
+<ul>
+<li>Facing (MillFace) also derives from the Area base op, so it gains a Handle Multiple Features
+property too (default Individually). Tested: it appears in the property editor and has no effect on
+the path — Facing already merges its faces.</li>
+<li>3D Pocket toolpaths change in existing documents (point 2). Tested.</li>
+<li>The Profile Setup Sheet entry is removed and a stored Profile default stops being applied
+(point 3). Tested.</li>
+<li>The Setup Sheet editor for 3D Pocket no longer works (point 1). Tested.</li>
+<li>The property moves from the &quot;Profile&quot; / &quot;Pocket&quot; group to &quot;Path&quot; in the property editor; operations
+restored from older files keep the old group, so the same setting sits in different groups depending
+on the file's age. Tested.</li>
+<li>New Pocket Shape operations default to Individually; 3D Pocket still defaults to Collectively and
+Profile to Individually. Tested.</li>
+<li>Existing Pocket Shape operations do not gain the property (point 4). Tested.</li>
+<li>The translated enum labels are deleted and only raw strings are registered. Not tested at runtime —
+no task panel exposes this property and the property editor shows raw values anyway, so there should
+be no visible loss; the matching <code>.ts</code> entries become unused.</li>
+</ul>
+</div></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 1828 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Pocket Shape&#x27;s new Handle Multiple Features option working, then the same untouched 3D Pocket operation before and after the PR (683 -&gt; 691 moves, 1430 -&gt; 1783 mm of rapid travel).</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Setup: one Job, two model objects</span><span class="det">Two pockets in the left part, one in the right. 6 mm end mill.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="8.75"><span class="t">0:08</span><span><span class="cap">Pocket Shape now has Handle Multiple Features</span><span class="det">Individually (the default): the first pocket is finished, then the second.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="15.75"><span class="t">0:15</span><span><span class="cap">Collectively: the option this PR adds to Pocket Shape</span><span class="det">Both pockets are cut together, one depth level at a time. It works.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="22.75"><span class="t">0:22</span><span><span class="cap">Existing 3D Pocket on upstream main</span><span class="det">Base geometry on both model objects. 683 moves, 1430 mm of rapid travel.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="29.75"><span class="t">0:29</span><span><span class="cap">The same 3D Pocket op after this PR</span><span class="det">Nothing was changed in the file: 691 moves, 1783 mm rapid, cycle time 8:07 to 8:32.</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/p3d_main.png"><img src="1/p3d_main.png" alt="Existing 3D Pocket op on upstream main (green feed, red rapid): each model is finished before the tool travels to the other."></a><figcaption>Existing 3D Pocket op on upstream main (green feed, red rapid): each model is finished before the tool travels to the other.</figcaption></figure><figure class="shot"><a href="1/p3d_pr.png"><img src="1/p3d_pr.png" alt="The same op, same file, with this PR (blue feed, red rapid): the two models are now interleaved level by level, adding 350 mm of rapid travel."></a><figcaption>The same op, same file, with this PR (blue feed, red rapid): the two models are now interleaved level by level, adding 350 mm of rapid travel.</figcaption></figure><figure class="shot"><a href="1/ps_col.png"><img src="1/ps_col.png" alt="Pocket Shape with the new Handle Multiple Features = Collectively: both pockets are cut together, one depth level at a time. The feature works."></a><figcaption>Pocket Shape with the new Handle Multiple Features = Collectively: both pockets are cut together, one depth level at a time. The feature works.</figcaption></figure><figure class="shot"><a href="1/setupsheet_pocket3d.png"><img src="1/setupsheet_pocket3d.png" alt="Job SetupSheet, 3D Pocket page: Handle Multiple Features has an empty value where every other enumeration shows &quot;an Enumeration&quot;; clicking the cell raises AttributeError and no dropdown opens."></a><figcaption>Job SetupSheet, 3D Pocket page: Handle Multiple Features has an empty value where every other enumeration shows &quot;an Enumeration&quot;; clicking the cell raises AttributeError and no dropdown opens.</figcaption></figure></div>
+<div class="summary"><h1>PR #33038 — CAM: Refactor HandleMultipleFeatures</h1>
+<h2>TL;DR</h2>
+<ul>
+<li>The new &quot;Collectively&quot; option really does work on Pocket Shape — two separate pockets are cut together, one depth level at a time.</li>
+<li>But existing 3D Pocket jobs change on their own: an operation whose base geometry spans two model objects now zig-zags between them and gains 350 mm of rapid travel (cycle time 8:07 → 8:32) without anyone touching the file.</li>
+<li>In the Job's Setup Sheet, the 3D Pocket default for this setting is now blank and the dropdown no longer opens (it throws an error instead), and the Profile page lost the setting entirely — a job that stored a Profile default for it is now silently ignored.</li>
+<li>Operations that already exist in a saved file never gain the new setting: Pocket Shape only offers it on operations created after the upgrade.</li>
+</ul>
+<h2>What the PR does</h2>
+<p><code>HandleMultipleFeatures</code> is moved out of <code>Profile.py</code> and <code>Pocket.py</code> into the shared Area base
+operation (<code>Path/Op/Area.py</code>), and the &quot;combine the shapes for Collectively&quot; block in
+<code>Area.opExecute</code> loses its <code>obj.Proxy.__module__ == &quot;Path.Op.Profile&quot;</code> guard. Every Area-based
+operation therefore gets the property and the collective behaviour: <strong>Profile, Pocket Shape,
+3D Pocket and Facing (MillFace)</strong>.</p>
+<h2>What I checked</h2>
+<p>Applied on top of upstream main in a test tree and built. Unit tests: <code>Ran 1828 tests ... OK (skipped=13, expected failures=4)</code>.</p>
+<p>Test setup (see the video): one Job with two model objects — a 120 × 70 × 20 mm plate with two
+30 × 30 × 8 mm pockets, and a second 60 × 70 × 20 mm block with one pocket — a 6 mm end mill, a
+Pocket Shape operation on the two pocket floors of the first model, and a 3D Pocket operation
+with base geometry on both models.</p>
+<p>A/B runs are the same document recomputed against <code>upstream/main</code> and against the PR branch.</p>
+<h2>Findings</h2>
+<h3>1. The Job Setup Sheet entry for 3D Pocket is broken</h3>
+<p><code>Area.initOperation</code> sets the enumeration with a <strong>tuple</strong>:</p>
+<pre><code class="language-python">obj.HandleMultipleFeatures = (&quot;Individually&quot;, &quot;Collectively&quot;)
+</code></pre>
+<p>That is fine on a real document object, but the Setup Sheet builds a <em>prototype</em> object
+(<code>Path/Base/SetupSheetOpPrototype.py</code>), and its <code>PropertyEnumeration.setValue</code> only records the
+enum list when the value is a <code>list</code>:</p>
+<pre><code class="language-python">def setValue(self, value):
+    if list == type(value):
+        self.enums = value
+    else:
+        super(PropertyEnumeration, self).setValue(value)
+</code></pre>
+<p>With a tuple the list is stored as the <em>value</em> and <code>self.enums</code> is never created. <code>Pocket.py</code>
+still registers the property for the Setup Sheet (<code>SetupProperties()</code> returns
+<code>PathPocketBase.SetupProperties() + [&quot;HandleMultipleFeatures&quot;]</code>), so the row is shown, and:</p>
+<ul>
+<li>the Value cell is blank, where every other enumeration shows &quot;an Enumeration&quot;
+(<code>setupsheet_pocket3d.png</code>);</li>
+<li>clicking the cell raises:</li>
+</ul>
+<pre><code>File &quot;Path/Base/Gui/SetupSheetOpPrototype.py&quot;, line 71, in widget
+    Path.Log.track(self.prop.name, self.prop.getEnumValues())
+File &quot;Path/Base/SetupSheetOpPrototype.py&quot;, line 97, in getEnumValues
+    return self.enums
+AttributeError: 'PropertyEnumeration' object has no attribute 'enums'
+</code></pre>
+<p>No dropdown opens, so the default cannot be set at all. On upstream main <code>initPocketOp</code> set the
+enums from a list and the dropdown worked.</p>
+<p>Checked directly:</p>
+<pre><code class="language-python">op = SetupSheet._RegisteredOps[&quot;Pocket3D&quot;]
+p = op.prototype(&quot;Pocket3D&quot;).getProperty(&quot;HandleMultipleFeatures&quot;)
+p.getValue()      # ['Individually', 'Collectively']   &lt;- the list is the value
+p.getEnumValues() # AttributeError
+</code></pre>
+<p>Using a list instead of a tuple fixes it.</p>
+<h3>2. Existing 3D Pocket operations change their toolpath</h3>
+<p>3D Pocket defaults to <code>Collectively</code>, and it already implements its own collective handling
+(it fuses the selected faces into one removal solid per base object). With the module guard
+removed, the generic &quot;make one compound out of every shape&quot; block in <code>Area.opExecute</code> now runs
+on top of that whenever the operation produces more than one shape — for example base geometry
+on two different model objects.</p>
+<p>Same file, recomputed on both sides (StepDown 1 mm, 8 levels):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>upstream/main</th>
+<th>this PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>moves</td>
+<td>681</td>
+<td>689</td>
+</tr>
+<tr>
+<td>rapid travel</td>
+<td>1430.27 mm</td>
+<td>1783.03 mm</td>
+</tr>
+<tr>
+<td>feed length</td>
+<td>6071.95 mm</td>
+<td>6125.19 mm</td>
+</tr>
+<tr>
+<td>first cut X</td>
+<td>18.0</td>
+<td>20.839</td>
+</tr>
+<tr>
+<td>cycle time</td>
+<td>00:08:07</td>
+<td>00:08:32</td>
+</tr>
+</tbody>
+</table>
+<p>The two models used to be finished one after the other; now they are interleaved level by level
+(<code>p3d_main.png</code> vs <code>p3d_pr.png</code>, and the last two steps of the video). Nothing in the document
+changed — just opening and recomputing an old job gives a longer path. The PR description does
+not mention any change to 3D Pocket.</p>
+<p>Profile was A/B'd in the same document and is byte-for-byte identical, as expected.</p>
+<h3>3. Profile loses its Setup Sheet default</h3>
+<p><code>HandleMultipleFeatures</code> was removed from <code>ObjectProfile.areaOpProperties()</code>, and
+<code>Profile.SetupProperties()</code> is built from that list, while <code>PathAreaOp.SetupProperties()</code> still
+returns <code>[]</code>. So the property is no longer registered for the Profile operation:</p>
+<pre><code class="language-python">SetupSheet._RegisteredOps[&quot;Profile&quot;].properties()
+# ['Direction', 'OffsetExtra', 'processHoles', ..., 'FinishingPasses']   # no HandleMultipleFeatures
+</code></pre>
+<p>Two consequences, both verified:</p>
+<ul>
+<li>the Profile page of the Job Setup Sheet no longer offers the setting (18 rows, none of them
+this one);</li>
+<li>a job that already stores <code>ProfileHandleMultipleFeatures = Collectively</code> is silently ignored —
+a new Profile operation created in that job comes out <code>Individually</code>.</li>
+</ul>
+<p>Adding the property to <code>PathAreaOp.SetupProperties()</code> (and dropping the special case in
+<code>Pocket.SetupProperties()</code>) would cover Profile, Pocket Shape and 3D Pocket consistently — and
+fixing finding 1 is a prerequisite, otherwise registering it just spreads the broken editor to
+more operations.</p>
+<h3>4. Operations in existing files never get the new property</h3>
+<p>The property is added in <code>initOperation</code>, which only runs when an operation is created. There is
+no <code>opOnDocumentRestored</code> hook in <code>Area.py</code> and the property is not in <code>SetupProperties()</code>, so an
+operation restored from a file saved before this PR keeps its old property set.</p>
+<p>Verified: a document whose Pocket Shape operation has no <code>HandleMultipleFeatures</code> (i.e. any file
+saved with 1.0/1.1 or current main) still has no such property after being saved, closed and
+reopened — <code>hasattr(op, &quot;HandleMultipleFeatures&quot;) == False</code>. The new option is only available on
+operations created after upgrading; existing pockets have to be deleted and re-made.</p>
+<p>Nothing crashes, because the two call sites in <code>Area.opExecute</code> use <code>getattr(..., False)</code>.</p>
+<h2>Not in the PR description</h2>
+<table>
+<thead>
+<tr>
+<th>Change</th>
+<th>Tested</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Facing (MillFace) operations also gain a <code>HandleMultipleFeatures</code> property (it derives from PocketBase → Area). Default <code>Individually</code>, visible in the property editor.</td>
+<td>Tested — the property appears; with two base faces the path is identical in both modes (Facing already merges the faces itself), so it is a new control that does nothing.</td>
+</tr>
+<tr>
+<td>3D Pocket toolpaths change in existing documents (finding 2).</td>
+<td>Tested — A/B numbers above.</td>
+</tr>
+<tr>
+<td>The Profile Setup Sheet entry is removed, and a stored Profile default stops being applied (finding 3).</td>
+<td>Tested.</td>
+</tr>
+<tr>
+<td>The Setup Sheet editor for 3D Pocket is broken (finding 1).</td>
+<td>Tested.</td>
+</tr>
+<tr>
+<td>The property moves from the &quot;Profile&quot; / &quot;Pocket&quot; group to the &quot;Path&quot; group in the property editor. Operations restored from older files keep the old group, so the same setting sits in different groups depending on the file's age.</td>
+<td>Tested — new operations report group <code>Path</code>.</td>
+</tr>
+<tr>
+<td>Default values: new Pocket Shape operations default to <code>Individually</code>; 3D Pocket still defaults to <code>Collectively</code> and Profile to <code>Individually</code>.</td>
+<td>Tested.</td>
+</tr>
+<tr>
+<td>Existing Pocket Shape operations do not gain the new property (finding 4).</td>
+<td>Tested.</td>
+</tr>
+<tr>
+<td>The translated enum labels (<code>translate(&quot;PathProfile&quot;, &quot;Collectively&quot;)</code> etc.) are deleted; the base class registers the raw strings only.</td>
+<td>Not tested at runtime — no task panel exposes this property, only the property editor, which shows raw enum values anyway, so there should be no visible loss. The existing <code>.ts</code> entries for these strings become unused.</td>
+</tr>
+<tr>
+<td><code>Pocket.SetupProperties()</code> still hard-codes <code>&quot;HandleMultipleFeatures&quot;</code> while <code>PathAreaOp.SetupProperties()</code> returns <code>[]</code> — the inconsistency behind findings 1 and 3.</td>
+<td>Tested.</td>
+</tr>
+</tbody>
+</table>
+<h2>Media</h2>
+<ul>
+<li><code>demo.mp4</code> — the test setup, Pocket Shape Individually vs the new Collectively, then the same
+3D Pocket operation on upstream main and with the PR.</li>
+<li><code>setupsheet_pocket3d.png</code> — the broken Setup Sheet row.</li>
+<li><code>p3d_main.png</code> / <code>p3d_pr.png</code> — the 3D Pocket path before and after.</li>
+<li><code>ps_col.png</code> — the new Collectively option on Pocket Shape.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated reviews by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, reviews written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviewed PRs</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>
