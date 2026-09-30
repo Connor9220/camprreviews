@@ -1,0 +1,97 @@
+<section class="review" id="review-1" data-job="33053-5919260419" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-09-30 16:45 · PR head d9df615d566 · main 84ae7a7c8ee · requested by @sliptonic</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 1987 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Main vs PR on a block with an avoided hole: main lifts and drops lead-ins next to the hole, PR does not; then the new warnings at Avoid Faces Overlap 8.5 mm</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Setup: 60x40 block, 16 mm hole, hole floor = Avoid Face</span><span class="det">Planar Surface, Offset pattern, Keep Tool Down on, 6 mm end mill. Model shown transparent.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="6.35"><span class="t">0:06</span><span><span class="cap">main (orange): link lifts over plain stock left of the hole</span><span class="det">The avoid pillar is grown by the tool radius twice, so the tool hops up about 3 mm away from anything it must avoid.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="10.85"><span class="t">0:10</span><span><span class="cap">PR (green): the same link stays down on the stock</span><span class="det">The pillar now uses the avoid face footprint only; the cutter model adds the tool radius once.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="15.36"><span class="t">0:15</span><span><span class="cap">main (orange): Line + Lead-In/Out plunges straight down beside the hole</span><span class="det">Lead-in arcs next to the avoid face were dropped because they touched the oversized pillar.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="19.85"><span class="t">0:19</span><span><span class="cap">PR (green): lead-in arcs are kept next to the hole</span><span class="det">39 arcs vs 30 on main. Cutting passes are identical on both sides.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="24.36"><span class="t">0:24</span><span><span class="cap">Finding: set Avoid Faces Overlap to 8.5 mm (more than the hole radius)</span><span class="det">Offset pattern, Keep Tool Down on.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="33.35"><span class="t">0:33</span><span><span class="cap">Report view: two warnings the user cannot act on</span><span class="det">&#x27;Empty shape - extend the boundary&#x27; and &#x27;TechDraw fallback, holes lost&#x27;. Main prints nothing here; the mask is fine, only the new Safe STL boundary collapsed.</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/offset_main.png"><img src="1/offset_main.png" alt="main (orange): Offset pattern with Keep Tool Down, the link left of the hole hops up over plain stock"></a><figcaption>main (orange): Offset pattern with Keep Tool Down, the link left of the hole hops up over plain stock</figcaption></figure><figure class="shot"><a href="1/offset_pr.png"><img src="1/offset_pr.png" alt="PR (green): same op, the link stays down on the stock; cutting passes are identical"></a><figcaption>PR (green): same op, the link stays down on the stock; cutting passes are identical</figcaption></figure><figure class="shot"><a href="1/report_warnings.png"><img src="1/report_warnings.png" alt="Finding: with Avoid Faces Overlap 8.5 mm the PR prints two misleading warnings on every recompute (main prints none)"></a><figcaption>Finding: with Avoid Faces Overlap 8.5 mm the PR prints two misleading warnings on every recompute (main prints none)</figcaption></figure><figure class="shot"><a href="1/ring_pillar.png"><img src="1/ring_pillar.png" alt="Finding: ring-shaped avoid face (blue, 3 mm wide) with 2 mm overlap, the PR&#x27;s Safe STL pillar (red) comes back as a solid disk over the ring&#x27;s open centre"></a><figcaption>Finding: ring-shaped avoid face (blue, 3 mm wide) with 2 mm overlap, the PR&#x27;s Safe STL pillar (red) comes back as a solid disk over the ring&#x27;s open centre</figcaption></figure></div>
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>Fix confirmed:</strong> with Keep Tool Down or Lead-In/Out, links next to an Avoid Face no longer hop up over plain stock, and lead-in arcs beside it are no longer replaced by straight plunges. Cutting passes are unchanged.</li>
+<li><strong>Minor finding:</strong> when Avoid Faces Overlap is more than half the avoid face's width, the new Safe STL boundary collapses. Every recompute then prints two warnings (&quot;extend the boundary&quot;, &quot;holes will be lost&quot;) that the user can't act on. Main prints nothing in the same setup.</li>
+<li><strong>Same cause, ring-shaped avoid faces:</strong> the Safe STL keep-out comes back as a solid disk over the ring's open centre instead of nothing. In my test op this did not change the toolpath.</li>
+</ul>
+<h2>What the PR does</h2>
+<p>Before this PR, one Avoid Faces boundary, grown by the tool radius, fed two consumers:</p>
+<ol>
+<li>the machining mask (the hole cut out of the area the tool centre may visit), and</li>
+<li>the Safe STL &quot;keep-out pillar&quot;, a flat face at Start Depth + 0.1 used by Keep Tool Down and Lead-In/Out.</li>
+</ol>
+<p>The OCL drop-cutter already adds the tool radius when it tests against the Safe STL. So the pillar counted the tool radius twice, and the tool lifted one tool radius too early all around each avoid face.</p>
+<p><code>build_avoid_boundary()</code> now takes <code>tool_radius</code> and returns two shapes: the mask boundary (offset <code>tool_radius - overlap + ε</code>, same as before) and a new pillar boundary (offset <code>-overlap + ε</code>). The pillar is built only when the Safe STL is needed.</p>
+<h2>What I checked</h2>
+<ul>
+<li><strong>Unit tests</strong> (PR build): 1987 run, OK (13 skipped, 4 expected failures).</li>
+<li><strong>Test setup:</strong> a 60×40×10 block with a Ø16 × 5 mm hole. Cutting face is the top (z=10); Avoid Face is the hole floor (z=5, <code>AvoidLastX_Faces=1</code>). Planar Surface, SurfaceScan, 6 mm end mill, StepOver 40 %, Keep Tool Down on (threshold raised to 100 mm).</li>
+<li><strong>A/B method:</strong> <code>cam_ab</code> could not be used. The review tree's local <code>main</code> is far behind the PR base, so it would have swapped ~90 unrelated files. I confirmed from upstream <code>main</code> that the old code used one boundary (offset <code>tool_radius - overlap + ε</code>) for both mask and pillar. Then, in the PR build, I patched <code>build_avoid_boundary</code> to return that mask boundary for both consumers, which is exactly main's behaviour. Both sides ran in the same session on the same document.</li>
+</ul>
+<h3>Main vs PR, overlap 0</h3>
+<table>
+<thead>
+<tr>
+<th>Pattern / leads</th>
+<th>Same path?</th>
+<th>Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Line, ZigZag, Spiral (no leads)</td>
+<td>identical</td>
+<td>All links cross the hole and lift over the whole gap either way</td>
+</tr>
+<tr>
+<td>Offset (no leads)</td>
+<td>differs</td>
+<td>main: 9 points lifted to z 13.275 at 11.3–13.2 mm from the hole axis, over plain stock (hole edge is at r=8, cut boundary at r=11). PR: none</td>
+</tr>
+<tr>
+<td>Circular (no leads)</td>
+<td>differs</td>
+<td>main: 8 lifted points at r 12.2–13.9. PR: none</td>
+</tr>
+<tr>
+<td>Line / ZigZag + Lead-In/Out</td>
+<td>differs</td>
+<td>main drops lead-in arcs whose start falls inside the oversized pillar and plunges straight down beside the hole. PR keeps them (39 arcs vs 30)</td>
+</tr>
+<tr>
+<td>Offset / Circular / Spiral + Lead-In/Out</td>
+<td>small differences</td>
+<td>same effect on a few leads</td>
+</tr>
+</tbody>
+</table>
+<p>On both sides, every cutting move stays at least 11.0 mm from the hole axis (tool radius 3 + ε). Neither side sets the tool down inside the keep-out zone. The mask uses the same offset as before (<code>tool_radius - overlap + ε</code>), and its widths matched main at every overlap I tried.</p>
+<h3>Avoid Faces Overlap</h3>
+<ul>
+<li>Overlap 2: mask Ø18.05 and pillar Ø12.05, both shrunk by 2 mm as intended. Cut boundary r=9.03 on both sides.</li>
+<li>Negative values are clamped to 0 by the property, as before.</li>
+<li>Overlap 8.5 or 9 (more than the 8 mm hole radius): the mask is fine (Ø4.05) and the pillar collapses to None. That is the right result, but the way there is noisy (finding 1).</li>
+</ul>
+<h2>Finding 1 (minor): collapsing pillar prints misleading warnings and can come back with the wrong shape</h2>
+<p><code>build_avoid_boundary()</code> builds the pillar with <code>build_optimized_boundary(prepared_faces, -avoid_overlap + epsilon, …)</code>. Once the overlap is more than half the avoid face's width, that inward offset has nothing left. <code>create_boundary_face()</code> then treats the empty result as a failure:</p>
+<ol>
+<li><code>_boundary_via_area</code> warns <em>&quot;Offsetting the Model faces resulted in an empty shape. Extend the boundary if the selected faces are too small.&quot;</em></li>
+<li>It falls back to <code>_boundary_via_techdraw</code>, which warns <em>&quot;Falling back to TechDraw outline extraction, which cannot preserve inner wires (holes). Any holes in this selection will be lost.&quot;</em></li>
+</ol>
+<p>Both warnings are printed on every recompute of the op. The mask, the part the user controls with this setting, is fine, and main prints nothing for the same setup (verified side by side at 8.5 mm). Before this PR the only offset was <code>tool_radius - overlap</code>, so it collapsed only when the overlap exceeded the half-width plus a whole tool radius. Now it happens as soon as the overlap exceeds the half-width, which is common with narrow avoid faces such as rib tops or slot floors.</p>
+<p>For a ring-shaped avoid face, the TechDraw fallback finds something. It takes the outer outline (losing the inner hole) and shrinks it, so the pillar comes back as a solid disk over the ring's open centre. Test: ring 7–10 mm radius, overlap 2, tool Ø6 gives a single-wire disk Ø16.05, area 202 mm², where no pillar was expected. See <code>ring_pillar.png</code>. In a real op (a boss inside a ring-shaped groove floor, Line pattern, Keep Tool Down) the toolpath came out the same on main and the PR, so I could not show a path change from this. It is a wrong shape feeding the Safe STL, not a demonstrated gouge.</p>
+<p><strong>Repro:</strong> Planar Surface on a face with a Ø16 hole, hole floor as the last (avoid) face, Keep Tool Down on, Avoid Faces Overlap = 8.5 mm, recompute. Watch the Report view.</p>
+<p><strong>Suggested fix:</strong> for the pillar, an empty inward offset just means &quot;no pillar&quot;. Build it without the TechDraw fallback, or skip it when <code>avoid_overlap</code> is at least the face's inradius, and don't warn.</p>
+<h2>Other notes (not user-facing)</h2>
+<ul>
+<li><code>test13_build_avoid_boundary_caps_cylindrical_wall</code> lost its <code>ZMax ≈ 0</code> assertion, the check that a cylindrical-wall avoid face is capped at its <strong>top</strong> rim rather than its bottom. The new width checks don't cover that. Consider keeping it.</li>
+<li>The PR's own before/after screenshots could not be downloaded in this environment, so I reproduced the effect on my own fixture.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Lead-In/Out behaviour change: lead-in arcs next to an avoid face are now kept instead of being replaced by straight plunges (main 30 arcs, PR 39 on the Line test). The description mentions only Keep Tool Down and &quot;collision detection&quot; in general. <strong>(tested)</strong></li>
+<li>New Report-view warnings (&quot;empty shape – extend the boundary&quot;, &quot;TechDraw fallback – holes lost&quot;) when Avoid Faces Overlap is more than half the avoid face's width. <strong>(tested, finding 1)</strong></li>
+<li>Machining mask and cutting passes unchanged. No properties, enum options, panel widgets, defaults or file format changed. <strong>(tested: identical mask widths and cut boundaries on both sides; the diff touches no .ui or property definitions)</strong></li>
+</ul>
+</div>
+</div>
+</details>
+</section>

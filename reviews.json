@@ -1,5 +1,15 @@
 [
  {
+  "pr": 33053,
+  "run": 1,
+  "job": "33053-5919260419",
+  "title": "CAM: Planar Surface - Fix Avoid faces boundary offset for Safe STL",
+  "date": "2026-09-30 16:45",
+  "requester": "sliptonic",
+  "head": "d9df615d566",
+  "poster": true
+ },
+ {
   "pr": 31074,
   "run": 1,
   "job": "31074-rereview-r1",
