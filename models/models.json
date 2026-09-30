@@ -1,0 +1,27 @@
+[
+  {
+    "name": "twp-block",
+    "files": ["twp-test-block-job.FCStd", "twp-test-block.FCStd", "twp_test_block_model.py",
+              "NibblerBOT_AC_Trunnion.fcm", "NibblerBOT.fcm"],
+    "description": "Multi-sided test block, 120x80x50: four work planes (top face, a 30 degree facet, a compound facet at azimuth 27 / tilt 38, and the front face rolled 90 degrees), 16 operations: facing, adaptive pocket, drilling, helixes, a 20 degree angled hole, profile with Lead In/Out, deburr, engrave text, slot. The job uses a 5-axis AC-trunnion machine (the .fcm files are its machine definitions). twp_test_block_model.py rebuilds the model from scratch.",
+    "tags": ["workplane", "tilted", "3+2", "multi-sided", "drilling", "helix", "pocket", "adaptive", "profile", "leadinout", "deburr", "engrave", "slot", "dressups", "machine", "post"]
+  },
+  {
+    "name": "class-tray",
+    "files": ["class-tray-A-no-workplane.FCStd", "class-tray-B-workplane.FCStd"],
+    "description": "The CAM 101 class tray: a rounded-rectangle tray with a pocket, roughed and finished with multi-pass Profile, a start point, Lead In/Out and dressups. A has no work plane; B is the same job with a work plane on the top face (their world toolpaths should be identical).",
+    "tags": ["profile", "multipass", "start-point", "leadinout", "linking", "pocket", "dressups", "workplane"]
+  },
+  {
+    "name": "pocket-island",
+    "files": ["pocket-island-variants.FCStd", "pocket-island-job-only.FCStd", "pocket-island-saved-by-pre30402.FCStd"],
+    "description": "120x70x20 block with a 40x40x8 pocket around a round island, plus a through hole. 'variants' has 26 operations covering every Pocket clearing pattern, finishing passes / offset / one-step-down / helix ramp, Profile multi-pass, ramp methods, finishing and StartAt, and MillFace. 'job-only' is the same Job with no operations (build your own). 'saved-by-pre30402' was saved by FreeCAD before PR #30402 (ZigZagOffset pockets, MinTravel with a start point): use it to test how old files migrate.",
+    "tags": ["pocket", "island", "patterns", "zigzag", "offset", "finishing", "profile", "multipass", "ramp", "millface", "migration", "old-file"]
+  },
+  {
+    "name": "avoid-faces",
+    "files": ["avoid-faces-block.FCStd", "planar-pocket-floor.FCStd"],
+    "description": "Planar Surface test parts: an 80x60x20 block with a 20x20x5 pad whose top face is avoided (Avoid Last X Faces = 1), and a pocket floor with vertical walls.",
+    "tags": ["planar-surface", "surface", "avoid-faces", "3d", "drop-cutter"]
+  }
+]
