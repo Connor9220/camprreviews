@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="33049-5956108142-r2">
+<title>PR 33049 campr reviews</title>
+<meta property="og:title" content="PR #33049: CAM: Clipper arc fitting fixes">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33049">FreeCAD PR #33049</a><span>1 review</span></div>
+<h1>CAM: Clipper arc fitting fixes</h1>
+</header>
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-10-02 14:08</span><span>Review 1 · head 9fd9adb · requested by @sliptonic</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="33049-5956108142-r2" data-state="final">
+<details class="run" open>
+<summary><span class="rn">Review 1</span><span class="meta">2026-10-02 14:08 · PR head 9fd9adb81ac · main dc876b473c7 · requested by @sliptonic</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 1990 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>46 s walkthrough: main (red) vs PR (green) on a text plate, jffmichi&#x27;s MillFace file and the #32993 offset wire, then jffmichi&#x27;s no-base Profile failing on the PR in the GUI (and broken on main too).</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Text plate, letter pocket + profile, 1 mm tool: main</span><span class="det">Red = main. Short spikes run from the path into the letter walls (8 and &amp;). 21-25 per op, different each recompute.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="5.24"><span class="t">0:05</span><span><span class="cap">Same ops on the PR</span><span class="det">Green = PR. No spikes; identical output on every recompute.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="10.19"><span class="t">0:10</span><span><span class="cap">jffmichi&#x27;s MillFace file (#32677 thread): main</span><span class="det">Main: a stray loop outside the face, a spike and stray points; the path changes on each recompute.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="16.15"><span class="t">0:16</span><span><span class="cap">Same MillFace on the PR</span><span class="det">Clean offset passes, stable output.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="22.14"><span class="t">0:22</span><span><span class="cap">Issue #32993 offset wire: main</span><span class="det">offsetWire() of the discretized face adds a 2 mm full circle (two semicircles) at the corner.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="28.11"><span class="t">0:28</span><span><span class="cap">Issue #32993 offset wire: PR</span><span class="det">The extra circle is gone.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="34.04"><span class="t">0:34</span><span><span class="cap">jffmichi&#x27;s Profile with no base geometry: PR</span><span class="det">In the GUI the op fails: &#x27;SetFromResult saved an open curve from a closed clipper path&#x27; (claimed fixed in the PR text).</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="40.15"><span class="t">0:40</span><span><span class="cap">Same file on main (GUI conditions)</span><span class="det">Main is broken too: only a fragment of the profile, cutting through the part.</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/millface_main.png"><img src="1/millface_main.png" alt="jffmichi&#x27;s cam_mill_face_issue_second.FCStd, MillFace on main (GUI conditions): a stray loop outside the face, a spike and stray points."></a><figcaption>jffmichi&#x27;s cam_mill_face_issue_second.FCStd, MillFace on main (GUI conditions): a stray loop outside the face, a spike and stray points.</figcaption></figure><figure class="shot"><a href="1/millface_pr.png"><img src="1/millface_pr.png" alt="Same MillFace on the PR: clean offset passes."></a><figcaption>Same MillFace on the PR: clean offset passes.</figcaption></figure><figure class="shot"><a href="1/offset32993_main.png"><img src="1/offset32993_main.png" alt="Issue #32993, tarman3&#x27;s script on main: the offset wire (red) gets a 2 mm full circle at the corner (two r=1 semicircles)."></a><figcaption>Issue #32993, tarman3&#x27;s script on main: the offset wire (red) gets a 2 mm full circle at the corner (two r=1 semicircles).</figcaption></figure><figure class="shot"><a href="1/offset32993_pr.png"><img src="1/offset32993_pr.png" alt="Same script on the PR: the circle is gone."></a><figcaption>Same script on the PR: the circle is gone.</figcaption></figure><figure class="shot"><a href="1/profile_error_pr.png"><img src="1/profile_error_pr.png" alt="jffmichi&#x27;s cam_profile_issue.FCStd (Profile, no base geometry) on the PR in the GUI: the op fails with &#x27;SetFromResult saved an open curve from a closed clipper path&#x27;."></a><figcaption>jffmichi&#x27;s cam_profile_issue.FCStd (Profile, no base geometry) on the PR in the GUI: the op fails with &#x27;SetFromResult saved an open curve from a closed clipper path&#x27;.</figcaption></figure><figure class="shot"><a href="1/profile_main.png"><img src="1/profile_main.png" alt="Same file on main under the same (GUI) conditions: only a broken fragment of the profile, cutting through the part."></a><figcaption>Same file on main under the same (GUI) conditions: only a broken fragment of the profile, cutting through the part.</figcaption></figure><figure class="shot"><a href="1/text_main.png"><img src="1/text_main.png" alt="Own text plate, final-depth letter pocket + letter profile, 1 mm tool, main: short spikes run from the path into the walls of the 8 and the &amp; (21-25 per op, different each recompute)."></a><figcaption>Own text plate, final-depth letter pocket + letter profile, 1 mm tool, main: short spikes run from the path into the walls of the 8 and the &amp; (21-25 per op, different each recompute).</figcaption></figure><figure class="shot"><a href="1/text_pr.png"><img src="1/text_pr.png" alt="Same view on the PR: no spikes, same output on every recompute."></a><figcaption>Same view on the PR: no spikes, same output on every recompute.</figcaption></figure></div>
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>The fixes work.</strong> The spikes, stray loops and extra circles from the new offset code are gone on every issue file and on a text test plate (main: up to 25 spikes per op), and toolpaths no longer change from one recompute to the next.</li>
+<li><strong>One claim is not met.</strong> jffmichi's Profile file with no base geometry (from the PR comments) still fails in the GUI: the PR stops with &quot;SetFromResult saved an open curve from a closed clipper path&quot;. Main is broken on this file too (it silently outputs part of a profile), so this is not a regression. The root cause is upstream: how the model is projected depends on the display mesh.</li>
+<li><strong>Not in the description:</strong> the Python function <code>area.set_clipper_scale()</code> is removed (renamed), the default point tolerance of the <code>area</code> module changes, and offsets now raise hard errors instead of returning an open curve.</li>
+</ul>
+<h2>What was tested</h2>
+<p>PR head <code>f2f0d2f</code> on main <code>dc876b4</code> (2026-10-01). All of this PR is C++ (libarea + <code>App/Area.cpp</code>), so <code>cam_ab</code> (which only swaps Python) can't compare it. For the <strong>main</strong> side I used a second build whose <code>src/Mod/CAM/libarea</code> and <code>src/Mod/CAM/App</code> are byte-identical to main <code>dc876b4</code> (checked with <code>git diff</code>). Both sides ran headless, one at a time under an 8 GB cap: open the file, <code>touch()</code> and recompute every op 2–6 times, then save stats and G-code. The GUI checks used the PR build.</p>
+<p><strong>GUI vs headless matters for this PR.</strong> The 3D view tessellates the model, and <code>Path.Area</code>'s projection (<code>makeSections(project=True)</code>) gives different results on a tessellated shape. On jffmichi's Profile part it gives 1 face without a mesh and 3 overlapping faces with one. A plain <code>shape.copy()</code> gives 1 face; <code>copy().tessellate(0.5)</code> gives 3. So every A/B was also run with the Job models tessellated (<code>shape.tessellate(0.1)</code>) and with this machine's arc accuracy (0.01016 mm), to match what users see in the GUI.</p>
+<p>Metrics per op: command count, feed length, <strong>out-and-back spikes</strong> (a feed move immediately retraced in the opposite direction), tiny moves (&lt; 1 µm), back-to-back arcs that close a full circle, and the number of distinct outputs across repeated recomputes.</p>
+<p>Unit tests: the full CAM suite passes (<code>Ran 1990 tests, OK (skipped=13, expected failures=4)</code>). <code>TestArcFitting</code> gains regression tests built from jffmichi's file. They also check that the output is identical for every rotation of the input polygon.</p>
+<h2>Issues</h2>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#32677 (MillFace &quot;No parent edge found&quot;)</td>
+<td><strong>Fixed</strong> for jffmichi's follow-up files. The original crash no longer happens on current main either; the original file gives the same 450 mm path on both sides.</td>
+</tr>
+<tr>
+<td>#32993 (offsetWire little circle)</td>
+<td><strong>Fixed.</strong> In tarman3's script, main's offset wire gets two r = 1 mm semicircles (174.4 mm → 168.2 mm on the PR, 0 circles). jffmichi's Profile file is now stable (main gave 2–3 different outputs). The un-discretized call from the issue still raises <code>BRep_API: command not done</code> on both sides (bad face, as the issue says).</td>
+</tr>
+<tr>
+<td>#33013 (G-code wrong in simulation)</td>
+<td><strong>Not reproduced.</strong> On current main the reporter's <code>A.FCStd</code> gives no bad arcs. The PR only drops 20 zero-length duplicate moves (874 → 854 commands, same 13084.5 mm). The attached <code>TEST_BIT.nc</code> is a plain square profile with nothing wrong in it.</td>
+</tr>
+<tr>
+<td>#33031 (B-spline pocket extra lines)</td>
+<td><strong>Fixed.</strong> Main's <code>Pocket_Shape001</code> has a 1.2 mm out-and-back spike (<code>G1 X24.391 Y16.959</code> and straight back). The PR has none (194 → 187 commands).</td>
+</tr>
+<tr>
+<td>jffmichi's PR-comment Profile file (claimed fixed)</td>
+<td><strong>Not fixed in the GUI</strong>, see the finding below.</td>
+</tr>
+</tbody>
+</table>
+<h2>Finding</h2>
+<p><strong>jffmichi's Profile with no base geometry fails in the GUI with &quot;SetFromResult saved an open curve from a closed clipper path&quot;</strong></p>
+<p>The PR description says this file is fixed. Headless it is (one closed profile, 608 commands, stable). In the GUI the Profile goes Invalid with the error above. Why: Profile with no base uses <code>PathUtils.getEnvelope()</code> of the model. In the GUI the model shape carries the display mesh, and the projection then gives a compound of <strong>3</strong> overlapping faces instead of 1. The extruded envelope is an <strong>invalid compound of 3 solids</strong>, and the PR's new closed-curve check throws on it.</p>
+<p>Same inputs on main (tessellated model, 0.01016 mm accuracy): the projection breaks into 16 faces / 35 edges. Main then outputs a broken fragment of a profile cutting through the part, and a different one on each recompute (164–224 commands). So main is wrong too; the PR now fails loudly instead (jffmichi said he prefers that). The root cause is in the projection, before clipper. This is the &quot;duplicate and wrong wires before this ever reaches clipper&quot; the author mentions in the thread, and the display mesh is what makes it differ between GUI and headless.</p>
+<p>Related: at arc accuracy 0.005 mm the PR fails on this file even headless without a mesh, while main returns 82 commands (quality not checked).</p>
+<p>Repro:</p>
+<ol>
+<li>Open <code>cam_profile_issue.FCStd</code> (PR comment 5881303523) in the GUI.</li>
+<li>Select Profile, then Refresh.</li>
+<li>Report view: <code>Profile: SetFromResult saved an open curve from a closed clipper path</code>.</li>
+<li>Headless repro: call <code>tessellate(0.5)</code> on the Job model's <code>Shape</code> before the recompute.</li>
+</ol>
+<h2>Regression sweep (main vs PR)</h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Ops</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pocket-island-variants (all Pocket patterns, Profile variants, ramps, MillFace)</td>
+<td>27</td>
+<td>Pocket and MillFace byte-identical. Profile ops: same lengths, but main <strong>flips the start corner</strong> between (−3, 0) and (0, −3) across recomputes (the known &quot;plunge point flip&quot; issue), while the PR always picks (0, −3). That is a fix. Same with tessellation.</td>
+</tr>
+<tr>
+<td>class-tray A</td>
+<td>3</td>
+<td>identical, plain and tessellated</td>
+</tr>
+<tr>
+<td>twp-block job (5-axis, 3+2, Deburr, Engrave, Helix, Adaptive, dressups)</td>
+<td>18</td>
+<td>all byte-identical (Face Top fails headless on both sides, unrelated)</td>
+</tr>
+<tr>
+<td>own text plate (DejaVu Serif Bold Italic &quot;CAM 8&amp;@ Sgq%&quot; cut 2.5 mm into a filleted plate; Pocket Shape on 12 letter floors, Profile of outline, Profile of letters, 1 mm tool), accuracy 0.005 / 0.01016 / 0.0254, tessellated</td>
+<td>3</td>
+<td>main: Pocket <strong>21–25 spikes</strong>, letter Profile <strong>5–20 spikes</strong> (0.4–0.9 mm, the Profile ones are exactly tool-radius long, back to the source vertex), letter Profile changes per recompute. PR: <strong>0 spikes</strong>, stable, no errors at any accuracy. Outline Profile identical.</td>
+</tr>
+</tbody>
+</table>
+<p>Issue files (tessellated, accuracy 0.01016, 3 recomputes each):</p>
+<table>
+<thead>
+<tr>
+<th>File / op</th>
+<th>main: cmds, spikes, tiny moves, distinct outputs</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>#32677 jffmichi MillFace</td>
+<td>970, 3 spikes (up to 12.1 mm), 159, 2</td>
+<td>694, 0, 15, 1</td>
+</tr>
+<tr>
+<td>PR-comment MillFace (second)</td>
+<td>980–984, 1 spike (5.1 mm), ~212, 3</td>
+<td>727, 0, 30, 1</td>
+</tr>
+<tr>
+<td>#32993 jffmichi Profile</td>
+<td>21, 0, 3, 2</td>
+<td>20, 0, 2, 1</td>
+</tr>
+<tr>
+<td>#33031 Pocket_Shape001</td>
+<td>194, 1 spike (1.2 mm), 5, 1</td>
+<td>187, 0, 0, 1</td>
+</tr>
+<tr>
+<td>#33013 Pocket_Shape</td>
+<td>874, 0, 32, 1</td>
+<td>854, 0, 12, 1</td>
+</tr>
+<tr>
+<td>PR-comment Profile (no base)</td>
+<td>164–224, broken, 3</td>
+<td><strong>error</strong> (op Invalid)</td>
+</tr>
+</tbody>
+</table>
+<p>The tiny moves left on the PR are ~1e-6 mm <code>G1</code> stubs after arcs (rounding), the same kind as on main. Harmless.</p>
+<h2>Not in the PR description</h2>
+<ul>
+<li><strong><code>area.set_clipper_scale()</code> removed</strong> from the Python <code>area</code> module, renamed to <code>set_clipper_scale_and_point_tolerance()</code>, which also sets the point tolerance. Any script or addon calling the old name breaks. No users in the FreeCAD tree or in installed addons here. (tested)</li>
+<li><strong>Default libarea point tolerance changes from 0.001 to 0.0001 mm</strong> (<code>Point::tolerance</code>, now <code>1 / clipper_scale</code>). This only matters for the raw <code>area</code> module (<code>Path.Op.Util.offsetWire</code>, used by Deburr); <code>Path.Area</code> ops override it with 1e-7 anyway. Deburr on the TWP block is byte-identical. (tested)</li>
+<li><strong>Offsets now raise hard errors</strong> (<code>NaiveOffset/Offset/Thicken … produced an open curve</code>, <code>SetFromResult saved an open curve from a closed clipper path</code>) where main returned a path. The only trigger I found is the finding above; 51 other ops were fine. (tested)</li>
+<li><strong>New stderr warning</strong> <code>CArea::Offset input curve is open</code> printed with <code>fprintf(stderr)</code>, so it goes to the terminal, not the Report view. (not tested)</li>
+<li><strong>Start points and loop order can change for existing ops</strong>, because WireJoiner now walks edges in input order instead of pointer order. Profiles keep the same lengths but may start at a different corner than a file saved on main. Pocket offset loops in #33031 now run inner-to-outer consistently. This also fixes the known &quot;Profile plunge point flips between recomputes&quot; issue on main. (tested)</li>
+<li><strong>Zero-length duplicate moves are dropped</strong> (#33013: −20 commands). (tested)</li>
+</ul>
+<h2>Also seen (not this PR)</h2>
+<ul>
+<li><code>Path.Path(gcode_text)</code> on a 194-line G-code file with <code>; type:'linking'</code> comments did not return within 25 s in the GUI (seen while loading main's G-code for pictures; worked around by building the commands myself). Not investigated.</li>
+<li><code>Path.Geom.edgeForCmd()</code> draws some arcs with a µm chord and a 0.08° clockwise sweep as near-full circles. The G-code is correct (the sweep is tiny); only that helper's rendering is wrong. Same on main.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated reviews by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, reviews written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviewed PRs</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>

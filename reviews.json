@@ -1,5 +1,15 @@
 [
  {
+  "pr": 33049,
+  "run": 1,
+  "job": "33049-5956108142-r2",
+  "title": "CAM: Clipper arc fitting fixes",
+  "date": "2026-10-02 14:08",
+  "requester": "sliptonic",
+  "head": "9fd9adb81ac",
+  "poster": true
+ },
+ {
   "pr": 33053,
   "run": 1,
   "job": "33053-5919260419",
