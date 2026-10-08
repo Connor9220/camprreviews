@@ -1,0 +1,99 @@
+<section class="review" id="review-1" data-job="33087-session-20261007-193029" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta"> · PR head  · main  · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>no verdict</code></p>
+
+<div class="shots"><figure class="shot"><a href="1/main_zigzag.png"><img src="1/main_zigzag.png" alt="Main: author&#x27;s file, ZigZag with 2 step-downs. After level 1 the tool rapids (red) back across the pocket to the same corner before level 2."></a><figcaption>Main: author&#x27;s file, ZigZag with 2 step-downs. After level 1 the tool rapids (red) back across the pocket to the same corner before level 2.</figcaption></figure><figure class="shot"><a href="1/pr_zigzag.png"><img src="1/pr_zigzag.png" alt="With the PR: level 2 starts where level 1 ended (short vertical step down at the end), only one retract at the end."></a><figcaption>With the PR: level 2 starts where level 1 ended (short vertical step down at the end), only one retract at the end.</figcaption></figure></div>
+<div class="summary"><h1>PR #33087 - CAM: OpArea - Fix ZigZag start point (tarman3)</h1>
+<h2>TL;DR</h2>
+<ul>
+<li>Fix confirmed: Pocket/MillFace ZigZag now starts each step-down where the previous one ended (stay-down step to the next level), restoring the pre-#30402 behavior. Author's file: rapid 160.0 -&gt; 88.9 mm, retracts 3 -&gt; 2.</li>
+<li>Only ZigZag output changes: Offset, Helix, Line, Grid and No clearing are byte-identical to main, for both cut modes, on every test file.</li>
+<li>No defects found. Full CAM suite passes (1990 tests, OK).</li>
+</ul>
+<h2>What the PR changes (Path/Op/Area.py)</h2>
+<ul>
+<li>ZigZag open wires now go through the same branch as closed wires: nearest wire to the current end point, <code>start = self.endVector</code>, so <code>Path.fromShapes</code> begins at the nearer end of the zigzag.</li>
+<li><code>reverseOpenWire</code> (start an open wire from its last vertex) is now set only for Climb with Line or Grid; it used to apply to ZigZag too.</li>
+<li>Docstring typo fix in <code>setParamsDebug</code>.</li>
+</ul>
+<h2>Tests (review3 = upstream/main e326ee2 + PR; cam_ab, A = upstream/main)</h2>
+<table>
+<thead>
+<tr>
+<th>File / op</th>
+<th>Setting</th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Author's <code>zigzag_issue.FCStd</code>, Pocket_Shape (2 levels)</td>
+<td>ZigZag, Climb (file's setting)</td>
+<td>109 cmds, rapid 160.03, 3 retracts, level 2 starts at (12.57, 47.23) = same corner as level 1</td>
+<td>107 cmds, rapid 88.88, 2 retracts, level 2 starts at (63.36, 13.18) = where level 1 ended</td>
+</tr>
+<tr>
+<td>same</td>
+<td>ZigZag, Conventional</td>
+<td>rapid 175.87, 3 retracts</td>
+<td>identical to Climb on PR (rapid 88.88, 2 retracts)</td>
+</tr>
+<tr>
+<td>Plate with 70x50x12 pocket, 14x14 island (top below part top), StepDown 3 (4 levels + final), 6 mm tool: PocketIsland</td>
+<td>ZigZag Climb</td>
+<td>408 cmds, rapid 714.53, 11 retracts</td>
+<td>400 cmds, rapid 284.12, 7 retracts</td>
+</tr>
+<tr>
+<td>same, two floors (main pocket + 6 mm-deep second pocket): PocketTwo</td>
+<td>ZigZag Climb</td>
+<td>rapid 557.95, 10 retracts</td>
+<td>rapid 298.41, 8 retracts</td>
+</tr>
+<tr>
+<td>same plate, MillFace on the top face, 3 levels</td>
+<td>ZigZag Climb</td>
+<td>rapid 337.37, 4 retracts</td>
+<td>rapid 102.62, 2 retracts</td>
+</tr>
+<tr>
+<td>PocketIsland + FinishingPasses 1 (the ZigZagOffset replacement)</td>
+<td>ZigZag Climb</td>
+<td>rapid 838.33, 16 retracts</td>
+<td>rapid 413.62, 12 retracts; finishing pass still last</td>
+</tr>
+<tr>
+<td>all three ops</td>
+<td>Offset, Helix, Line, Grid, No clearing x Climb/Conventional</td>
+<td>-</td>
+<td>identical (md5 of G-code)</td>
+</tr>
+<tr>
+<td>Gouge check (flat end mill vs model), PocketIsland/PocketTwo, with and without finishing pass</td>
+<td></td>
+<td>no gouges</td>
+<td>no gouges</td>
+</tr>
+</tbody>
+</table>
+<p>Island: each level is two zigzag wires (left and right of the island); on the PR each level and each wire starts at the end nearest the previous one, feed length drops 42 mm on PocketIsland.</p>
+<p>Unit tests: <code>FreeCADCmd -t TestCAMApp --safe-mode</code>: Ran 1990 tests, OK (skipped=13, expected failures=4). No test added for the ZigZag start.</p>
+<p>Screenshots: main vs PR on the author's file (main: rapid back across the pocket to the same start corner; PR: plunge straight down at the end of level 1).</p>
+<h2>Also on main (not this PR)</h2>
+<ul>
+<li>The author's file with ClearingPattern = Helix fails to recompute (Invalid) on both main and PR.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Cut Mode no longer changes ZigZag output: Climb and Conventional now produce identical G-code (on main they started at opposite corners). Fine for a zigzag, which alternates direction anyway; matches pre-#30402 behavior. (tested)</li>
+<li>Same fix applies to MillFace ZigZag (tested) and to ZigZag with finishing passes, i.e. converted ZigZagOffset ops (tested).</li>
+<li>Docstring rename in setParamsDebug (no behavior change, not tested).</li>
+</ul>
+</div>
+</div>
+</details>
+</section>

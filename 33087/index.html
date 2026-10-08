@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="33087-session-20261007-193029">
+<title>PR 33087 campr reviews</title>
+<meta property="og:title" content="PR #33087: CAM: OpArea - Fix ZigZag start point">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33087">FreeCAD PR #33087</a><span>1 review</span></div>
+<h1>CAM: OpArea - Fix ZigZag start point</h1>
+</header>
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t"></span><span>Review 1 · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="33087-session-20261007-193029" data-state="final">
+<details class="run" open>
+<summary><span class="rn">Review 1</span><span class="meta"> · PR head  · main  · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>no verdict</code></p>
+
+<div class="shots"><figure class="shot"><a href="1/main_zigzag.png"><img src="1/main_zigzag.png" alt="Main: author&#x27;s file, ZigZag with 2 step-downs. After level 1 the tool rapids (red) back across the pocket to the same corner before level 2."></a><figcaption>Main: author&#x27;s file, ZigZag with 2 step-downs. After level 1 the tool rapids (red) back across the pocket to the same corner before level 2.</figcaption></figure><figure class="shot"><a href="1/pr_zigzag.png"><img src="1/pr_zigzag.png" alt="With the PR: level 2 starts where level 1 ended (short vertical step down at the end), only one retract at the end."></a><figcaption>With the PR: level 2 starts where level 1 ended (short vertical step down at the end), only one retract at the end.</figcaption></figure></div>
+<div class="summary"><h1>PR #33087 - CAM: OpArea - Fix ZigZag start point (tarman3)</h1>
+<h2>TL;DR</h2>
+<ul>
+<li>Fix confirmed: Pocket/MillFace ZigZag now starts each step-down where the previous one ended (stay-down step to the next level), restoring the pre-#30402 behavior. Author's file: rapid 160.0 -&gt; 88.9 mm, retracts 3 -&gt; 2.</li>
+<li>Only ZigZag output changes: Offset, Helix, Line, Grid and No clearing are byte-identical to main, for both cut modes, on every test file.</li>
+<li>No defects found. Full CAM suite passes (1990 tests, OK).</li>
+</ul>
+<h2>What the PR changes (Path/Op/Area.py)</h2>
+<ul>
+<li>ZigZag open wires now go through the same branch as closed wires: nearest wire to the current end point, <code>start = self.endVector</code>, so <code>Path.fromShapes</code> begins at the nearer end of the zigzag.</li>
+<li><code>reverseOpenWire</code> (start an open wire from its last vertex) is now set only for Climb with Line or Grid; it used to apply to ZigZag too.</li>
+<li>Docstring typo fix in <code>setParamsDebug</code>.</li>
+</ul>
+<h2>Tests (review3 = upstream/main e326ee2 + PR; cam_ab, A = upstream/main)</h2>
+<table>
+<thead>
+<tr>
+<th>File / op</th>
+<th>Setting</th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Author's <code>zigzag_issue.FCStd</code>, Pocket_Shape (2 levels)</td>
+<td>ZigZag, Climb (file's setting)</td>
+<td>109 cmds, rapid 160.03, 3 retracts, level 2 starts at (12.57, 47.23) = same corner as level 1</td>
+<td>107 cmds, rapid 88.88, 2 retracts, level 2 starts at (63.36, 13.18) = where level 1 ended</td>
+</tr>
+<tr>
+<td>same</td>
+<td>ZigZag, Conventional</td>
+<td>rapid 175.87, 3 retracts</td>
+<td>identical to Climb on PR (rapid 88.88, 2 retracts)</td>
+</tr>
+<tr>
+<td>Plate with 70x50x12 pocket, 14x14 island (top below part top), StepDown 3 (4 levels + final), 6 mm tool: PocketIsland</td>
+<td>ZigZag Climb</td>
+<td>408 cmds, rapid 714.53, 11 retracts</td>
+<td>400 cmds, rapid 284.12, 7 retracts</td>
+</tr>
+<tr>
+<td>same, two floors (main pocket + 6 mm-deep second pocket): PocketTwo</td>
+<td>ZigZag Climb</td>
+<td>rapid 557.95, 10 retracts</td>
+<td>rapid 298.41, 8 retracts</td>
+</tr>
+<tr>
+<td>same plate, MillFace on the top face, 3 levels</td>
+<td>ZigZag Climb</td>
+<td>rapid 337.37, 4 retracts</td>
+<td>rapid 102.62, 2 retracts</td>
+</tr>
+<tr>
+<td>PocketIsland + FinishingPasses 1 (the ZigZagOffset replacement)</td>
+<td>ZigZag Climb</td>
+<td>rapid 838.33, 16 retracts</td>
+<td>rapid 413.62, 12 retracts; finishing pass still last</td>
+</tr>
+<tr>
+<td>all three ops</td>
+<td>Offset, Helix, Line, Grid, No clearing x Climb/Conventional</td>
+<td>-</td>
+<td>identical (md5 of G-code)</td>
+</tr>
+<tr>
+<td>Gouge check (flat end mill vs model), PocketIsland/PocketTwo, with and without finishing pass</td>
+<td></td>
+<td>no gouges</td>
+<td>no gouges</td>
+</tr>
+</tbody>
+</table>
+<p>Island: each level is two zigzag wires (left and right of the island); on the PR each level and each wire starts at the end nearest the previous one, feed length drops 42 mm on PocketIsland.</p>
+<p>Unit tests: <code>FreeCADCmd -t TestCAMApp --safe-mode</code>: Ran 1990 tests, OK (skipped=13, expected failures=4). No test added for the ZigZag start.</p>
+<p>Screenshots: main vs PR on the author's file (main: rapid back across the pocket to the same start corner; PR: plunge straight down at the end of level 1).</p>
+<h2>Also on main (not this PR)</h2>
+<ul>
+<li>The author's file with ClearingPattern = Helix fails to recompute (Invalid) on both main and PR.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Cut Mode no longer changes ZigZag output: Climb and Conventional now produce identical G-code (on main they started at opposite corners). Fine for a zigzag, which alternates direction anyway; matches pre-#30402 behavior. (tested)</li>
+<li>Same fix applies to MillFace ZigZag (tested) and to ZigZag with finishing passes, i.e. converted ZigZagOffset ops (tested).</li>
+<li>Docstring rename in setParamsDebug (no behavior change, not tested).</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated reviews by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, reviews written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviewed PRs</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>
