@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="33255-session-20261007-194602">
+<title>PR 33255 campr reviews</title>
+<meta property="og:title" content="PR #33255: CAM: Update machine_editor.py">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33255">FreeCAD PR #33255</a><span>1 review</span></div>
+<h1>CAM: Update machine_editor.py</h1>
+</header>
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t"></span><span>Review 1 · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="33255-session-20261007-194602" data-state="final">
+<details class="run" open>
+<summary><span class="rn">Review 1</span><span class="meta"> · PR head  · main  · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 1990 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/fix_template_pick.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Simpler fix, real mouse and keyboard on the test display: pick NibblerBOT (fills in), collapse a folder by its name (list stays open, no _skip_next_hide), expand it by its arrow (one toggle), pick nested Generic Grbl (fills in, icon shown), then Up + Enter picks NibblerBOT AC Trunnion and it loads (5-axis). The recorder clicks empty space after each step, which closes an open list during the hold.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">New machine in the Machine editor (simpler fix on main)</span><span class="det">Same dialog as Preferences &gt; CAM &gt; Assets &gt; Add machine</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="4.47"><span class="t">0:04</span><span><span class="cap">Click a template: NibblerBOT</span><span class="det">Fields fill in: AvidCNC, Imperial, 3-Axis Mill, X/Y/Z axes</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="10.47"><span class="t">0:10</span><span><span class="cap">Click a folder name: it collapses, the list stays open</span><span class="det">Machines &gt; Community (no _skip_next_hide needed)</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="16.97"><span class="t">0:16</span><span><span class="cap">Click the folder&#x27;s arrow: it expands again (one toggle)</span><span class="det"></span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="23.47"><span class="t">0:23</span><span><span class="cap">Second pick: a nested addon template</span><span class="det">Machines &gt; Community &gt; Generic &gt; Generic Grbl: description, Metric, file icon in the combo</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="29.97"><span class="t">0:29</span><span><span class="cap">Keyboard: Up, Enter picks NibblerBOT AC Trunnion</span><span class="det">Loads: AvidCNC, Imperial, 5-Axis Mill (XYZ + A, C)</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="37.97"><span class="t">0:37</span><span><span class="cap">Close the editor without saving</span><span class="det"></span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/fix_leaf_loaded.png"><img src="1/fix_leaf_loaded.png" alt="Simpler fix: clicking NibblerBOT with the real mouse fills the editor (AvidCNC, Imperial, 3-Axis Mill, X/Y/Z axes)."></a><figcaption>Simpler fix: clicking NibblerBOT with the real mouse fills the editor (AvidCNC, Imperial, 3-Axis Mill, X/Y/Z axes).</figcaption></figure><figure class="shot"><a href="1/fix_popup.png"><img src="1/fix_popup.png" alt="Simpler fix (main + activated slot): the Template drop-down open."></a><figcaption>Simpler fix (main + activated slot): the Template drop-down open.</figcaption></figure><figure class="shot"><a href="1/main_leaf_not_loaded.png"><img src="1/main_leaf_not_loaded.png" alt="Main, Linux (Qt 6.11.2): after clicking NibblerBOT the combo says NibblerBOT, but nothing loaded: Manufacturer empty, Units Metric, Type Custom Machine. The bug is not Windows-only."></a><figcaption>Main, Linux (Qt 6.11.2): after clicking NibblerBOT the combo says NibblerBOT, but nothing loaded: Manufacturer empty, Units Metric, Type Custom Machine. The bug is not Windows-only.</figcaption></figure><figure class="shot"><a href="1/main_popup.png"><img src="1/main_popup.png" alt="Main: the Template drop-down open (user machines, then the Machines addon folders)."></a><figcaption>Main: the Template drop-down open (user machines, then the Machines addon folders).</figcaption></figure><figure class="shot"><a href="1/nested_main_pr_fix.png"><img src="1/nested_main_pr_fix.png" alt="Nested addon pick (Generic Grbl) from a fresh editor. Top: main, combo text and icon but nothing loaded. Middle: PR, loads but the combo has no file icon (its current item is still Custom). Bottom: simpler fix, loads with icon."></a><figcaption>Nested addon pick (Generic Grbl) from a fresh editor. Top: main, combo text and icon but nothing loaded. Middle: PR, loads but the combo has no file icon (its current item is still Custom). Bottom: simpler fix, loads with icon.</figcaption></figure><figure class="shot"><a href="1/pr_leaf_loaded.png"><img src="1/pr_leaf_loaded.png" alt="With the PR: clicking NibblerBOT fills the editor (AvidCNC, Imperial, 3-Axis Mill, X/Y/Z axes)."></a><figcaption>With the PR: clicking NibblerBOT fills the editor (AvidCNC, Imperial, 3-Axis Mill, X/Y/Z axes).</figcaption></figure><figure class="shot"><a href="1/pr_nested_combo_index_stale.png"><img src="1/pr_nested_combo_index_stale.png" alt="With the PR: after picking the nested addon template Generic Grbl from a fresh editor, it loads, but the combo&#x27;s current item is still Custom (no file icon, unlike a top-level pick)."></a><figcaption>With the PR: after picking the nested addon template Generic Grbl from a fresh editor, it loads, but the combo&#x27;s current item is still Custom (no file icon, unlike a top-level pick).</figcaption></figure><figure class="shot"><a href="1/pr_popup.png"><img src="1/pr_popup.png" alt="With the PR: the same drop-down."></a><figcaption>With the PR: the same drop-down.</figcaption></figure></div>
+<div class="summary"><h1>PR #33255 - CAM: Update machine_editor.py (Machine editor template pick)</h1>
+<p>Tree: review2 (upstream/main e326ee2f07d + PR commits 9ab53b77ee5, e963b00df1f), Linux, Qt/PySide 6.11.2,
+off-screen Xvfb :3. Verdict: <strong>APPROVE with nits</strong>.</p>
+<h2>TL;DR</h2>
+<ul>
+<li>
+<p>The bug is real and <strong>not Windows-only</strong>: on main, Linux, Qt 6.11.2, clicking a template in the drop-down
+changes the combo text but loads nothing. With the PR, mouse picks load (top-level and nested addon
+templates, first and second pick).</p>
+</li>
+<li>
+<p><strong>Keyboard pick still loads nothing</strong> (arrow keys + Enter): the combo shows the new name, the fields keep
+the old machine. Also on main, but the PR only fixes the mouse. Hooking <code>activated</code> covers both (tested).</p>
+</li>
+<li>
+<p><strong>Right-to-left UI (Arabic, Hebrew): the folder arrow stops working</strong> with the PR (press collapses,
+release expands again). Main toggles once.</p>
+</li>
+<li>
+<p>Nits: <code>_skip_next_hide</code> / <code>hidePopup</code> override now dead, docstring typo, combo current item not
+updated for nested picks, commit title &quot;Update machine_editor.py&quot;.</p>
+</li>
+<li>
+<p><strong>Regression from #28405</strong> (2026-03-22): #28011's flat combo loaded on <code>currentIndexChanged</code>; #28405
+switched to a tree popup and <code>clicked</code>, which never fires for leaves (see below).</p>
+</li>
+<li>
+<p><strong>Simpler fix tested</strong> (<code>simpler-fix.patch</code>, 76-line git diff, +16/-20, against upstream/main): load
+from the combo's <code>activated</code> signal (<code>_load_template(self._template_tree_view.currentIndex())</code> when
+selectable), keep the <code>clicked</code> handler for folders only, and drop <code>_TemplateComboBox</code> /
+<code>_skip_next_hide</code> (folders stay open without them). Real mouse + keyboard on Linux: all cases pass,
+including keyboard and right-to-left, where the PR fails.</p>
+</li>
+</ul>
+<h2>Why the click is lost (Qt behavior)</h2>
+<p><code>QComboBoxPrivateContainer</code> installs an event filter on the popup view and its viewport
+(<code>qcombobox.cpp</code>, <code>setItemView</code>). On <code>MouseButtonRelease</code> over an enabled <strong>and selectable</strong> current item it
+calls <code>combo-&gt;hidePopup()</code>, emits <code>itemSelected(view-&gt;currentIndex())</code> and <strong>returns true</strong>. So the release
+never reaches <code>QAbstractItemView::mouseReleaseEvent</code>, and <code>clicked</code> (what main connects to) is never
+emitted for a leaf. Folders are not selectable, so their release goes through and <code>clicked</code> fires (which is
+why folder toggling works on main). This is cross-platform Qt code; it reproduces on Linux with Qt 6.11.2.
+Seen directly: on main the combo emits <code>activated(2)</code> (Qt's path) and the tree never emits <code>clicked</code>.</p>
+<p>The PR installs its filter on the same viewport <em>after</em> <code>setView()</code>, so it runs before Qt's container
+filter (later filters run first), handles the release itself and returns true, so Qt's handling no
+longer runs.</p>
+<p>Not verified: Windows (no Windows box here). The Linux result matches the Qt source, so Windows should
+behave the same; why the author sees it only on Windows (or why it once worked) was not established.</p>
+<h2>Tests run (real mouse = xdotool on review2's own Xvfb; cross-checked with QTest.mouseClick on the viewport)</h2>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(a) click leaf (NibblerBOT, top level)</td>
+<td>combo text set, <strong>nothing loaded</strong> (Manufacturer empty, Metric, Custom Machine)</td>
+<td><strong>loads</strong>: AvidCNC, Imperial, 3-Axis Mill, X/Y/Z</td>
+</tr>
+<tr>
+<td>(a) click nested addon leaf (Machines/Community/Generic/Generic Grbl)</td>
+<td>not loaded (same mechanism)</td>
+<td>loads (description, Metric, 3-axis)</td>
+</tr>
+<tr>
+<td>(b) click folder text (Community)</td>
+<td>collapses, popup stays open</td>
+<td>collapses, popup stays open</td>
+</tr>
+<tr>
+<td>(c) click folder arrow</td>
+<td>toggles once</td>
+<td>toggles once (LTR); <strong>RTL: no toggle (double toggle)</strong></td>
+</tr>
+<tr>
+<td>(d) keyboard: open, arrows, Enter</td>
+<td>combo text changes, nothing loads</td>
+<td><strong>same: nothing loads</strong></td>
+</tr>
+<tr>
+<td>(e) click outside popup</td>
+<td>closes, nothing loads</td>
+<td>closes, nothing loads</td>
+</tr>
+<tr>
+<td>(f) second pick after the first</td>
+<td>n/a (nothing loads)</td>
+<td>loads the second template</td>
+</tr>
+<tr>
+<td>QTest cross-check (leaf, folder text, arrow)</td>
+<td>leaf not loaded</td>
+<td>leaf loads, folder text toggles, arrow toggles once</td>
+</tr>
+</tbody>
+</table>
+<p>Unit tests: <code>FreeCADCmd -t TestCAMApp --safe-mode</code>: Ran 1990 tests, OK (skipped=13, expected failures=4).
+There are no machine-editor tests (none reference <code>machine_editor</code> / <code>MachineEditor</code>).</p>
+<p>The editor was always closed with reject; no machine files were saved (Machines dir mtimes unchanged).</p>
+<h2>Defects</h2>
+<p><strong>1. Keyboard selection still loads nothing (also on main).</strong>
+Open the Template drop-down, move with Up/Down, press Enter: Qt's container handles Enter
+(<code>ShortcutOverride</code> -&gt; <code>hidePopup</code> + <code>itemSelected</code>), the combo text changes to the new name, but no
+<code>_load_template</code> call happens, so the editor keeps the previous machine while the combo names another.</p>
+<ol>
+<li>New machine, pick NibblerBOT with the mouse (fields fill).</li>
+<li>Open the drop-down, Up/Down to another template, Enter.</li>
+<li>Combo shows the new name; Manufacturer/Units/Type/axes are still NibblerBOT's.</li>
+</ol>
+<p>Suggested fix that covers mouse and keyboard and keeps Qt's own release handling (tested here with
+QTest on Linux: nested mouse pick loads, Enter loads, folder text toggles with the popup open): keep
+main's <code>clicked</code> handler for folders and add
+<code>self.template_combo.activated.connect(lambda _row: self._load_template(self._template_tree_view.currentIndex()))</code>
+(Qt emits <code>activated</code> from the same <code>itemSelected</code> path for a mouse release and for Enter). Not tested on
+Windows.</p>
+<p><strong>2. Right-to-left layout: the folder arrow no longer toggles (regression, minor).</strong>
+<code>if pos.x() &lt; tree.visualRect(index).left(): return False</code> assumes the branch arrow is left of the item.
+In RTL (FreeCAD ships Arabic and Hebrew; Qt switches to RTL for them) the arrow is on the right, so the
+tree collapses it on press and the PR's filter expands it again on release.</p>
+<ol>
+<li>Set the dialog to <code>Qt.RightToLeft</code> (or run FreeCAD in Arabic/Hebrew).</li>
+<li>Open the drop-down, click the arrow of &quot;Machines&quot;.</li>
+<li>Press collapses, release re-expands: no change. A scan across x showed this only on the arrow cells.
+Main toggles once. A direction-free check: <code>not tree.visualRect(index).contains(pos)</code> is true on the
+arrow in both directions.</li>
+</ol>
+<h2>Nits</h2>
+<ul>
+<li><code>_TemplateComboBox._skip_next_hide</code> and its <code>hidePopup</code> override are now dead code (nothing sets the
+flag); the class docstring &quot;keeps the popup open when a folder item is clicked&quot; is stale. The class can
+go back to a plain <code>QComboBox</code>.</li>
+<li>Docstring typo: &quot;Folder items are non-selectable) toggle expand/collapse&quot; (unbalanced parenthesis,
+missing words).</li>
+<li>The combo's own current index is no longer set by a leaf click (the release is eaten). For top-level
+items it gets fixed afterwards as a side effect (focus moves to Name, the line edit's
+<code>editingFinished</code> runs <code>findText</code>, which searches only the top level). For nested addon templates it
+stays on the previous top-level item: e.g. from a fresh editor, pick Generic Grbl and the combo's current
+item is still Custom (no file icon, unlike a top-level pick). Nothing in the editor reads the index, so
+cosmetic only. The <code>activated</code> approach above avoids this.</li>
+<li>Commit/PR title &quot;CAM: Update machine_editor.py&quot; says nothing about the fix.</li>
+</ul>
+<p>Checked, fine: <code>eventFilter</code> is new on <code>MachineEditorDialog</code> (QDialog has no Python override, nothing
+else installs the dialog as a filter, the <code>getattr</code> guard covers the edit-existing-machine case where the
+tree does not exist); <code>event.position()</code> with the <code>pos()</code> fallback works on Qt 6 (Qt 5 fallback not run);
+the QPersistentModelIndex + 0 ms timer loads the right item after the popup closes; click outside
+loads nothing.</p>
+<h2>Not in the PR description</h2>
+<ul>
+<li>The bug also reproduces on Linux (main, Qt 6.11.2), not only Windows 11 (tested).</li>
+<li>Folder expand/collapse moved from the tree's <code>clicked</code> signal to the release filter, with a new &quot;left of
+the item = arrow&quot; rule (tested; RTL regression above).</li>
+<li>Leaf clicks bypass Qt's combo selection path, so the combo's current index is no longer updated by a
+click (tested, cosmetic).</li>
+<li><code>_on_template_tree_clicked</code> split into <code>eventFilter</code> + <code>_load_template</code>; <code>_skip_next_hide</code> left unused
+(read).</li>
+<li>Keyboard selection is not addressed (tested: still loads nothing, same as main).</li>
+</ul>
+<h2>Simpler fix: results (real mouse/keyboard via xdotool on review2's Xvfb, Linux, Qt 6.11.2)</h2>
+<p>Fix = upstream/main + <code>activated</code> slot, folder-only <code>clicked</code> handler, <code>_TemplateComboBox</code> removed
+(<code>simpler-fix.patch</code>). I also ran it with <code>_skip_next_hide</code> kept (variant A): identical results, but
+the flag is left set after every folder click, so the smaller version without it was kept. All four
+versions ran through the same scripted sequence in one FreeCAD session (main and PR loaded from file
+copies, the fix installed in build/release).</p>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>main</th>
+<th>PR</th>
+<th>simpler fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(a) top-level leaf (NibblerBOT)</td>
+<td>text set, nothing loaded</td>
+<td>loads</td>
+<td>loads</td>
+</tr>
+<tr>
+<td>(b) nested addon leaf (Generic Grbl)</td>
+<td>text set, nothing loaded</td>
+<td>loads</td>
+<td>loads</td>
+</tr>
+<tr>
+<td>(c) folder name click</td>
+<td>toggles, popup stays open</td>
+<td>toggles, popup stays open</td>
+<td>toggles, popup stays open</td>
+</tr>
+<tr>
+<td>(d) folder arrow click</td>
+<td>one toggle</td>
+<td>one toggle</td>
+<td>one toggle</td>
+</tr>
+<tr>
+<td>(e) keyboard Up + Enter on a leaf</td>
+<td>text changes, nothing loads</td>
+<td>text changes, nothing loads</td>
+<td><strong>loads</strong> (AC Trunnion, 5-axis)</td>
+</tr>
+<tr>
+<td>(f) keyboard Enter on a folder</td>
+<td>no load, no crash; combo text becomes &quot;Machines&quot;</td>
+<td>same</td>
+<td>same (no load, no crash; text &quot;Machines&quot;)</td>
+</tr>
+<tr>
+<td>(g) click outside the popup</td>
+<td>closes, nothing loads</td>
+<td>same</td>
+<td>same</td>
+</tr>
+<tr>
+<td>(h) second pick after the first</td>
+<td>nothing loads</td>
+<td>loads</td>
+<td>loads</td>
+</tr>
+<tr>
+<td>(i) right-to-left arrow click</td>
+<td>one toggle per click</td>
+<td><strong>no toggle</strong></td>
+<td>one toggle per click</td>
+</tr>
+<tr>
+<td>(j) combo after nested pick (fresh editor)</td>
+<td>text + file icon, not loaded</td>
+<td>text, <strong>no icon</strong> (current item still Custom)</td>
+<td>text + file icon, loaded</td>
+</tr>
+<tr>
+<td>Escape with popup open</td>
+<td>closes</td>
+<td>closes</td>
+<td>closes</td>
+</tr>
+</tbody>
+</table>
+<p>(f) on all three: Enter on a folder closes the list and the combo shows the folder name while the old
+machine stays loaded. Cosmetic and the same everywhere; not addressed by either change.</p>
+<p>Unit tests with the fix installed: <code>TestCAMApp --safe-mode</code>: Ran 1987 tests, OK (skipped=13, expected
+failures=4) (<code>tests-fix.log</code>; review2 was on its local main, ab631d9acae, whose machine_editor.py is
+identical to upstream/main's).</p>
+<p>Patch: <code>simpler-fix.patch</code> (also <code>~/workspace/freecad/freecad-main/pr33255-simpler-fix.patch</code>), black
+--line-length 100 clean, <code>git apply --check</code> clean on main. Not tested on Windows, but the fix uses
+Qt's own selection path (<code>itemSelected</code> -&gt; <code>activated</code>), which is the same code on every platform.</p>
+<h2>Media</h2>
+<ul>
+<li><code>media/main_popup.png</code>, <code>media/pr_popup.png</code>: the drop-down open, main and PR.</li>
+<li><code>media/main_leaf_not_loaded.png</code>: main after clicking NibblerBOT, nothing filled.</li>
+<li><code>media/pr_leaf_loaded.png</code>: PR after clicking NibblerBOT, filled.</li>
+<li><code>media/pr_nested_combo_index_stale.png</code>: PR nested pick loaded, combo item still Custom (no icon).</li>
+<li><code>media/pr33255_template_pick.mp4</code>: captioned real-mouse run on the PR (folder text, arrow, two picks,
+keyboard pick that does not load).</li>
+<li><code>media/fix_popup.png</code>, <code>media/fix_leaf_loaded.png</code>: simpler fix, drop-down and filled-in editor.</li>
+<li><code>media/nested_main_pr_fix.png</code>: nested pick on main / PR / fix (text, icon, loaded or not).</li>
+<li><code>media/fix_template_pick.mp4</code>: captioned real-mouse and keyboard run of the simpler fix.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated reviews by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, reviews written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviewed PRs</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>
