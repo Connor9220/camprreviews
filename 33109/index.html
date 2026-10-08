@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="33109-session-20261007-192630">
+<title>PR 33109 campr reviews</title>
+<meta property="og:title" content="PR #33109: CAM: fix unintended diagonal moves in ramp method 4">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33109">FreeCAD PR #33109</a><span>1 review</span></div>
+<h1>CAM: fix unintended diagonal moves in ramp method 4</h1>
+</header>
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t"></span><span>Review 1 · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="33109-session-20261007-192630" data-state="final">
+<details class="run" open>
+<summary><span class="rn">Review 1</span><span class="meta"> · PR head  · main  · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>no verdict</code></p>
+
+<div class="shots"><figure class="shot"><a href="1/main_ramp4.png"><img src="1/main_ramp4.png" alt="Main: author&#x27;s file, Ramp Entry method 4. After the first model&#x27;s final loop the rapid (red) leaves diagonally from the bottom of the cut."></a><figcaption>Main: author&#x27;s file, Ramp Entry method 4. After the first model&#x27;s final loop the rapid (red) leaves diagonally from the bottom of the cut.</figcaption></figure><figure class="shot"><a href="1/pr_ramp4.png"><img src="1/pr_ramp4.png" alt="With the PR: same file. The retract goes straight up, then the rapid moves across at safe height."></a><figcaption>With the PR: same file. The retract goes straight up, then the rapid moves across at safe height.</figcaption></figure></div>
+<div class="summary"><h1>PR #33109 - CAM: fix unintended diagonal moves in ramp method 4 (jffmichi)</h1>
+<h2>TL;DR</h2>
+<ul>
+<li>Fix confirmed: Ramp Entry method 4 no longer leaves the final loop with a diagonal move (author's file: one diagonal G0 rising 30 mm over 17.4 mm on main, none on the PR; my plate with outline + 2 holes: 2 diagonal G0s on main, 0 on the PR; with a Profile finishing (spring) pass: 3 diagonal upward feed G1s + 2 diagonal G0s on main, 0 on the PR).</li>
+<li>Ramp methods 1, 2, 3 and Helix produce byte-identical paths on main and PR (all test files); Profile's own ramp options are identical too.</li>
+<li>No defects found. Full CAM suite passes (1990 tests, OK).</li>
+</ul>
+<h2>What the PR changes (Path/Base/Generator/ramp_entry.py, createRampMethod4 only)</h2>
+<ol>
+<li>The search for the end of the loop now runs backwards from the end of the path (finds the LAST edge that returns to the loop start), so a Profile finishing/spring pass over the same contour gets the extension after it instead of in the middle.</li>
+<li>The final-loop extension is only added when the move after the loop is a rapid that goes up (G0 with Z above the loop); otherwise it logs &quot;Expected a retract move after the loop, will not extend the loop&quot; and leaves the path as is. The guard also avoids the IndexError tarman3 hit when the loop is the last move.</li>
+<li>X/Y are removed from that retract so it goes straight up; the next horizontal move gets full X/Y.</li>
+</ol>
+<h2>Tests (review3 = upstream/main e326ee2 + PR; A/B with cam_ab, A = upstream/main)</h2>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Author's <code>cam_ramp_method_4_issue.FCStd</code>, DressupRampEntry Method 4</td>
+<td>1 diagonal G0 (17.394 XY, +30 Z)</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Same file, Method 1/2/3/Helix</td>
+<td>-</td>
+<td>identical (md5 of G-code)</td>
+</tr>
+<tr>
+<td>Plate 120x80x15, 2 through holes (r10, r8), Profile outline + holes, StepDown 4 (4 levels), 6 mm tool, Ramp 10 deg Method 4</td>
+<td>2 diagonal G0 (13.1 and 9.9 XY, +18 Z)</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Same plate, Profile FinishingPasses = 1 (spring pass)</td>
+<td>3 diagonal G1 feeds (13.1/9.9/17.0 XY, +11 Z) + 2 diagonal G0</td>
+<td>0, extension placed after the finishing pass</td>
+</tr>
+<tr>
+<td>Same plate, Methods 1/2/3/Helix, plain and spring</td>
+<td>-</td>
+<td>identical</td>
+</tr>
+<tr>
+<td>Plate, NumPasses 2, Stepover 3, RetractThreshold 20</td>
+<td>-</td>
+<td>identical</td>
+</tr>
+<tr>
+<td>Gouge check (flat end mill vs model) on both ramp dressups</td>
+<td>no gouges</td>
+<td>no gouges</td>
+</tr>
+<tr>
+<td><code>x0y0.FCStd</code> (tarman3, Profile RampMethod &quot;Method 4&quot; from a local build)</td>
+<td>no IndexError reproduced on main; generator run with and without the trailing retract: no error</td>
+<td>no error</td>
+</tr>
+</tbody>
+</table>
+<p>Inspected the PR G-code for the plate: each final loop ends at the loop start, the extension re-cuts the ramped piece at final depth (e.g. <code>G3 ... X42 Y40 Z0</code>, <code>G3 ... X41.930608 Y40.983194 Z0</code>), then <code>G0 Z18</code> straight up, then the next move has full X/Y.</p>
+<p>Screenshots: main vs PR on the author's file (main's diagonal red rapid from the bottom of the first model's loop vs straight-up retract on the PR).</p>
+<p>Unit tests: <code>FreeCADCmd -t TestCAMApp --safe-mode</code>: Ran 1990 tests, OK (skipped=13, expected failures=4). There are no unit tests for ramp method 4 at all (none added by the PR).</p>
+<h2>Also on main (not this PR)</h2>
+<ul>
+<li>Profile with RetractThreshold large enough to link two separate holes: the op's link is a single G1 from the bottom of hole 1 straight to the first level of hole 2 (diagonal feed through the part). Same on main and PR.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Method 4 now skips the final-loop extension whenever the loop is not followed by a rapid retract (e.g. a RetractThreshold stay-down G1 link): on my plate with RetractThreshold 200 both holes lose their extension on the PR (main 81 lines, PR 77), so the ramp wedge at the bottom of each hole wall stays. Only reachable together with the diagonal-link problem above, so not reported as a defect. (tested)</li>
+<li>Profile operations whose own RampMethod is &quot;Method 4&quot; (only from files saved by a build that offered it; main's enum has Method 1-3) get no extension any more, since the op passes wires without the final retract (x0y0.FCStd: 27 -&gt; 26 commands). (tested)</li>
+<li>The retract after the extension loses its X/Y words (by design). (tested)</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated reviews by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, reviews written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviewed PRs</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>
