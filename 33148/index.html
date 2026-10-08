@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="33148-session-20261007-192022">
+<title>PR 33148 campr reviews</title>
+<meta property="og:title" content="PR #33148: CAM: Fix full-circle detection in PathSegmentWalker">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33148">FreeCAD PR #33148</a><span>1 review</span></div>
+<h1>CAM: Fix full-circle detection in PathSegmentWalker</h1>
+</header>
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t"></span><span>Review 1 · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="33148-session-20261007-192022" data-state="final">
+<details class="run" open>
+<summary><span class="rn">Review 1</span><span class="meta"> · PR head  · main  · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>no verdict</code></p>
+
+<div class="shots"><figure class="shot"><a href="1/pr_issue_circle.png"><img src="1/pr_issue_circle.png" alt="With the PR: the arc from #32741 (issue&#x27;s own file, Custom op recomputed) draws as a full circle, top view."></a><figcaption>With the PR: the arc from #32741 (issue&#x27;s own file, Custom op recomputed) draws as a full circle, top view.</figcaption></figure><figure class="shot"><a href="1/pr_radial_mismatch.png"><img src="1/pr_radial_mismatch.png" alt="With the PR: three Custom circles. Left (exact full circle) and right (end off diagonally) draw; the middle one (G2 X25.001 Y0 I-5 J0 from X25 Y0) is missing, only the red rapid crosses it. Main draws all three."></a><figcaption>With the PR: three Custom circles. Left (exact full circle) and right (end off diagonally) draw; the middle one (G2 X25.001 Y0 I-5 J0 from X25 Y0) is missing, only the red rapid crosses it. Main draws all three.</figcaption></figure></div>
+<div class="summary"><h1>PR #33148 - CAM: Fix full-circle detection in PathSegmentWalker (Rimas2200)</h1>
+<h2>TL;DR</h2>
+<ul>
+<li>Fix works: the arc from issue #32741 now draws as a full circle after recompute, and full-circle G2/G3 moves no longer randomly vanish (133 of 500 random exact full circles collapsed on main, 0 on the PR).</li>
+<li>One small regression (edge case, nit): a &quot;full circle&quot; whose end point sits on the same radial line as the start but a hair off in radius (e.g. <code>G0 X25 Y0</code> / <code>G2 X25.001 Y0 I-5 J0</code>, typical of rounded imported G-code) was drawn as a full circle on main and now draws nothing.</li>
+<li>New gtest (143 CAM C++ tests) passes; full TestCAMApp suite passes (1990 tests, OK).</li>
+</ul>
+<h2>What the PR changes</h2>
+<p><code>PathSegmentWalker::walk()</code> arc branch: full circles are now recognized by exact equality of the projected start/end points (any <code>GetAngle()</code> result that is finite becomes 2 pi). The G2/G3 &quot;use the major angle&quot; flip is rewritten as <code>anorm.z * norm.z &lt; 0</code>, which is equivalent to the old two-branch test for every non-zero cross product. The old fallback <code>else if (angle == 0) angle = 2 pi</code> (cross product exactly zero and angle exactly zero) is removed.
+PathSegmentWalker feeds three callers: the 3D path rendering (<code>ViewProviderPath</code>), <code>Toolpath.BoundBox</code> (<code>Path.getBoundBox</code>), and <code>Area::getClearedArea()</code> (rest machining cleared area). All three change the same way.</p>
+<h2>Tests run (review3, upstream/main e326ee2 + PR, full build)</h2>
+<ul>
+<li>gtest <code>CAM_tests_run</code> (run with HOME/XDG pointed at a scratch dir): 143 tests from 3 suites, all PASSED (includes the 124 new PathSegmentWalker cases).</li>
+<li><code>FreeCADCmd -t TestCAMApp --safe-mode</code>: Ran 1990 tests, OK (skipped=13, expected failures=4). Note: under <code>ulimit -v 8000000</code> the run aborts in TestPlanarSurfaceOp.test20 (Waterline, &quot;terminate called recursively&quot;); without the cap the same test and the full suite pass. Memory-cap artifact, not related to this PR.</li>
+</ul>
+<h2>A/B main vs PR (Toolpath.BoundBox, 54 probe cases, headless)</h2>
+<p>&quot;main&quot; = review3's previous build (PathSegmentWalker.cpp, Path.cpp and Vector3D.cpp identical to upstream/main).</p>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Issue #32741 arc (<code>G2 I-3.690986636971033 J7.09e-06</code>, start=end)</td>
+<td>bbox 0 x 0 (circle gone)</td>
+<td>X -7.382..0, Y -3.689..3.689 (full circle)</td>
+</tr>
+<tr>
+<td>500 random exact full circles (G2/G3 alternating, r up to 28)</td>
+<td>133 collapsed</td>
+<td>0 collapsed</td>
+</tr>
+<tr>
+<td>Quarter / semicircle / full, G2+G3, G17/G18</td>
+<td>-</td>
+<td>identical</td>
+</tr>
+<tr>
+<td>Helix full turn (Z changes), G91 relative full circle, parsed G-code full circle</td>
+<td>-</td>
+<td>identical / fixed (the parsed <code>G3 X12.3456 Y7.891 I-2.2222 J1.1111</code> circle collapsed on main, drawn on PR)</td>
+</tr>
+<tr>
+<td>Near-full arcs, end off tangentially or off-axis by 1e-13..1e-3</td>
+<td>-</td>
+<td>identical (unchanged behavior, including the existing cases that draw as tiny arcs)</td>
+</tr>
+<tr>
+<td>End on the same radial line as start, radius off by 1e-13..1e-3 (<code>G0 X0 Y0</code>, <code>G2 X&lt;eps&gt; Y0 I-5 J0</code>)</td>
+<td>full circle</td>
+<td>nothing drawn (bbox collapses to the endpoints) - 12 cases</td>
+</tr>
+</tbody>
+</table>
+<p>GUI (review3 FreeCAD 27.1): the issue's own file <code>arc_viewprovider.FCStd</code>, Custom op recomputed: the circle renders (39 line coordinates, bbox -7.369..0 x -3.688..3.688). Screenshot <code>pr_issue_circle.png</code>.
+GUI repro of the regression: Custom op with three circles: exact full circle at X0 (drawn), <code>G0 X25 Y0</code> / <code>G2 X25.001 Y0 I-5 J0</code> (NOT drawn on PR, only the rapid line passes through), <code>G0 X40 Y0</code> / <code>G2 X40.001 Y0.001 I-5 J0</code> (drawn). Screenshot <code>pr_radial_mismatch.png</code>.</p>
+<h2>Finding (nit)</h2>
+<p><strong>Radially-mismatched full circle disappears.</strong> When the end point equals the start angle-wise but differs a little in radius (cross product exactly 0, <code>GetAngle()</code> exactly 0), main fell into <code>else if (angle == 0) angle = 2 pi</code> and drew a full circle; the PR drops that fallback, so the sweep is 0 and the circle is not drawn (and is left out of the BoundBox / cleared area). LinuxCNC treats such a move as a full circle (radius difference within its tolerance), so the preview hides a cut the machine makes. Real-world source: imported or hand-written G-code with rounded coordinates (circle starting at 0/90/180/270 degrees, end rounded differently from the start). Rare; CAM's own generators emit half circles (Area, helix, thread milling), so FreeCAD-generated paths are not affected. Possible fix: keep the old fallback after the new checks (<code>else if (angle == 0 &amp;&amp; anorm.*pz == 0) angle = 2 pi</code>). Repro:</p>
+<ol>
+<li>Custom op, G-code <code>G0 X25 Y0 Z0</code> then <code>G2 X25.001 Y0 I-5 J0</code>.</li>
+<li>Recompute: main shows the circle, PR shows only the rapid.</li>
+</ol>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Toolpath.BoundBox and Area rest-machining cleared area change too (same walker), not only the preview. (BoundBox tested; cleared area not tested - Area emits half arcs, so only Custom/imported full circles would reach it.)</li>
+<li>New gtest temporarily sets <code>Mod/Part/MeshDeviation</code> in the user parameters (restored in TearDown). (tested, restored fine in a scratch HOME)</li>
+<li>Removal of the old <code>angle == 0</code> full-circle fallback (tested: the regression above).</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated reviews by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, reviews written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviewed PRs</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>

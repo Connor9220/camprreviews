@@ -80,6 +80,16 @@
   "poster": true
  },
  {
+  "pr": 33148,
+  "run": 1,
+  "job": "33148-session-20261007-192022",
+  "title": "CAM: Fix full-circle detection in PathSegmentWalker",
+  "date": "",
+  "requester": "Connor9220",
+  "head": "",
+  "poster": true
+ },
+ {
   "pr": 33109,
   "run": 1,
   "job": "33109-session-20261007-192630",
