@@ -1,5 +1,15 @@
 [
  {
+  "pr": 33599,
+  "run": 1,
+  "job": "33599-session-20261015-125802",
+  "title": "CAM: Tag dress-up (and nine more) works in GUI but not in Python console or via Python/MCP",
+  "date": "2026-10-15 12:58",
+  "requester": "Connor9220",
+  "poster": false,
+  "reproduced": true
+ },
+ {
   "pr": 22681,
   "run": 1,
   "job": "22681-local-20261014-224359",

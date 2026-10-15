@@ -1,0 +1,22 @@
+<section class="review" id="review-1" data-job="33599-session-20261015-125802" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Repro 1</span><span class="meta">2026-10-15 12:58 · main 38431477604 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">Tried against upstream main <code>38431477604</code>: <strong>reproduced</strong></p>
+
+
+
+<div class="summary"><h1>Issue #33599: Tag dressup created from Python leaves its base op in the Job</h1>
+<p>Reproduced headless on upstream main 38431477604 (review3 build) with repro33599.py:
+<code>RESULT Tags: ['DressupTag', 'Profile']</code>, <code>RESULT Array: ['DressupArray']</code>.</p>
+<p>Root cause: <code>Path/Dressup/Tags.py:1334</code> calls <code>job.Proxy.addOperation(obj, baseObject)</code> without
+<code>removeBefore=True</code>; removal of the base from <code>Operations.Group</code> happens only in
+<code>Gui/Tags.py</code> <code>ViewProvider.attach()</code> (lines 442-444). Array.py:399 and Boundary.py:422 pass <code>True</code>.</p>
+<p>The issue's list of nine other dressups is overstated: their Gui <code>Create</code> functions attach the view
+provider, so they work with the GUI up. App-level <code>DogboneII.Create</code> never adds to the job.
+ZCorrect line 398 is <code>onDelete</code>. No open PR found.</p>
+</div>
+</div>
+</details>
+</section>
