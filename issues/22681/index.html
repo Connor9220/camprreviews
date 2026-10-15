@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="22681-local-20261014-224359">
+<title>Issue #22681 campr</title>
+<meta property="og:title" content="Issue #22681: CAM: chamfer bit errors in tool editor.">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/issues/22681">FreeCAD Issue #22681</a><span>1 repro</span></div>
+<h1>CAM: chamfer bit errors in tool editor.</h1>
+</header>
+<nav class="toc" aria-label="Repros"><h2>Repros, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-10-14 22:49</span><span>Repro 1 · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="22681-local-20261014-224359" data-state="final">
+<details class="run" open>
+<summary><span class="rn">Repro 1</span><span class="meta">2026-10-14 22:49 · main 38431477604 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">Tried against upstream main <code>38431477604</code>: <strong>not reproduced</strong></p>
+
+<div class="shots"><figure class="shot"><a href="1/main-chamfer-editor-angle90.png"><img src="1/main-chamfer-editor-angle90.png" alt="Same bit after typing 90 into Cutting edge angle: the derived outer Diameter becomes 17.70 mm (5 + 2 x 6.35 x tan 45) and the tool solid follows. No errors."></a><figcaption>Same bit after typing 90 into Cutting edge angle: the derived outer Diameter becomes 17.70 mm (5 + 2 x 6.35 x tan 45) and the tool solid follows. No errors.</figcaption></figure><figure class="shot"><a href="1/main-chamfer-editor.png"><img src="1/main-chamfer-editor.png" alt="Main 38431477604: the shipped 45 Deg. Chamfer in the Tool Parameter Editor. The table now says &quot;Tip diameter (D)&quot;, matching the drawing, and the outer Diameter is no longer an input."></a><figcaption>Main 38431477604: the shipped 45 Deg. Chamfer in the Tool Parameter Editor. The table now says &quot;Tip diameter (D)&quot;, matching the drawing, and the outer Diameter is no longer an input.</figcaption></figure><figure class="shot"><a href="1/main-old-style-chamfer-editor.png"><img src="1/main-old-style-chamfer-editor.png" alt="An old-style chamfer bit (Cutting Edge Height, Diameter, Length, Radius, Shank Diameter, like the reporter&#x27;s second screenshot) on main: angle and tip diameter are now editable; the old Radius value is shown as a leftover read-only field."></a><figcaption>An old-style chamfer bit (Cutting Edge Height, Diameter, Length, Radius, Shank Diameter, like the reporter&#x27;s second screenshot) on main: angle and tip diameter are now editable; the old Radius value is shown as a leftover read-only field.</figcaption></figure></div>
+
+<div class="summary"><p><strong>Reproduced:</strong> No</p>
+<p><strong>TL;DR</strong></p>
+<ul>
+<li>On current main (<code>38431477604</code>) the chamfer bit opens in the Tool Parameter Editor with no errors and can be edited.</li>
+<li>The overconstraint is gone: the outer Diameter is now worked out from tip diameter, cutting edge height and angle. It is read-only and no longer shown in the editor.</li>
+<li>The table now says &quot;Tip diameter (D)&quot;, which matches the drawing. α is the included angle in both the table and the drawing, and the operations use it that way.</li>
+<li>One small point is still there: the sample bit is called &quot;45 Deg. Chamfer&quot; but has a 45° <em>included</em> angle (22.5° per side), not the 90° included angle of a usual 45° chamfer mill.</li>
+</ul>
+<h2>What was tested</h2>
+<p>Tested on FreeCAD main <code>38431477604</code> (2026-10-14), built from source, with the GUI on an off-screen display. No PR applied.</p>
+<h3>1. The reporter's steps: open the shipped chamfer bit in the editor</h3>
+<p>I loaded the shipped <code>45degree_chamfer.fctb</code> (&quot;45 Deg. Chamfer&quot;), added it to a document and opened it in the Tool Parameter Editor (<code>ToolBitEditor</code>).</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Reporter's build (July 2025)</th>
+<th>Main today</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Fields</td>
+<td>angle, height, <strong>Diameter (D)</strong> = 12.33, length, shank, <strong>Tip diameter</strong> = 5.00</td>
+<td>angle, height, length, shank, <strong>Tip diameter (D)</strong> = 5.000; Diameter is not shown</td>
+</tr>
+<tr>
+<td>Drawing &quot;D&quot;</td>
+<td>at the tip, but the table's &quot;Diameter (D)&quot; was the outer diameter</td>
+<td>at the tip, and the table's &quot;(D)&quot; is the tip diameter</td>
+</tr>
+<tr>
+<td>Outer diameter</td>
+<td>typed in, could disagree with the geometry</td>
+<td>derived as <code>TipDiameter + 2·h·tan(α/2)</code> = <strong>10.26 mm</strong>, ReadOnly in the property view</td>
+</tr>
+<tr>
+<td>Errors in Report view</td>
+<td>n/a</td>
+<td>none</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>.fctb</code> still stores <code>Diameter: 12.3323 mm</code>, but the value is recomputed when the bit loads, so that stale number has no effect. The tool solid matches the derived value: it measures 2.51 mm radius at the tip and 5.13 mm at h = 6.35 mm, a slope of tan 22.5°, so the bounding box is about 10.26 mm across.</p>
+<p>The fix came from commit <code>48de20c8fd6</code> &quot;CAM: Make chamfer Diameter derived from tip and cutting geometry&quot; (Aug 2026). Commit <code>e0765cfb36e</code> then fixed ToolBit units, precision and the task panel.</p>
+<h3>2. Editing the bit</h3>
+<p>In the open editor I typed <code>90</code> into &quot;Cutting edge angle (α)&quot; and pressed Enter. The derived Diameter changed to <strong>17.70 mm</strong> (5 + 2 × 6.35 × tan 45°), the tool solid grew to match (bounding box ±8.85 mm), and no errors appeared.</p>
+<h3>3. Old-style chamfer bit (reporter's second screenshot)</h3>
+<p>I built a <code>.fctb</code> with only the old parameters (Cutting Edge Height, Diameter 12.33, Length, Radius 4.00, Shank Diameter), as in the reporter's older screenshot, and loaded it on main:</p>
+<ul>
+<li>It loads and recomputes with no errors.</li>
+<li>The missing angle and tip diameter get the shape's defaults (60°, 5 mm). Both are now <strong>editable</strong> in the editor; the reporter said α could not be reached in that older version.</li>
+<li>The derived Diameter is 12.33 mm. It replaces the stored value and happens to match it at 60°.</li>
+<li>The old <code>Radius</code> stays as a read-only leftover row. It is harmless but adds clutter.</li>
+</ul>
+<h3>4. Is α the cutting angle or the full sweep?</h3>
+<p>On main, α is the <strong>included</strong> (full) angle everywhere: the drawing, the derived diameter formula, the tool solid, and Deburr (<code>Path/Op/Deburr.py</code> uses <code>tan(angle/2)</code>). V-bits use the same convention. The label &quot;Cutting edge angle (α)&quot; is consistent with the drawing, so I don't count this as a bug.</p>
+<p>What is still a bit misleading is the <strong>sample bit's name</strong>. &quot;45 Deg. Chamfer&quot; has α = 45° included, which cuts a bevel 22.5° from vertical. A shop &quot;45° chamfer mill&quot; is normally 90° included and cuts a 45° bevel. With the sample bit and Width = 1 mm, Deburr goes 2.41 mm deep instead of 1 mm. This is a naming problem in the sample data, not a broken editor.</p>
+<h3>5. Drilling picking a chamfer bit for 5 mm holes</h3>
+<p>Hole operations compare holes against <code>Tool.Diameter</code>. On main that value is the derived outer diameter (10.26 mm for the sample bit), not the 5 mm tip, so the scenario the reporter described no longer follows. I did not run a separate Drilling job for it.</p>
+<h3>Not tested</h3>
+<ul>
+<li>A bearing-guided chamfer shape (the reporter's feature request). No such shape exists, and it is a feature request rather than a bug.</li>
+<li>The reporter's own old library file (none was attached). I built an equivalent from the screenshot instead.</li>
+</ul>
+<h3>Side note</h3>
+<p>For an old-style bit with no <code>shape-type</code>, the editor's &quot;Toolbit Type&quot; field shows <code>Chamfer.Fcstd</code> instead of <code>Chamfer</code>. This is cosmetic and separate from this issue.</p>
+<h2>Media</h2>
+<ul>
+<li><code>main-chamfer-editor.png</code>: shipped bit in the editor on main.</li>
+<li><code>main-chamfer-editor-angle90.png</code>: after changing α to 90°.</li>
+<li><code>main-old-style-chamfer-editor.png</code>: old-style chamfer bit on main.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated repro attempts by Billy Huddleston's campr harness: FreeCAD built from source at current upstream main, GUI checks on an off-screen display, written by Claude. <a href="https://connor9220.github.io/camprreviews/">All issue repros</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>

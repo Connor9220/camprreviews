@@ -1,0 +1,12 @@
+[
+ {
+  "pr": 22681,
+  "run": 1,
+  "job": "22681-local-20261014-224359",
+  "title": "CAM: chamfer bit errors in tool editor.",
+  "date": "2026-10-14 22:49",
+  "requester": "Connor9220",
+  "poster": true,
+  "reproduced": false
+ }
+]
