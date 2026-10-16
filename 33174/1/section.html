@@ -1,0 +1,62 @@
+<section class="review" id="review-1" data-job="33174-session-20261016-134028" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta"> · PR head  · main  · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>no verdict</code></p>
+
+
+
+<div class="summary"><h1>PR #33174: Cam: dynapath postprocessor fixes (re-review)</h1>
+<p>Reviewed in review3 (upstream/main e0b1900c5ec + 5 PR commits, head 15c9e6bf7c7), 2026-10-16. First review: 33174-session-20261007-192528 (3 commits, review2).</p>
+<h2>TL;DR</h2>
+<ul>
+<li><strong>CHANGES NEEDED.</strong> The modal-arc defect from the first review is not fixed: with Machine Output &gt; Duplicates &gt; Commands off, the new <code>dynapath</code> post writes incremental I/J on every arc after the first in a run.</li>
+<li>New since the first review: the legacy tests find their lines by marker (awgrover's comments), the legacy <code>LINENR</code> resets on each export, the <code>$</code> removal in text events is documented, and a test covers sequence numbers on multi-line text blocks. All fine.</li>
+<li>CAM suite: Ran 2081 tests, OK (skipped=13, expected failures=4).</li>
+</ul>
+<h2>What changed since the first review</h2>
+<p>Post code: only <code>global LINENR; LINENR = 0</code> at the start of the legacy <code>export()</code>, and the <code>_convert_comment()</code> docstring. Everything else is in the two test modules.</p>
+<h2>Defect: modal commands break absolute arc centers</h2>
+<p>Post-only probe (hand-written commands through the test fixture, no operation or Clipper involved):</p>
+<pre><code>== commands=True
+G2X0.000Y10.000I0.000J0.000
+G2X-10.000Y0.000I0.000J0.000
+G2X0.000Y-10.000I0.000J0.000
+== commands=False
+G2X0.000Y10.000I0.000J0.000
+X-10.000Y0.000I0.000J-10.000      &lt;- incremental
+X0.000Y-10.000I10.000J0.000       &lt;- incremental
+G3X10.000Y0.000I0.000J0.000
+</code></pre>
+<p>GUI, review3 FreeCAD: Helix on a Ø16 hole centered at X40 Y30, Ø6 end mill, Machine &quot;Dynapath Modal&quot; (dynapath post, commands duplicates off):</p>
+<pre><code>G1Z18.175F300.000
+G2X42.400Y31.800Z15.979I40.000J30.000F503.381
+X37.600Y28.200Z13.783I-2.400J-1.800F503.381     &lt;- should be I40.000J30.000
+X42.400Y31.800Z11.588I2.400J1.800F503.381
+</code></pre>
+<p>With the default Machine (commands on) every arc has <code>I40.000J30.000</code>.</p>
+<p>Cause: <code>_optimize_duplicates_doubles()</code> clears the name of a repeated <code>G2</code>; <code>convert_command_to_gcode()</code> dispatches by name, so the nameless arc never reaches <code>DynapathPost._convert_arc_move()</code>.</p>
+<h2>Also on main (not this PR)</h2>
+<p>With commands duplicates off, rapids with no <code>G0</code> word get <code>F0.000</code> (<code>Z21.175F0.000</code>). The machine-based <code>linuxcnc</code> post on the same job writes <code>X37.600 Y28.200 F0.000</code> too: base Processor behavior.</p>
+<h2>Checked, fine</h2>
+<ul>
+<li><code>LINENR</code> reset: <code>test_line_numbers</code> exports a second time without reloading the script and expects N0001.</li>
+<li><code>$</code> and parentheses removed from text events (<code>test_comments_are_text_events</code>).</li>
+<li>Block numbering: <code>/N0005G0Z50</code> keeps the block-delete slash ahead of N; text events in a block are numbered.</li>
+<li>Default dynapath Machine posts the Helix job through export2 with no dialogs on current main.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Legacy: <code>X0 Y0</code> before every clearance retract now appears only after a tool change. (tested, first review)</li>
+<li>Legacy: G98/G99 always dropped; G74 added to the quill-cycle list. (tested; G74 not tested)</li>
+<li>Legacy: metric Z/I/J were inch-converted on main and are now metric. (tested, first review)</li>
+<li>Legacy: <code>M05</code> before every <code>M6</code>. (tested, first review)</li>
+<li>Legacy: line counter restarts on every export. (tested)</li>
+<li>New <code>dynapath_post.py</code> with six Machine properties. (tested)</li>
+<li><code>PostTestMocks.MockOperation</code> gains <code>Document</code>. (test-only)</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
