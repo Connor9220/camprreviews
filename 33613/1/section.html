@@ -1,0 +1,152 @@
+<section class="review" id="review-1" data-job="33613-session-20261016-134009" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta"> · PR head  · main  · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>no verdict</code></p>
+
+<div class="shots"><figure class="shot"><a href="1/main_ccw_cornerC.png"><img src="1/main_ccw_cornerC.png" alt="Main, CCW profile, upper right corner (line up into a G3 arc): the twist swings 153 degrees the wrong way, and its arc has a different radius at each end (0.250 / 0.244)."></a><figcaption>Main, CCW profile, upper right corner (line up into a G3 arc): the twist swings 153 degrees the wrong way, and its arc has a different radius at each end (0.250 / 0.244).</figcaption></figure><figure class="shot"><a href="1/pr_ccw_cornerC.png"><img src="1/pr_ccw_cornerC.png" alt="With the PR, same corner: the twist now ends at the right point, but it is a G2 sweeping 333 degrees around the corner instead of a G3 of 27 degrees."></a><figcaption>With the PR, same corner: the twist now ends at the right point, but it is a G2 sweeping 333 degrees around the corner instead of a G3 of 27 degrees.</figcaption></figure><figure class="shot"><a href="1/setup_window.png"><img src="1/setup_window.png" alt="Test model: outline with line-to-arc, arc-to-arc and arc-to-line corners that are not tangent, cut by a Profile (no compensation) CW and CCW, each with a Dragknife dressup (offset 0.25 mm, pivot height 0.5 mm, filter angle 20)."></a><figcaption>Test model: outline with line-to-arc, arc-to-arc and arc-to-line corners that are not tangent, cut by a Profile (no compensation) CW and CCW, each with a Dragknife dressup (offset 0.25 mm, pivot height 0.5 mm, filter angle 20).</figcaption></figure></div>
+
+<div class="summary"><h1>PR #33613 - CAM: Dragknife - Fix the twist into an arc</h1>
+<p>Tree: review2 (upstream/main e0b1900c5ec + PR commit 7a6aa62dc08), Linux. Session review with Billy.</p>
+<h2>TL;DR</h2>
+<ul>
+<li><strong>Fixes #21800</strong> on the issue's own file (<code>xyz.FCStd</code>): twist arc radius 0.200 at both ends (main: 0.200 at start, 5.946 at end), and the rest of the destination arc sweeps 8.43 degrees (main: 351.91).</li>
+<li><strong>Defect, also on main: the twist into a G3 arc, or from a G2 arc into a G2 arc, goes the long way around the corner</strong> (270 to 333 degrees instead of 27 to 90). Cause: <code>shortcut()</code> ignores the arc direction when it builds the tangent. The PR's test01 output has it; the test does not check the twist.</li>
+<li>Full CAM suite passes; the 3 new tests fail on main's code and pass on the PR.</li>
+</ul>
+<h2>What the PR changes</h2>
+<p><code>arcTwist()</code> in <code>Path/Dressup/Gui/Dragknife.py</code>:</p>
+<ul>
+<li>the angle from the destination arc's center to the corner is taken from XY only (<code>math.atan2</code>) instead of the 3D <code>DraftVecUtils.angle()</code> with the center at pivot height;</li>
+<li>the offset along the arc follows the destination arc (<code>queue[0]</code>), not the previous move (<code>queue[1]</code>).</li>
+</ul>
+<p>New <code>CAMTests/TestPathDressupDragknife.py</code> (3 tests), registered in <code>CMakeLists.txt</code>.</p>
+<h2>Not in the PR description</h2>
+<p>Nothing. The diff matches the description: no new properties, panel changes or file-format changes. Every twist into an arc changes output (line into G3, arc into arc); line into G2 is unchanged except for the Z angle error.</p>
+<h2>Issue #21800</h2>
+<p>Fixed, tested on the reporter's <code>xyz.FCStd</code> (offset 0.2, pivot height 0, base path ends with a 9-degree G2):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>twist arc r start / end</th>
+<th>twist sweep</th>
+<th>rest of destination arc</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>main</td>
+<td>0.2000 / 5.9458</td>
+<td>43.77</td>
+<td>351.91 degrees</td>
+</tr>
+<tr>
+<td>PR</td>
+<td>0.2000 / 0.2000</td>
+<td>35.51</td>
+<td>8.43 degrees</td>
+</tr>
+</tbody>
+</table>
+<h2>Defect: twist direction into an arc</h2>
+<p><code>shortcut()</code> builds each arc's tangent as <code>radvector.cross(Vector(0, 0, 1))</code>:</p>
+<ul>
+<li>incoming arc (<code>queue[1]</code>): <code>radvector</code> = center minus end point, so the result is the CCW tangent: right for G3, backwards for G2;</li>
+<li>outgoing arc (<code>queue[0]</code>): <code>radvector</code> = start point minus center, so the result is the CW tangent: right for G2, backwards for G3.</li>
+</ul>
+<p><code>segmentAngleXY()</code> rotates the tangent 180 degrees for G2; <code>shortcut()</code> does not. With one tangent backwards, <code>twistCW</code> picks the long way around the corner.</p>
+<p>Test01 geometry (line along +X into a G3 around (-10, 0), r = 20: a 90-degree left turn):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>twist</th>
+<th>sweep</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>main</td>
+<td>G2, r 0.2</td>
+<td>263.3</td>
+</tr>
+<tr>
+<td>PR</td>
+<td>G2, r 0.2</td>
+<td>269.7</td>
+</tr>
+<tr>
+<td>expected</td>
+<td>G3</td>
+<td>90</td>
+</tr>
+</tbody>
+</table>
+<p>Test00 (line into G2, right turn 90 degrees): PR G2 90.3 degrees, correct (main 263.3).</p>
+<p>Test model (outline 40 x 50 mm: rectangle with a pointed arch top, corners not tangent; Profile without compensation, Dragknife offset 0.25 mm, pivot 0.5 mm, filter 20):</p>
+<table>
+<thead>
+<tr>
+<th>corner</th>
+<th>expected</th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CW, line into G2 (left springing)</td>
+<td>G2 27</td>
+<td>G2 26.7, r 0.250 / 0.256</td>
+<td>G2 26.7</td>
+</tr>
+<tr>
+<td>CW, G2 into G2 (peak)</td>
+<td>G2 53</td>
+<td>G3 127.2, r 0.250 / 0.251</td>
+<td><strong>G3 306.9</strong></td>
+</tr>
+<tr>
+<td>CW, G2 into line (right springing, lineTwist)</td>
+<td>G2 27</td>
+<td>G3 333.6</td>
+<td>G3 333.6 (unchanged)</td>
+</tr>
+<tr>
+<td>CCW, line into G3 (right springing)</td>
+<td>G3 27</td>
+<td>G2 153.6, r 0.250 / 0.244</td>
+<td><strong>G2 333.3</strong></td>
+</tr>
+<tr>
+<td>CCW, G3 into G3 (peak)</td>
+<td>G3 53</td>
+<td>G2 127.2, r 0.250 / 0.251</td>
+<td><strong>G2 306.9</strong></td>
+</tr>
+<tr>
+<td>CCW, G3 into line (left springing)</td>
+<td>G3 27</td>
+<td>G3 26.4</td>
+<td>G3 26.4</td>
+</tr>
+</tbody>
+</table>
+<p>So corners with exactly one backwards tangent (incoming G2, or outgoing G3) twist the wrong way on both versions; the PR fixes the end point and the radius, not the direction. A knife spinning 300+ degrees at pivot height cuts a small ring around the corner.</p>
+<h2>Tests</h2>
+<ul>
+<li><code>TestCAMApp</code>: Ran 2040 tests, OK (skipped=13, expected failures=4).</li>
+<li><code>TestDressupDragknife</code> against main's <code>Dragknife.py</code>: all 3 fail (test00 and test01: <code>0.200000 != 4.688769</code>, the twist radius check). On the PR: all 3 pass.</li>
+<li>No test checks the twist direction or sweep.</li>
+</ul>
+<h2>Not tested</h2>
+<ul>
+<li>Helix/ramped profiles and multi-pass depths with the dressup.</li>
+<li>The &quot;destination arc shorter than the offset&quot; case the PR lists as out of scope.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
