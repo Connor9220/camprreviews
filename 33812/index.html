@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="campr-job" content="33812-6419690118-r1">
+<meta name="campr-job" content="33812-6419690118-r1-amend1">
 <title>PR #33812 campr</title>
 <meta property="og:title" content="PR #33812: CAM: Faster implementation of get cleared area for rest machining">
 <meta property="og:image" content="1/poster.jpg">
@@ -66,7 +66,7 @@ footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); p
 <h1>CAM: Faster implementation of get cleared area for rest machining</h1>
 </header>
 <nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-10-27 14:36</span><span>Review 1 · head 5a78e07 · requested by @davidgilkaufman</span></a></li></ol></nav>
-<section class="review" id="review-1" data-job="33812-6419690118-r1" data-state="final">
+<section class="review" id="review-1" data-job="33812-6419690118-r1-amend1" data-state="final">
 <details class="run" open>
 <summary><span class="rn">Review 1</span><span class="meta">2026-10-27 14:36 · PR head 5a78e073e8d · main 6904a36a7e9 · requested by @davidgilkaufman</span></summary>
 <div class="body">
@@ -76,23 +76,242 @@ footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); p
 <div class="shots"><figure class="shot"><a href="1/adaptive_base_vs_pr.png"><img src="1/adaptive_base_vs_pr.png" alt="Adaptive jobs: base commit cleared area (top, orange, 33.4 s) vs PR (bottom, blue, 0.09 s) - same shape"></a><figcaption>Adaptive jobs: base commit cleared area (top, orange, 33.4 s) vs PR (bottom, blue, 0.09 s) - same shape</figcaption></figure><figure class="shot"><a href="1/big_base_vs_pr.png"><img src="1/big_base_vs_pr.png" alt="Big pocket array, roughing paths hidden: base commit (left, orange, 0.64 s) vs PR (right, blue, 0.46 s) - same shape"></a><figcaption>Big pocket array, roughing paths hidden: base commit (left, orange, 0.64 s) vs PR (right, blue, 0.46 s) - same shape</figcaption></figure><figure class="shot"><a href="1/helix_full_circle_main_vs_pr.png"><img src="1/helix_full_circle_main_vs_pr.png" alt="Not in the description: helix loops at depth add no cleared area on main (orange), the PR counts them (blue)"></a><figcaption>Not in the description: helix loops at depth add no cleared area on main (orange), the PR counts them (blue)</figcaption></figure><figure class="shot"><a href="1/small_base_vs_pr.png"><img src="1/small_base_vs_pr.png" alt="Small pocket array: base commit (left, orange, 0.12 s) vs PR (right, blue, 0.15 s) - same shape"></a><figcaption>Small pocket array: base commit (left, orange, 0.12 s) vs PR (right, blue, 0.15 s) - same shape</figcaption></figure></div>
 
 <div class="summary"><blockquote>
-<p><strong>About the requested timing runs.</strong> This review job can only use the build of the PR head; it
-cannot check out and rebuild other commits. So the <strong>circles-only commit (6e75d67) was not run</strong>,
-and the <strong>base commit (1c7bb6e)</strong> numbers come from a Python re-creation of its algorithm on the
-PR build (details below), not from a build of that commit. The PR head numbers come from the
-author's macro and the PR's own timing output.</p>
+<p><strong>Amended.</strong> The first run could only use the PR head, so it re-created the base and skipped
+the circles-only commit. Since then all three commits were built and timed for real: see
+<strong>Further testing</strong> below, which replaces the first run's base numbers.</p>
 </blockquote>
 <h2>TL;DR</h2>
 <ul>
 <li>No defects found. The new cleared area has the same shape as the old one on all 25 test cases
 (differences are slivers under 0.001 mm wide), and it is far faster where it matters: the 4 Adaptive
-cases go from about 33 s to 0.09 s.</li>
+cases go from 40.0 s to 0.10 s (builds of the base and the PR head).</li>
+<li>The circles-only commit alone takes Adaptive to 1.32 s. The 70% stepover big pocket slowdown
+(0.05 s to 0.15 s) comes from the second commit.</li>
 <li>On simple pocket paths (ZigZag, Line, Grid) it is a little slower than before, about 0.1 s at
 most. That's small next to the Adaptive gain, but noted in case the author wants to tune it.</li>
 <li>Unmentioned fix: full-circle arcs (for example helix loops) used to add nothing to the cleared
 area. The PR counts them.</li>
 <li>The included Adaptive fixes (#33909) work: with main's code, two Adaptive rest ops in the test
 file fail and two re-cut the whole pocket. With the PR they cut only the rest.</li>
+</ul>
+<h2>Further testing: all three commits built and timed</h2>
+<p>After the first run, each of the three commits was built and timed for real in the same review tree:
+the base (07fe81a, &quot;fix fragile tests&quot;, main plus the #33909 fixes), the circles-only commit
+(3b559b3) and the PR head (5a78e07). All three were cherry-picked onto main 6904a36a7e9, as in the
+first run. Each build ran the author's <code>clearedAreaTest.FCMacro</code> headless (FreeCADCmd) 3 times, in a
+new process each time. The numbers are the macro's own <code>getClearedAreas</code> time per op, median of 3.
+The macro passed on all three builds (25 cleared areas).</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align:right">Base 07fe81a (s)</th>
+<th style="text-align:right">Circles-only 3b559b3 (s)</th>
+<th style="text-align:right">PR head 5a78e07 (s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Adaptive005</td>
+<td style="text-align:right">5.857</td>
+<td style="text-align:right">0.233</td>
+<td style="text-align:right">0.040</td>
+</tr>
+<tr>
+<td>Adaptive007</td>
+<td style="text-align:right">0.880</td>
+<td style="text-align:right">0.054</td>
+<td style="text-align:right">0.008</td>
+</tr>
+<tr>
+<td>Adaptive014</td>
+<td style="text-align:right">25.832</td>
+<td style="text-align:right">0.747</td>
+<td style="text-align:right">0.038</td>
+</tr>
+<tr>
+<td>Adaptive015</td>
+<td style="text-align:right">7.423</td>
+<td style="text-align:right">0.284</td>
+<td style="text-align:right">0.014</td>
+</tr>
+<tr>
+<td><strong>Adaptive subtotal</strong></td>
+<td style="text-align:right"><strong>39.992</strong></td>
+<td style="text-align:right"><strong>1.318</strong></td>
+<td style="text-align:right"><strong>0.100</strong></td>
+</tr>
+<tr>
+<td>PocketRestZigZag30</td>
+<td style="text-align:right">0.018</td>
+<td style="text-align:right">0.024</td>
+<td style="text-align:right">0.018</td>
+</tr>
+<tr>
+<td>PocketRestZigZag50</td>
+<td style="text-align:right">0.011</td>
+<td style="text-align:right">0.018</td>
+<td style="text-align:right">0.014</td>
+</tr>
+<tr>
+<td>PocketRestZigZag70</td>
+<td style="text-align:right">0.009</td>
+<td style="text-align:right">0.019</td>
+<td style="text-align:right">0.010</td>
+</tr>
+<tr>
+<td>PocketRestOffset30</td>
+<td style="text-align:right">0.009</td>
+<td style="text-align:right">0.005</td>
+<td style="text-align:right">0.003</td>
+</tr>
+<tr>
+<td>PocketRestOffset50</td>
+<td style="text-align:right">0.006</td>
+<td style="text-align:right">0.005</td>
+<td style="text-align:right">0.003</td>
+</tr>
+<tr>
+<td>PocketRestOffset70</td>
+<td style="text-align:right">0.005</td>
+<td style="text-align:right">0.024</td>
+<td style="text-align:right">0.004</td>
+</tr>
+<tr>
+<td>PocketRestHelix30</td>
+<td style="text-align:right">0.009</td>
+<td style="text-align:right">0.005</td>
+<td style="text-align:right">0.003</td>
+</tr>
+<tr>
+<td>PocketRestHelix50</td>
+<td style="text-align:right">0.006</td>
+<td style="text-align:right">0.005</td>
+<td style="text-align:right">0.003</td>
+</tr>
+<tr>
+<td>PocketRestHelix70</td>
+<td style="text-align:right">0.005</td>
+<td style="text-align:right">0.026</td>
+<td style="text-align:right">0.004</td>
+</tr>
+<tr>
+<td>PocketRestLine30</td>
+<td style="text-align:right">0.011</td>
+<td style="text-align:right">0.016</td>
+<td style="text-align:right">0.015</td>
+</tr>
+<tr>
+<td>PocketRestLine50</td>
+<td style="text-align:right">0.008</td>
+<td style="text-align:right">0.018</td>
+<td style="text-align:right">0.015</td>
+</tr>
+<tr>
+<td>PocketRestLine70</td>
+<td style="text-align:right">0.006</td>
+<td style="text-align:right">0.019</td>
+<td style="text-align:right">0.009</td>
+</tr>
+<tr>
+<td>PocketRestGrid30</td>
+<td style="text-align:right">0.047</td>
+<td style="text-align:right">0.064</td>
+<td style="text-align:right">0.055</td>
+</tr>
+<tr>
+<td>PocketRestGrid50</td>
+<td style="text-align:right">0.026</td>
+<td style="text-align:right">0.036</td>
+<td style="text-align:right">0.032</td>
+</tr>
+<tr>
+<td>PocketRestGrid70</td>
+<td style="text-align:right">0.018</td>
+<td style="text-align:right">0.027</td>
+<td style="text-align:right">0.024</td>
+</tr>
+<tr>
+<td><strong>Small pocket subtotal</strong></td>
+<td style="text-align:right"><strong>0.194</strong></td>
+<td style="text-align:right"><strong>0.311</strong></td>
+<td style="text-align:right"><strong>0.212</strong></td>
+</tr>
+<tr>
+<td>BigPocketRestZigZag30</td>
+<td style="text-align:right">0.215</td>
+<td style="text-align:right">0.118</td>
+<td style="text-align:right">0.098</td>
+</tr>
+<tr>
+<td>BigPocketRestZigZag50</td>
+<td style="text-align:right">0.086</td>
+<td style="text-align:right">0.065</td>
+<td style="text-align:right">0.070</td>
+</tr>
+<tr>
+<td>BigPocketRestZigZag70</td>
+<td style="text-align:right">0.056</td>
+<td style="text-align:right">0.050</td>
+<td style="text-align:right">0.150</td>
+</tr>
+<tr>
+<td>BigPocketRestZigZagOffset30</td>
+<td style="text-align:right">0.170</td>
+<td style="text-align:right">0.059</td>
+<td style="text-align:right">0.069</td>
+</tr>
+<tr>
+<td>BigPocketRestZigZagOffset50</td>
+<td style="text-align:right">0.061</td>
+<td style="text-align:right">0.030</td>
+<td style="text-align:right">0.029</td>
+</tr>
+<tr>
+<td>BigPocketRestZigZagOffset70</td>
+<td style="text-align:right">0.033</td>
+<td style="text-align:right">0.020</td>
+<td style="text-align:right">0.149</td>
+</tr>
+<tr>
+<td><strong>Big pocket subtotal</strong></td>
+<td style="text-align:right"><strong>0.621</strong></td>
+<td style="text-align:right"><strong>0.342</strong></td>
+<td style="text-align:right"><strong>0.565</strong></td>
+</tr>
+<tr>
+<td><strong>TOTAL (25)</strong></td>
+<td style="text-align:right"><strong>40.81</strong></td>
+<td style="text-align:right"><strong>1.97</strong></td>
+<td style="text-align:right"><strong>0.88</strong></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>The circles commit alone does most of the work.</strong> Adaptive goes from 40.0 s to 1.32 s (30x), and
+the segment union commit then takes it to 0.10 s (another 13x).</li>
+<li><strong>The 70% stepover big pocket slowdown comes from the second commit.</strong> BigPocketRestZigZag70 and
+ZigZagOffset70 are 0.050 s and 0.020 s with circles-only, then 0.150 s and 0.149 s at the head. The
+other big pockets get faster or stay the same.</li>
+<li><strong>Small pockets are slowest with circles-only</strong> (0.311 s vs 0.194 s base, 0.212 s head). The second
+commit gains most of that back.</li>
+<li><strong>The real base is slower than the first run's estimate</strong> (40.8 s vs 34.1 s): the estimate timed
+only the <code>Thicken</code> union, and the real call also walks the paths and builds the OCC shape. The
+table above replaces the base column of the first run's table below.</li>
+</ul>
+<p><strong>Geometry.</strong> Each commit's 25 cleared areas were saved as shapes and cut against the base's:</p>
+<ul>
+<li>Circles-only vs base: the same within slivers. Adaptive at most 0.012 mm² base-only and 0.002 mm²
+new-only. Small pockets at most 0.15 mm² base-only and 0.066 mm² new-only. Big ZigZag pockets 0.36
+to 0.62 mm² base-only and at most 0.042 mm² new-only.</li>
+<li>Circles-only leaves out 0.0134 mm² that the base covers on every Offset and Helix pocket (the head
+matches the base exactly there). Probably the arc discretization; <code>MinArcPoints</code> only arrives with
+the second commit. Base-only area is the safe direction: rest machining re-cuts it.</li>
+<li>Head vs base: the same as the first run found (largest new-only 0.066 mm², PocketRestLine30).</li>
+<li>For Adaptive005 and Adaptive014, OCC's exact boolean on circles-only vs base returned no common
+area at all (coincident edges). With a 0.0001 mm fuzzy boolean they match, as above.</li>
+<li>The before/after pictures were made in the first run, with its re-created base. Its geometry
+matches the built base within these slivers.</li>
 </ul>
 <h2>What I ran</h2>
 <ul>
@@ -118,7 +337,7 @@ read from its debug timing output. This matches the base number most closely.</l
 <li>PR numbers are the median of 3 runs. Base numbers are the median of 3 runs, except the four
 Adaptive cases, which were run once (each takes seconds).</li>
 </ul>
-<h2>getClearedArea timings, per model</h2>
+<h2>getClearedArea timings, first run (base re-created; see Further testing for the built base)</h2>
 <table>
 <thead>
 <tr>
