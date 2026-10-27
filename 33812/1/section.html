@@ -1,0 +1,422 @@
+<section class="review" id="review-1" data-job="33812-6419690118-r1" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-10-27 14:36 · PR head 5a78e073e8d · main 6904a36a7e9 · requested by @davidgilkaufman</span></summary>
+<div class="body">
+<section class="notes"><h2>Requested by @davidgilkaufman</h2><p>can you run the test file/macro on the base commit (stand-in for main, pulling in some fixes from another PR), the commit with just the circles change, and the current commit, and present get cleared area timings table per model + total for those runs? Also give me some screenshots, 1 each zoomed to show the adaptive models, the small pocket array, and the big pocket array, and compile those into 1 before/after comparison image each for the base commit vs the current commit</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2095 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>The three regions of the author&#x27;s test file, PR cleared area (blue) vs base commit (orange), then the full-circle helix fix</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Adaptive jobs: PR cleared area (blue)</span><span class="det">Union time for the 4 Adaptive rest ops: 0.09 s on the PR</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="5.05"><span class="t">0:05</span><span><span class="cap">Adaptive jobs: base commit cleared area (orange)</span><span class="det">Old one-shot union, re-created on the same libarea call: 33.4 s. Same shape.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="9.55"><span class="t">0:09</span><span><span class="cap">Small pocket array: PR (blue)</span><span class="det">15 jobs, 5 patterns x 3 stepovers: 0.15 s on the PR</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="14.05"><span class="t">0:14</span><span><span class="cap">Small pocket array: base commit (orange)</span><span class="det">0.12 s on the base: the PR is a little slower on ZigZag, Line and Grid pockets</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="18.55"><span class="t">0:18</span><span><span class="cap">Big pocket array: PR (blue)</span><span class="det">6 jobs (roughing paths hidden): 0.46 s on the PR</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="23.05"><span class="t">0:23</span><span><span class="cap">Big pocket array: base commit (orange)</span><span class="det">0.64 s on the base. Shapes match to under 0.001 mm.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="27.55"><span class="t">0:27</span><span><span class="cap">Not in the description: full-circle loops now count</span><span class="det">A helix whose loops are below the depth limit: main adds nothing for the loops (orange), the PR adds the ring (blue)</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/adaptive_base_vs_pr.png"><img src="1/adaptive_base_vs_pr.png" alt="Adaptive jobs: base commit cleared area (top, orange, 33.4 s) vs PR (bottom, blue, 0.09 s) - same shape"></a><figcaption>Adaptive jobs: base commit cleared area (top, orange, 33.4 s) vs PR (bottom, blue, 0.09 s) - same shape</figcaption></figure><figure class="shot"><a href="1/big_base_vs_pr.png"><img src="1/big_base_vs_pr.png" alt="Big pocket array, roughing paths hidden: base commit (left, orange, 0.64 s) vs PR (right, blue, 0.46 s) - same shape"></a><figcaption>Big pocket array, roughing paths hidden: base commit (left, orange, 0.64 s) vs PR (right, blue, 0.46 s) - same shape</figcaption></figure><figure class="shot"><a href="1/helix_full_circle_main_vs_pr.png"><img src="1/helix_full_circle_main_vs_pr.png" alt="Not in the description: helix loops at depth add no cleared area on main (orange), the PR counts them (blue)"></a><figcaption>Not in the description: helix loops at depth add no cleared area on main (orange), the PR counts them (blue)</figcaption></figure><figure class="shot"><a href="1/small_base_vs_pr.png"><img src="1/small_base_vs_pr.png" alt="Small pocket array: base commit (left, orange, 0.12 s) vs PR (right, blue, 0.15 s) - same shape"></a><figcaption>Small pocket array: base commit (left, orange, 0.12 s) vs PR (right, blue, 0.15 s) - same shape</figcaption></figure></div>
+
+<div class="summary"><blockquote>
+<p><strong>About the requested timing runs.</strong> This review job can only use the build of the PR head; it
+cannot check out and rebuild other commits. So the <strong>circles-only commit (6e75d67) was not run</strong>,
+and the <strong>base commit (1c7bb6e)</strong> numbers come from a Python re-creation of its algorithm on the
+PR build (details below), not from a build of that commit. The PR head numbers come from the
+author's macro and the PR's own timing output.</p>
+</blockquote>
+<h2>TL;DR</h2>
+<ul>
+<li>No defects found. The new cleared area has the same shape as the old one on all 25 test cases
+(differences are slivers under 0.001 mm wide), and it is far faster where it matters: the 4 Adaptive
+cases go from about 33 s to 0.09 s.</li>
+<li>On simple pocket paths (ZigZag, Line, Grid) it is a little slower than before, about 0.1 s at
+most. That's small next to the Adaptive gain, but noted in case the author wants to tune it.</li>
+<li>Unmentioned fix: full-circle arcs (for example helix loops) used to add nothing to the cleared
+area. The PR counts them.</li>
+<li>The included Adaptive fixes (#33909) work: with main's code, two Adaptive rest ops in the test
+file fail and two re-cut the whole pocket. With the PR they cut only the rest.</li>
+</ul>
+<h2>What I ran</h2>
+<ul>
+<li>The author's <code>clearedAreaTest.FCStd</code> and <code>clearedAreaTest.FCMacro</code> from the PR description, opened
+in the review tree's FreeCAD at the PR head (d37ba7b). The macro passed: 25 cleared areas, 0.788 s
+total.</li>
+<li>Unit tests: full CAM suite, 2095 tests, OK (13 skipped, 4 expected failures). The new
+<code>testRestMachining</code> (from #33909) passes. It checks that an Adaptive rest op recomputes cleanly
+(the arc and depth fixes). Nothing tests the shape or speed of the new cleared area code.</li>
+</ul>
+<h3>How the base commit was measured</h3>
+<p>The base commit's C++ is the same as main's. Its <code>getClearedArea</code> turns every line and arc at or
+below the depth into a 2-vertex curve, then makes one <code>CArea::Thicken(radius)</code> call that unions them
+all. That libarea function is not changed by this PR and can be called from Python through the <code>area</code>
+module. So I re-created the old visitor in Python (G0/G1/G2/G3, absolute, G17, which is all the test
+file has), applied the same accuracy and clipper settings, and timed the <code>Thicken</code> call on the
+same paths the macro uses. The geometry was then compared with the PR's result.</p>
+<ul>
+<li>&quot;Base&quot; below is only the <code>Thicken</code> time: the old union, which is where the old code spent its time.</li>
+<li>&quot;PR union&quot; is the PR's <code>getClearedArea</code> time minus path walking and the OCC shape conversion,
+read from its debug timing output. This matches the base number most closely.</li>
+<li>&quot;PR call&quot; is the whole <code>Path.getClearedArea()</code> call from Python. The macro measures the same thing.</li>
+<li>PR numbers are the median of 3 runs. Base numbers are the median of 3 runs, except the four
+Adaptive cases, which were run once (each takes seconds).</li>
+</ul>
+<h2>getClearedArea timings, per model</h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th style="text-align:right">Segments</th>
+<th style="text-align:right">Base 1c7bb6e (s)</th>
+<th>Circles-only 6e75d67</th>
+<th style="text-align:right">PR union (s)</th>
+<th style="text-align:right">PR call (s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Adaptive005</td>
+<td style="text-align:right">3308</td>
+<td style="text-align:right">4.700</td>
+<td>not run</td>
+<td style="text-align:right">0.037</td>
+<td style="text-align:right">0.045</td>
+</tr>
+<tr>
+<td>Adaptive007</td>
+<td style="text-align:right">1496</td>
+<td style="text-align:right">0.679</td>
+<td>not run</td>
+<td style="text-align:right">0.007</td>
+<td style="text-align:right">0.008</td>
+</tr>
+<tr>
+<td>Adaptive014</td>
+<td style="text-align:right">6790</td>
+<td style="text-align:right">21.707</td>
+<td>not run</td>
+<td style="text-align:right">0.031</td>
+<td style="text-align:right">0.039</td>
+</tr>
+<tr>
+<td>Adaptive015</td>
+<td style="text-align:right">3820</td>
+<td style="text-align:right">6.285</td>
+<td>not run</td>
+<td style="text-align:right">0.011</td>
+<td style="text-align:right">0.014</td>
+</tr>
+<tr>
+<td><strong>Adaptive subtotal</strong></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"><strong>33.372</strong></td>
+<td></td>
+<td style="text-align:right"><strong>0.086</strong></td>
+<td style="text-align:right"><strong>0.106</strong></td>
+</tr>
+<tr>
+<td>PocketRestZigZag30</td>
+<td style="text-align:right">107</td>
+<td style="text-align:right">0.007</td>
+<td>not run</td>
+<td style="text-align:right">0.011</td>
+<td style="text-align:right">0.019</td>
+</tr>
+<tr>
+<td>PocketRestZigZag50</td>
+<td style="text-align:right">68</td>
+<td style="text-align:right">0.007</td>
+<td>not run</td>
+<td style="text-align:right">0.008</td>
+<td style="text-align:right">0.015</td>
+</tr>
+<tr>
+<td>PocketRestZigZag70</td>
+<td style="text-align:right">50</td>
+<td style="text-align:right">0.026</td>
+<td>not run</td>
+<td style="text-align:right">0.007</td>
+<td style="text-align:right">0.010</td>
+</tr>
+<tr>
+<td>PocketRestOffset30</td>
+<td style="text-align:right">87</td>
+<td style="text-align:right">0.006</td>
+<td>not run</td>
+<td style="text-align:right">0.002</td>
+<td style="text-align:right">0.003</td>
+</tr>
+<tr>
+<td>PocketRestOffset50</td>
+<td style="text-align:right">55</td>
+<td style="text-align:right">0.003</td>
+<td>not run</td>
+<td style="text-align:right">0.002</td>
+<td style="text-align:right">0.003</td>
+</tr>
+<tr>
+<td>PocketRestOffset70</td>
+<td style="text-align:right">53</td>
+<td style="text-align:right">0.003</td>
+<td>not run</td>
+<td style="text-align:right">0.003</td>
+<td style="text-align:right">0.004</td>
+</tr>
+<tr>
+<td>PocketRestHelix30</td>
+<td style="text-align:right">87</td>
+<td style="text-align:right">0.007</td>
+<td>not run</td>
+<td style="text-align:right">0.002</td>
+<td style="text-align:right">0.003</td>
+</tr>
+<tr>
+<td>PocketRestHelix50</td>
+<td style="text-align:right">55</td>
+<td style="text-align:right">0.005</td>
+<td>not run</td>
+<td style="text-align:right">0.002</td>
+<td style="text-align:right">0.003</td>
+</tr>
+<tr>
+<td>PocketRestHelix70</td>
+<td style="text-align:right">53</td>
+<td style="text-align:right">0.004</td>
+<td>not run</td>
+<td style="text-align:right">0.003</td>
+<td style="text-align:right">0.004</td>
+</tr>
+<tr>
+<td>PocketRestLine30</td>
+<td style="text-align:right">50</td>
+<td style="text-align:right">0.003</td>
+<td>not run</td>
+<td style="text-align:right">0.011</td>
+<td style="text-align:right">0.016</td>
+</tr>
+<tr>
+<td>PocketRestLine50</td>
+<td style="text-align:right">31</td>
+<td style="text-align:right">0.002</td>
+<td>not run</td>
+<td style="text-align:right">0.009</td>
+<td style="text-align:right">0.016</td>
+</tr>
+<tr>
+<td>PocketRestLine70</td>
+<td style="text-align:right">21</td>
+<td style="text-align:right">0.002</td>
+<td>not run</td>
+<td style="text-align:right">0.005</td>
+<td style="text-align:right">0.009</td>
+</tr>
+<tr>
+<td>PocketRestGrid30</td>
+<td style="text-align:right">202</td>
+<td style="text-align:right">0.029</td>
+<td>not run</td>
+<td style="text-align:right">0.041</td>
+<td style="text-align:right">0.058</td>
+</tr>
+<tr>
+<td>PocketRestGrid50</td>
+<td style="text-align:right">122</td>
+<td style="text-align:right">0.008</td>
+<td>not run</td>
+<td style="text-align:right">0.026</td>
+<td style="text-align:right">0.037</td>
+</tr>
+<tr>
+<td>PocketRestGrid70</td>
+<td style="text-align:right">85</td>
+<td style="text-align:right">0.007</td>
+<td>not run</td>
+<td style="text-align:right">0.018</td>
+<td style="text-align:right">0.026</td>
+</tr>
+<tr>
+<td><strong>Small pocket subtotal</strong></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"><strong>0.120</strong></td>
+<td></td>
+<td style="text-align:right"><strong>0.149</strong></td>
+<td style="text-align:right"><strong>0.225</strong></td>
+</tr>
+<tr>
+<td>BigPocketRestZigZag30</td>
+<td style="text-align:right">709</td>
+<td style="text-align:right">0.203</td>
+<td>not run</td>
+<td style="text-align:right">0.081</td>
+<td style="text-align:right">0.106</td>
+</tr>
+<tr>
+<td>BigPocketRestZigZag50</td>
+<td style="text-align:right">427</td>
+<td style="text-align:right">0.100</td>
+<td>not run</td>
+<td style="text-align:right">0.052</td>
+<td style="text-align:right">0.079</td>
+</tr>
+<tr>
+<td>BigPocketRestZigZag70</td>
+<td style="text-align:right">305</td>
+<td style="text-align:right">0.058</td>
+<td>not run</td>
+<td style="text-align:right">0.131</td>
+<td style="text-align:right">0.143</td>
+</tr>
+<tr>
+<td>BigPocketRestZigZagOffset30</td>
+<td style="text-align:right">713</td>
+<td style="text-align:right">0.194</td>
+<td>not run</td>
+<td style="text-align:right">0.055</td>
+<td style="text-align:right">0.058</td>
+</tr>
+<tr>
+<td>BigPocketRestZigZagOffset50</td>
+<td style="text-align:right">431</td>
+<td style="text-align:right">0.065</td>
+<td>not run</td>
+<td style="text-align:right">0.029</td>
+<td style="text-align:right">0.032</td>
+</tr>
+<tr>
+<td>BigPocketRestZigZagOffset70</td>
+<td style="text-align:right">309</td>
+<td style="text-align:right">0.027</td>
+<td>not run</td>
+<td style="text-align:right">0.114</td>
+<td style="text-align:right">0.116</td>
+</tr>
+<tr>
+<td><strong>Big pocket subtotal</strong></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"><strong>0.645</strong></td>
+<td></td>
+<td style="text-align:right"><strong>0.461</strong></td>
+<td style="text-align:right"><strong>0.534</strong></td>
+</tr>
+<tr>
+<td><strong>TOTAL (25)</strong></td>
+<td style="text-align:right"></td>
+<td style="text-align:right"><strong>34.14</strong></td>
+<td></td>
+<td style="text-align:right"><strong>0.70</strong></td>
+<td style="text-align:right"><strong>0.86</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Segment counts are the base visitor's. The PR skips zero-length moves (vertical plunges), so it
+counts a few fewer (for example 3155 vs 3308 for Adaptive005). Base times under about 10 ms are
+noisy: one Python-side run of ZigZag70 took 26 ms, the others 7 ms.</p>
+<h3>Where the PR is slower (not a defect, for tuning)</h3>
+<ul>
+<li><strong>Circle union in pockets.</strong> For ZigZag, Line and Grid pockets the circle filter keeps almost
+every end cap (for example PocketRestGrid30: 404 centers, 404 circles), because every pass ends at
+a wall. The circle union is then the biggest stage (31 of 62 ms on Grid30, 54 of 108 ms on Big
+ZigZag30).</li>
+<li><strong>Open-path difference on 70% stepover big pockets.</strong> On BigPocketRestZigZag70 and
+ZigZagOffset70 the open difference of the deferred center lines takes about 90 ms of the 140 ms,
+while the old union took 58 ms and 27 ms.</li>
+<li>Adaptive paths (thousands of short segments) are where the old code was slow, and there the PR
+is 100x to 700x faster.</li>
+</ul>
+<h2>Geometry: is the new cleared area the same?</h2>
+<p>For each of the 25 cases I built OCC faces from the base result and from the PR result and cut each
+from the other:</p>
+<ul>
+<li>Adaptive (4): PR-only area 0.004 to 0.006 mm², base-only area at most 0.0013 mm², in pieces under
+0.001 mm wide.</li>
+<li>Small pockets (15): Offset and Helix match exactly. ZigZag, Line and Grid differ by at most
+0.13 mm² in total, in slivers under 0.001 mm wide. Offset70 and Helix70 have one 0.0011 mm² base-only
+piece, about 0.02 mm wide.</li>
+<li>Big pockets (6): ZigZagOffset matches exactly. ZigZag: the PR area is 0.3 to 0.5 mm² smaller, in
+178 to 317 slivers, each under 0.001 mm wide.</li>
+<li>Nowhere does the PR claim a cleared region wider than 0.001 mm that the old code did not. That's
+well inside the 0.03 mm buffer <code>getClearedArea</code> adds, so rest machining will not skip material
+because of this change.</li>
+</ul>
+<p>Synthetic paths, compared the same way (6 mm tool):</p>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6-turn spiral of short lines</td>
+<td>same (0.001 mm² base-only sliver)</td>
+</tr>
+<tr>
+<td>Concentric rings of half arcs</td>
+<td>same</td>
+</tr>
+<tr>
+<td>2000-segment random walk</td>
+<td>same within slivers. PR 0.077 s vs base 1.67 s</td>
+</tr>
+<tr>
+<td>Pass that starts inside an earlier pass, then leaves</td>
+<td>same: the part outside is kept</td>
+</tr>
+<tr>
+<td>Zigzag with 0.0005 mm steps at the reversals</td>
+<td>same, except at the region edge (next item)</td>
+</tr>
+<tr>
+<td>Path running outside the region of interest</td>
+<td>same inside the region</td>
+</tr>
+<tr>
+<td>Full-circle G2/G3 (start = end)</td>
+<td><strong>main: zero area. PR: the correct rings</strong> (571.14 mm² = 380.76 + 190.38 expected)</td>
+</tr>
+<tr>
+<td>Helix of full circles whose lower loops are below the depth limit</td>
+<td><strong>main: only the exit line (119.7 mm²). PR: line plus ring (270.1 mm²)</strong></td>
+</tr>
+<tr>
+<td>G81 drill points, two overlapping</td>
+<td>PR = union of tool circles (never larger)</td>
+</tr>
+</tbody>
+</table>
+<h2>Not in the PR description</h2>
+<ul>
+<li><strong>Full-circle arcs are now counted as cleared</strong> (tested, fix). On main, a G2/G3 whose start equals
+its end adds nothing to the cleared area, so rest machining after a Helix or helix-entry pass that
+makes full circles at depth re-cuts what they cleared. The PR splits them into two half circles.</li>
+<li><strong>The region of interest is now really enlarged by the tool radius</strong> (tested, fix). On main the
+constructor's <code>bbox.Enlarge(radius)</code> enlarged its parameter, not the member, so a pass within one
+tool radius outside the region was ignored. The PR fixes this with <code>this-&gt;bbox</code>, and my zigzag test
+shows that pass now counted at the region edge.</li>
+<li><strong>Arcs outside the region are now skipped, and zero-length moves too</strong> (tested indirectly: results
+match the base inside the region).</li>
+<li><strong>New <code>MinArcPoints</code> property on every Path Area object</strong> (<code>Path::FeatureArea</code>, libarea group,
+integer, default 4, &quot;Minimum segments for arc discretization&quot;), also a new <code>Path.Area</code> parameter
+(tested: it shows on a new object with default 4. Not tested: loading an old file that has an
+Area object, which should just get the default).</li>
+<li><strong>Debug output</strong> (tested): every <code>getClearedArea</code> call prints a <code>getClearedArea: total=...</code> line
+to stderr, and setting <code>CLEARED_AREA_DUMP_DIR</code> writes JSON dumps. The last commit's title says
+so. It should come out before merge.</li>
+</ul>
+<h2>Included from #33909</h2>
+<ul>
+<li><strong>Arcs in the input cleared area</strong> (tested, fixed). A/B, main's <code>Adaptive.py</code> vs the PR's on the
+author's file: Adaptive005 and Adaptive007 end up <code>Invalid</code> with 1 command on main. On the PR they
+compute (1783 and 1430 commands, minimum Z -5).</li>
+<li><strong>Depth used when checking previous paths</strong> (tested, fixed). Model-aware Adaptive014 and
+Adaptive015 ignore the roughing op's cleared area on main and re-cut the whole pocket (58,736 and
+46,674 commands, about 8100 mm of feed). On the PR they cut only the rest (1005 and 1182 commands,
+about 205 mm).</li>
+<li><strong>New test <code>testRestMachining</code></strong> (tested): passes.</li>
+<li>(Both A/B sides ran the PR's C++. Only the Python differed.)</li>
+</ul>
+<h2>Issues</h2>
+<p>None linked by the PR.</p>
+<h2>Pictures</h2>
+<ul>
+<li><code>adaptive_base_vs_pr.png</code>, <code>small_base_vs_pr.png</code>, <code>big_base_vs_pr.png</code>: the requested
+before/after images, base commit (orange) vs PR head (blue), one per region of the test file.
+The macro's view settings are used (models opaque, roughing paths gray, rest paths red). For the
+big pocket array the roughing paths are hidden, because they cover the whole cleared area.</li>
+<li><code>helix_full_circle_main_vs_pr.png</code>: the full-circle fix.</li>
+<li><code>demo.mp4</code>: the same views in sequence, with captions.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
