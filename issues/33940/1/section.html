@@ -1,0 +1,101 @@
+<section class="review" id="review-1" data-job="33940-session-20261027-224319" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Repro 1</span><span class="meta">2026-10-27 22:45 · main e95a31c3119 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">Tried against upstream main <code>e95a31c3119</code>: <strong>tried</strong></p>
+
+<div class="shots"><figure class="shot"><a href="1/uncut-strip.png"><img src="1/uncut-strip.png" alt="The reporter&#x27;s MillFacing toolpath (Spiral Rectangular, 5 mm tool, 80% stepover) with the area the tool sweeps. Red: the 1.67 mm x 21.7 mm strip in the center that no pass reaches."></a><figcaption>The reporter&#x27;s MillFacing toolpath (Spiral Rectangular, 5 mm tool, 80% stepover) with the area the tool sweeps. Red: the 1.67 mm x 21.7 mm strip in the center that no pass reaches.</figcaption></figure></div>
+<section class="notes"><h2>Test model</h2><ul><li><a href="1/issue-33940-reporter-file.FCStd">issue-33940-reporter-file.FCStd</a></li></ul></section>
+<div class="summary"><p><strong>Reproduced:</strong> Yes</p>
+<h2>TL;DR</h2>
+<ul>
+<li><strong>Confirmed on current main.</strong> This is a toolpath bug, not a simulator bug. No pass of the Spiral Rectangular pattern reaches a 1.67 mm × 21.7 mm strip in the center of the stock.</li>
+<li><strong>It happens with Spiral Rectangular at a stepover of 75% or more.</strong> A stepover of 70% or less, or another clearing pattern, avoids it.</li>
+<li><strong>Cause: a sign error</strong> in the stepover adjustment in <code>Path/Base/Generator/spiral_facing.py</code>. It dates back to the facing reimplementation (#24367). The fix is two lines.</li>
+</ul>
+<h2>What was checked</h2>
+<p>The reporter's build is <code>9946038aa</code>. <code>spiral_facing.py</code> and <code>MillFacing.py</code> are byte-identical between that build and current main <code>e95a31c3119</code>, so the reporter's saved toolpath is what main generates.</p>
+<p>The reporter's file has a MillFacing op with these settings:</p>
+<ul>
+<li>Clearing Pattern = Spiral Rectangular</li>
+<li>5 mm endmill, Step Over = 80%</li>
+<li>Stock Extension 2 mm, Pass Extension 3 mm</li>
+<li>a Lead In/Out dressup on top</li>
+</ul>
+<p>The stock is 100 × 80 mm, centered on the origin. I read the G-code stored in the file and swept a 5 mm disc along every feed move on a 0.05 mm grid over the stock top.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Loop half-widths in Y</td>
+<td>45.5, 41.67, 37.83, … 7.17, <strong>3.333</strong> (step 3.8333)</td>
+</tr>
+<tr>
+<td>Uncut region</td>
+<td>X −10.80 … +10.80, Y −0.80 … +0.80, about 35.7 mm²</td>
+</tr>
+<tr>
+<td>Expected from geometry</td>
+<td>Y ±(3.333 − 2.5) = ±0.833; X ±(13.333 − 2.5) = ±10.833</td>
+</tr>
+</tbody>
+</table>
+<p>This matches the sliver in the reporter's screenshot. The Lead In/Out dressup only adds the arcs at the start and end, so it isn't involved.</p>
+<h2>Cause</h2>
+<p>In <code>spiral()</code>:</p>
+<pre><code class="language-python">starting_inset = tool_radius - stepover_dist                         # -1.5
+limiting_half = min(primary_length, step_length) / 2.0              # 47
+total_radial_distance = limiting_half - tool_radius - starting_inset  # 46 (should be 43)
+number_of_intervals = math.ceil(total_radial_distance / stepover_dist)  # 12
+actual_stepover = total_radial_distance / number_of_intervals         # 3.8333
+...
+initial_offset = -tool_radius + stepover_dist                        # +1.5
+</code></pre>
+<p>The adjustment is meant to land the last loop at offset <code>limiting_half - tool_radius</code> (44.5), where the tool edge just reaches the center. The loops start at <code>initial_offset</code> (+1.5), but the distance is measured from <code>starting_inset</code> (−1.5), the same value with the opposite sign.</p>
+<p>The result: loop 11 lands at offset 43.667, which is 0.833 short. Loop 12 would be at 47.5, past the center, so the <code>isGreaterEqual(t0, t1)</code> check ends the spiral. Nothing ever cuts the band between them.</p>
+<p>With the fix, the distance is 43, divided into 11 intervals: <code>actual_stepover</code> = 3.9091 and the last loop sits at exactly 44.5.</p>
+<p>At stepovers below about 70%, the loop keeps going past the target, so no material is left. The adjusted stepover is still not the value the docstring promises.</p>
+<h2>Sweep: current vs fixed</h2>
+<p>I re-implemented the offset logic in plain Python and ran it for a 5 mm tool at every stepover from 10% to 100% in 5% steps, with half-widths from 3 to 99.5 mm in 0.5 mm steps (3686 cases):</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Cases with an uncut center strip</th>
+<th>Stepovers affected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Current main</td>
+<td>834</td>
+<td>75, 80, 85, 90, 95%</td>
+</tr>
+<tr>
+<td>With the fix</td>
+<td>0</td>
+<td>–</td>
+</tr>
+</tbody>
+</table>
+<h2>Suggested fix</h2>
+<pre><code class="language-diff">-    starting_inset = tool_radius - stepover_dist
++    initial_offset = stepover_dist - tool_radius
+     limiting_half = min(primary_length, step_length) / 2.0
+-    total_radial_distance = limiting_half - tool_radius - starting_inset
++    total_radial_distance = limiting_half - tool_radius - initial_offset
+</code></pre>
+<p>Then remove the later <code>initial_offset = -tool_radius + stepover_dist</code> line.</p>
+<p>A regression test in <code>TestPathFacingGenerator</code> should use 80% stepover on a rectangle like this one. It should check that the last loop's offset from the boundary equals <code>limiting_half - tool_radius</code>, or simply that the swept area covers the center.</p>
+<h2>Not done</h2>
+<p>The file was not opened in a live FreeCAD for this check. The evidence is the toolpath saved in the reporter's file plus the generator source on main, which is identical to the reporter's build.</p>
+</div>
+</div>
+</details>
+</section>

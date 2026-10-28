@@ -1,5 +1,15 @@
 [
  {
+  "pr": 33940,
+  "run": 1,
+  "job": "33940-session-20261027-224319",
+  "title": "CAM: MillFacing some material in the center is not faced",
+  "date": "2026-10-27 22:45",
+  "requester": "Connor9220",
+  "poster": true,
+  "reproduced": null
+ },
+ {
   "pr": 33599,
   "run": 1,
   "job": "33599-session-20261015-125802",
