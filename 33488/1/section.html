@@ -1,0 +1,200 @@
+<section class="review" id="review-1" data-job="33488-local-20261031-231311" data-state="draft">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-10-31 23:45 · PR head 80ec760dbe1 · main 24ea8589aa8 · requested by @Connor9220</span></summary>
+<div class="body">
+<section class="draft"><h2>Draft: not posted to the pr yet</h2><p>This review is waiting for approval. The comment below is what would be posted.</p><div class="summary"><p><strong>TL;DR</strong></p>
+<ul>
+<li>The fix works. A closed B-spline pocket edge is no longer &quot;vertical&quot;, and Adaptive (Model Aware) on that edge now cuts. On main it makes no path.</li>
+<li>Minor: on B-spline-surface models (scaled bodies, some STEP imports), fillet faces now count as vertical. I saw no toolpath change.</li>
+<li>sliptonic's review: the Bezier trim and the planar-curve case are fixed. The non-planar case only shows up on an artificial curve with a sharp corner. The <code>0.1</code> tolerance still has no comment.</li>
+</ul>
+<p><strong>B-spline face test flips for curved edges in a vertical plane</strong></p>
+<p>The <code>BSplineSurface</code> branch calls a face vertical when 2 of its 4 edges are vertical. Curved edges in a vertical plane now count, so a top-edge fillet becomes &quot;vertical&quot; and an arched end face doesn't. Counting only straight Z edges there would fix it.</p>
+<ol>
+<li>Make a box 60×40×20 and fillet the two top X edges (R6).</li>
+<li>Scale it non-uniformly with <code>transformGeometry</code>, matrix scale (1, 1.25, 1).</li>
+<li><code>Path.Geom.isVertical</code> on a fillet face returns False on main and True on the PR.</li>
+</ol>
+<p><strong>Not in the PR description</strong></p>
+<ul>
+<li>Bezier edges are now classified from the trimmed edge (tested)</li>
+<li>Trimmed B-spline edges are judged on the trimmed part, not the full curve's end points (tested)</li>
+<li>Curved edges in a vertical plane now count as vertical (tested)</li>
+<li>B-spline surface face classification changes as a result (tested)</li>
+<li>The old Bezier tests are re-enabled (tested)</li>
+</ul>
+</div></section><section class="notes"><h2>Requested by @Connor9220</h2><p>Re-review: sliptonic posted an AI review 10-26 (two minor issues, tarman3 replied). Check whether those points still stand against the current head.</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2094 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Adaptive (Model Aware) on a closed B-spline pocket edge: no toolpath with main&#x27;s rule, full clearing on the PR; then the scaled filleted block whose fillet faces the PR now calls vertical.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Test plate: the pocket outline (cyan) is one closed B-spline edge</span><span class="det">Adaptive, Model Aware on, base = that edge</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="9.18"><span class="t">0:09</span><span><span class="cap">main: the edge is called &#x27;vertical&#x27; and dropped - no toolpath</span><span class="det">Report view: &#x27;Selected faces/wires have no projection on the XY plane&#x27;. Op computed with main&#x27;s isVertical rule.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="18.18"><span class="t">0:18</span><span><span class="cap">PR: the edge is horizontal, Adaptive clears inside it (green)</span><span class="det">4148 commands vs 3 on main</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="27.18"><span class="t">0:27</span><span><span class="cap">Side effect: scaled block with B-spline faces</span><span class="det">Red fillet faces now count as vertical (blue = vertical on both). No Adaptive toolpath change seen.</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/fillet_faces.png"><img src="1/fillet_faces.png" alt="Non-uniformly scaled block (all B-spline faces): red fillet faces are &#x27;vertical&#x27; only on the PR; blue walls are vertical on both."></a><figcaption>Non-uniformly scaled block (all B-spline faces): red fillet faces are &#x27;vertical&#x27; only on the PR; blue walls are vertical on both.</figcaption></figure><figure class="shot"><a href="1/main_no_path.png"><img src="1/main_no_path.png" alt="main: Adaptive on the closed B-spline edge (cyan) drops it as &#x27;vertical&#x27; and makes no clearing path (only a lone rapid)."></a><figcaption>main: Adaptive on the closed B-spline edge (cyan) drops it as &#x27;vertical&#x27; and makes no clearing path (only a lone rapid).</figcaption></figure><figure class="shot"><a href="1/pr_path.png"><img src="1/pr_path.png" alt="PR: the same Adaptive op now clears inside the closed B-spline edge (green feeds, red rapids)."></a><figcaption>PR: the same Adaptive op now clears inside the closed B-spline edge (green feeds, red rapids).</figcaption></figure></div>
+
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>The fix works.</strong> A closed B-spline edge (a pocket outline drawn as one spline) is no longer called &quot;vertical&quot;. Adaptive with Model Aware on, using that edge as its base, now makes a clearing toolpath. On main it makes none.</li>
+<li><strong>Minor side effect:</strong> on models whose faces are B-spline surfaces (non-uniformly scaled bodies, some STEP imports), curved fillet faces now count as &quot;vertical&quot; and arched flat end faces no longer do. I found no toolpath change from it.</li>
+<li><strong>sliptonic's 10-26 points:</strong> the Bezier trim range (point 2) and the inclined curve in a vertical plane (point 1a) are fixed at the current head. Point 1b still stands, but I could only trigger it with an artificial curve that has a sharp corner. The <code>0.1</code> tolerance still has no comment.</li>
+</ul>
+<p>Head reviewed: <code>80ec760dbe1</code> (one commit, applied onto main as <code>280a2c9b73c</code>).</p>
+<h2>What the PR changes</h2>
+<p><code>Path.Geom.isVertical(edge)</code> for B-spline and Bezier curves:</p>
+<ul>
+<li>before: &quot;vertical if the curve's start and end points are stacked in Z&quot;. A closed curve has start = end, so it always counted as vertical. The check also used the untrimmed curve, not the edge.</li>
+<li>now: Bezier curves are converted to a B-spline over the edge's parameter range. For B-splines, a planar edge is vertical when its plane is vertical (<code>findPlane()</code>, the same rule circles use). Other edges are split into arcs and lines (<code>toBiArcs</code>, tolerance <code>min(0.1 * length, 0.1)</code>), and the edge is vertical only if every piece is.</li>
+<li>The old, commented-out Bezier tests are switched back on, and B-spline line and circle tests are added.</li>
+</ul>
+<h2>What I checked</h2>
+<h3>The PR's claim, in a real operation</h3>
+<p>The author's test project (<code>isVertical_bspline_issue.zip</code>) could not be downloaded in this environment, so I built an equivalent part: a 100×60×15 plate with an organic pocket whose outline is one closed periodic B-spline, a Ø14 boss, plus a copy of the plate non-uniformly scaled 1 : 1.3 in Y, so that every face is a B-spline surface.</p>
+<p>Only two places in CAM pass edges to <code>isVertical</code>: Adaptive with <strong>Model Aware</strong> on (<code>Adaptive.py:1117</code>, base edges) and Plunge Milling (G-code moves only, never B-splines). Adaptive without Model Aware never calls it, so its output is identical on main and the PR (checked: all three plain Adaptive ops are identical).</p>
+<table>
+<thead>
+<tr>
+<th>Adaptive, Model Aware, base = closed B-spline pocket edge</th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>plate, <code>isVertical(Edge10)</code></td>
+<td>True</td>
+<td>False</td>
+</tr>
+<tr>
+<td>plate, commands</td>
+<td>3 (no cut; <em>&quot;Selected faces/wires have no projection on the XY plane&quot;</em>)</td>
+<td>4148, clears inside the outline down to Z 15</td>
+</tr>
+<tr>
+<td>scaled plate, commands</td>
+<td>3 (same warning)</td>
+<td>4708</td>
+</tr>
+<tr>
+<td>scaled plate, pocket floor face as base</td>
+<td>2368</td>
+<td>2368 (identical)</td>
+</tr>
+</tbody>
+</table>
+<p><img src="media/main_no_path.png" alt="main: no path" /> <img src="media/pr_path.png" alt="PR: path" /></p>
+<h3>Edge cases, main vs PR (headless A/B of <code>isVertical</code> / <code>isHorizontal</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>Edge</th>
+<th>main</th>
+<th>PR</th>
+<th>Right answer</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>closed periodic B-spline in XY</td>
+<td>vertical</td>
+<td>not vertical</td>
+<td>not vertical ✔</td>
+</tr>
+<tr>
+<td>XY circle converted to NURBS (full / trimmed half)</td>
+<td>vertical</td>
+<td>not vertical</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>closed Bezier in XY</td>
+<td>vertical</td>
+<td>not vertical</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>tilted circle (axis 0,1,1), quarter as B-spline</td>
+<td>vertical</td>
+<td>not vertical</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>closed saddle curve (Ø10 vertical cylinder meets Ø16 horizontal cylinder)</td>
+<td>vertical</td>
+<td>not vertical</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>curve in the XZ plane / degree-1 polyline in XZ (sliptonic 1a)</td>
+<td>not vertical</td>
+<td>vertical</td>
+<td>vertical, same rule as circles ✔</td>
+</tr>
+<tr>
+<td>straight vertical / horizontal / inclined B-spline</td>
+<td>V / – / –</td>
+<td>V / – / –</td>
+<td>unchanged ✔</td>
+</tr>
+<tr>
+<td>helix-like and wavy 3D curves</td>
+<td>not vertical</td>
+<td>not vertical</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>tiny (0.1 µm) non-planar edge</td>
+<td>not vertical</td>
+<td>not vertical, no hang</td>
+<td>✔</td>
+</tr>
+<tr>
+<td>non-planar edge: XZ arc then YZ arc meeting at a sharp corner (XY shadow is an L, 10×10 mm)</td>
+<td>not vertical</td>
+<td><strong>vertical</strong></td>
+<td>not vertical (sliptonic 1b)</td>
+</tr>
+</tbody>
+</table>
+<p>Time per call goes from about 0.03 ms to 0.1–2 ms for non-planar edges, which is negligible.</p>
+<h3>Minor finding: B-spline face test now flips for curved edges in a vertical plane</h3>
+<p><strong>What it does.</strong> <code>isVertical(face)</code> for a <code>BSplineSurface</code> face counts its edges: a face is vertical when exactly 2 of its 4 edges are vertical. That rule assumed &quot;vertical edge&quot; meant &quot;straight up&quot;. With this PR, a curved edge that lies in a vertical plane also counts as vertical, so:</p>
+<ul>
+<li>a fillet along a top edge (2 straight horizontal edges + 2 quarter arcs in vertical planes) now has 2 &quot;vertical&quot; edges and is called <strong>vertical</strong>. On main it was not vertical, which is correct.</li>
+<li>an arch-shaped flat end face (bottom line, two straight sides, arched top) now has 3 &quot;vertical&quot; edges and is called <strong>not vertical</strong>. On main it was vertical, which is correct.</li>
+</ul>
+<p><img src="media/fillet_faces.png" alt="fillet faces" /></p>
+<p><strong>Impact.</strong> Adaptive with Model Aware skips &quot;vertical&quot; faces when it projects the model (<code>Adaptive.py:845</code>). On a scaled block 60×50×20 with R6 fillets on the two long top edges (Adaptive, Outside, Model Aware, down to Z 2), the toolpath was <strong>identical</strong> on main and the PR, because the bottom face still covers the outline. The other callers are the Select Loop helpers (<code>PathUtils.horizontalFaceLoops</code> / <code>facesAtHeight</code>), which only change what gets selected. So this is a wrong answer from the changed function with no toolpath damage found. Possible fix: in the <code>BSplineSurface</code> branch, count only straight edges that point in Z (the old meaning).</p>
+<p><strong>Repro.</strong> <code>Part.makeBox(60,40,20)</code>, fillet the two top edges along X (R6), then <code>transformGeometry</code> with a matrix scaled (1, 1.25, 1). <code>Path.Geom.isVertical(shape.Faces[2])</code> (a fillet face) gives False on main and True on the PR.</p>
+<h3>sliptonic's AI review (10-26) against the current head</h3>
+<ol>
+<li><strong>&quot;Vertical&quot; has two meanings; biarc pieces inherit both.</strong>
+<ul>
+<li><em>Inclined straight part in an XZ-plane spline returns False:</em> <strong>fixed.</strong> The author added the suggested <code>findPlane()</code> check, so a planar curve in a vertical plane is now vertical (the <code>xz_polyline_deg1</code> row above).</li>
+<li><em>Non-planar 3D curve whose arcs have different horizontal axes returns True:</em> <strong>still stands, edge case only.</strong> Reproduced with an XZ arc joined to a YZ arc at a sharp corner. main says not vertical, the PR says vertical, and Model Aware Adaptive would drop such an edge. Smooth real-world 3D edges (helix, wavy curve, cylinder–cylinder saddle) all come out not vertical, because their biarc pieces lie in tilted planes. Not listed as a finding.</li>
+</ul>
+</li>
+<li><strong>Bezier branch ignores the parameter range:</strong> <strong>fixed.</strong> It now uses <code>toBSpline(*obj.ParameterRange)</code>. The B-spline branch trims too, which also fixes main's use of the untrimmed curve's end points (half-circle row above).</li>
+<li><strong>Inline: <code>0.1</code> tolerance is a magic number, add a comment:</strong> <strong>unchanged.</strong> No comment yet. Cosmetic.</li>
+</ol>
+<h3>Unit tests</h3>
+<p>The full CAM suite passes: 2094 tests, OK (13 skipped, 4 expected failures). <code>TestPathGeom.test03</code> now contains the re-enabled Bezier checks and the new B-spline line and circle checks. The closed-circle checks fail with main's logic (main returns vertical for an XY NURBS circle), so they really test the claim. No test covers the <code>BSplineSurface</code> face branch.</p>
+<h3>Also on main (not this PR)</h3>
+<ul>
+<li><code>isVertical</code> on faces of a non-uniformly scaled sphere raises <code>TypeError: undefined curve type</code> (degenerate pole edges). Same on main and the PR.</li>
+<li>Arched or filleted end faces with more than 4 edges are &quot;not vertical&quot; on both, because the 4-edge rule never applied to them.</li>
+</ul>
+<h3>Not covered</h3>
+<ul>
+<li>The author's own test project (download blocked here). I built an equivalent model instead.</li>
+<li>The Deburr operation from #32728 (not in this diff).</li>
+<li>Old files: there is no file-format change, so nothing to migrate.</li>
+<li>GUI: no task panel or <code>.ui</code> changes.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Bezier edges are now classified from the trimmed edge, through the new B-spline logic, not from the curve's end points. (tested)</li>
+<li>Trimmed B-spline edges are now judged on the trimmed part only. main used the untrimmed curve's end points, so for example half of a NURBS circle in XY counted as vertical. (tested)</li>
+<li>A curved B-spline or Bezier edge lying in a vertical plane now counts as vertical (before: only when its end points were stacked in Z). This is the same rule circles use. (tested)</li>
+<li><code>isVertical(face)</code> for B-spline surface faces changes as a result, because it counts vertical edges (see the minor finding). (tested)</li>
+<li>The old commented-out Bezier tests are switched back on. (tested, pass)</li>
+</ul>
+</div>
+</div>
+</details>
+</section>

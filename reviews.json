@@ -1,5 +1,15 @@
 [
  {
+  "pr": 33488,
+  "run": 1,
+  "job": "33488-local-20261031-231311",
+  "title": "CAM: Path.Geom.isVertical - Fix for bspline closed edge",
+  "date": "2026-10-31 23:45",
+  "requester": "Connor9220",
+  "poster": true,
+  "head": "80ec760dbe1"
+ },
+ {
   "pr": 33812,
   "run": 1,
   "job": "33812-6419690118-r1-amend1",
