@@ -6,7 +6,7 @@
 <meta name="campr-job" content="33584-local-20261031-231311">
 <title>PR #33584 campr</title>
 <meta property="og:title" content="PR #33584: CAM: Post test housekeeping and a fix for bare moves after the parameter filter">
-<meta property="og:image" content="1/poster.jpg">
+<meta property="og:image" content="2/poster.jpg">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
@@ -62,12 +62,187 @@ footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); p
 <body>
 <div class="wrap">
 <header style="display:grid;gap:6px">
-<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33584">FreeCAD PR #33584</a><span>1 review</span></div>
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33584">FreeCAD PR #33584</a><span>2 reviews</span></div>
 <h1>CAM: Post test housekeeping and a fix for bare moves after the parameter filter</h1>
 </header>
-<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-11-01 00:06</span><span>Review 1 · head 7a5793f · requested by @Connor9220</span></a></li></ol></nav>
-<section class="review" id="review-1" data-job="33584-local-20261031-231311" data-state="draft">
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-2"><span class="t">2026-11-01 00:06</span><span>Review 2 · head 7a5793f · requested by @Connor9220</span></a></li><li><a href="#review-1"><span class="t">2026-11-01 00:06</span><span>Review 1 · head 7a5793f · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-2" data-job="33584-local-20261031-231311" data-state="final">
 <details class="run" open>
+<summary><span class="rn">Review 2</span><span class="meta">2026-11-01 00:06 · PR head 7a5793f6c13 · main 24ea8589aa8 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2094 tests · OK (skipped=12, expected failures=4)</code></p>
+
+<div class="shots"><figure class="shot"><a href="2/pocket_island_ab_job.png"><img src="2/pocket_island_ab_job.png" alt="Pocket-island test job (27 Pocket/Profile/MillFace ops; two shown, model as wireframe). Its linuxcnc G-code is identical on main and the PR, except that with Z left out of the parameter order 79 bare G0 lines are no longer written."></a><figcaption>Pocket-island test job (27 Pocket/Profile/MillFace ops; two shown, model as wireframe). Its linuxcnc G-code is identical on main and the PR, except that with Z left out of the parameter order 79 bare G0 lines are no longer written.</figcaption></figure><figure class="shot"><a href="2/twp_block_ab_job.png"><img src="2/twp_block_ab_job.png" alt="Multi-sided twp block on the AC-trunnion machine (thick lines are the three drilling ops). Default and duplicate-suppressed output are identical on main and the PR, the canned-cycle lines are unchanged, and 31 bare G0 lines are gone when Z is left out."></a><figcaption>Multi-sided twp block on the AC-trunnion machine (thick lines are the three drilling ops). Default and duplicate-suppressed output are identical on main and the PR, the canned-cycle lines are unchanged, and 31 bare G0 lines are gone when Z is left out.</figcaption></figure></div>
+
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>No defects found.</strong> The fix works: a move whose words all get filtered out is no longer written as a bare <code>G0</code>/<code>G1</code>/<code>G2</code>/<code>G3</code>, canned cycle or <code>G4</code>.</li>
+<li><strong>Normal G-code doesn't change.</strong> With default settings, and with duplicate words suppressed, the linuxcnc output from two real test jobs is byte-identical to main (only the timestamp differs).</li>
+<li><strong>The re-enabled test is a real check.</strong> On the pre-PR code 5 of the 10 <code>TestEmptyMoveSuppression</code> tests fail; on the PR all pass. The full CAM suite passes.</li>
+<li><strong>Issue #30160 is fixed.</strong> Every test it lists now runs (or was deleted along with dead code).</li>
+</ul>
+<h2>What the PR changes</h2>
+<ul>
+<li><code>Path/Post/Processor.py</code> <code>_convert_move()</code>: the empty-move check moves from before the parameter loop (where it looked at the raw parameters) to after it, so it now counts the words actually written. Canned cycles are now covered too.</li>
+<li>Tests: <code>TestEmptyMoveSuppression</code>, <code>TestMachine.TestOutputOptions</code>, <code>TestLinuxCNCLegacyPost</code> and <code>TestGrblLegacyPost</code> run again. <code>TestDxfPost</code> runs in a temporary directory. Dead helpers and debug prints are removed.</li>
+<li><code>Path/Post/GcodeProcessingUtils.py</code> and its tests are deleted (no in-tree callers).</li>
+</ul>
+<h2>Checks</h2>
+<h3>Unit tests</h3>
+<ul>
+<li><code>campr test TestCAMApp</code>: <strong>2094 tests, OK</strong> (12 skipped, 4 expected failures).</li>
+<li>Re-enabled classes ran and passed: <code>TestEmptyMoveSuppression</code> (10), <code>TestOutputOptions</code> (4), <code>TestLinuxCNCLegacyPost</code> (25), <code>TestGrblLegacyPost</code> (8).</li>
+<li>The PR's <code>TestEmptyMoveSuppression</code>, run against the <strong>pre-PR</strong> <code>Processor.py</code>, fails 5 of its 10 tests (<code>test_z_only_rapid/linear/arc/g3_suppressed</code>, <code>test_drill_z_only_suppressed</code>). All 10 pass on the PR, so the test catches the regression it was hidden from.</li>
+</ul>
+<h3>G-code A/B, base (HEAD~2) vs PR</h3>
+<p>Linuxcnc post through <code>export2()</code> (the flow the GUI's Post command uses), output kept in memory. Three settings per job: default, duplicate axis words suppressed, and Z left out of the parameter order (the PR's wire-EDM case).</p>
+<table>
+<thead>
+<tr>
+<th>Job</th>
+<th>Setting</th>
+<th>Base</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pocket-island-variants (27 ops, 3-axis machine)</td>
+<td>default</td>
+<td>3151 lines</td>
+<td>identical (timestamp only)</td>
+</tr>
+<tr>
+<td></td>
+<td>duplicates suppressed</td>
+<td>3139 lines</td>
+<td>identical (timestamp only)</td>
+</tr>
+<tr>
+<td></td>
+<td>Z left out</td>
+<td>3151 lines, <strong>79 bare <code>G0</code></strong></td>
+<td>3072 lines, <strong>0 bare</strong>; the bare <code>G0</code> lines are the only difference</td>
+</tr>
+<tr>
+<td>twp-test-block-job (16 ops, AC-trunnion machine)</td>
+<td>default</td>
+<td>30605 lines, 4 canned-cycle lines</td>
+<td>identical (timestamp only)</td>
+</tr>
+<tr>
+<td></td>
+<td>duplicates suppressed</td>
+<td>30605 lines</td>
+<td>identical (timestamp only)</td>
+</tr>
+<tr>
+<td></td>
+<td>Z left out</td>
+<td>30580 lines, <strong>31 bare <code>G0</code></strong></td>
+<td>30549 lines, <strong>0 bare</strong>; canned-cycle lines still 4</td>
+</tr>
+</tbody>
+</table>
+<h3>Edge cases of the moved check (base → PR)</h3>
+<p>Run through <code>convert_command_to_gcode()</code> on a configured processor:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Setting</th>
+<th>Base</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>G0 Z5</code></td>
+<td>Z left out</td>
+<td><code>G0</code></td>
+<td>dropped</td>
+</tr>
+<tr>
+<td><code>G0 F10</code></td>
+<td>feed on rapids off</td>
+<td><code>G0</code></td>
+<td>dropped</td>
+</tr>
+<tr>
+<td><code>G1</code> at the same point</td>
+<td>duplicates suppressed</td>
+<td><code>G1</code></td>
+<td>dropped</td>
+</tr>
+<tr>
+<td><code>G4 P1</code></td>
+<td>P not in the parameter order</td>
+<td><code>G4</code></td>
+<td>dropped</td>
+</tr>
+<tr>
+<td><code>G4 P1</code> twice</td>
+<td>duplicates suppressed</td>
+<td>kept both</td>
+<td>kept both</td>
+</tr>
+<tr>
+<td><code>G81</code> same hole twice</td>
+<td>default</td>
+<td>kept both</td>
+<td>kept both</td>
+</tr>
+<tr>
+<td><code>G82 ... P0.5</code></td>
+<td>P not in the parameter order</td>
+<td><code>G82 X Y Z F R</code></td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>G2</code> full circle at the same point</td>
+<td>duplicates suppressed</td>
+<td><code>G2 I J</code></td>
+<td>same</td>
+</tr>
+<tr>
+<td><code>G1 F5</code>, <code>G80</code></td>
+<td>default</td>
+<td>kept</td>
+<td>kept</td>
+</tr>
+</tbody>
+</table>
+<p>The canned-cycle extension can't drop a real hole: the machine state stores the retract height as Z after a cycle, so a cycle's depth Z always differs and is written, and R/Q are not tracked.</p>
+<h3>Deleted module</h3>
+<p><code>Path/Post/GcodeProcessingUtils.py</code> shipped in 26.3. Nothing in the tree, and no installed addon or macro on the test machine, imports it. Third-party posts outside this machine were not searched.</p>
+<h3>Seen along the way (also on main, not this PR's code)</h3>
+<ul>
+<li>The old <code>export()</code> flow (used when a Job has no Machine) still writes bare <code>G0</code>/<code>G1</code> lines when the linuxcnc <code>--axis-modal</code> argument is set: 1695 of them on the twp block, the same on base and PR. That path goes through <code>UtilsParse</code>, not <code>_convert_move()</code>.</li>
+<li>In that same old flow, a job-level <code>parameter_order</code> override is overwritten by the post's own <code>init_values()</code>.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>The check now counts the words actually written, so it also catches a third filter the description doesn't name: a <code>G0</code> whose only word is a feed that the post leaves off rapids is now dropped instead of written as a bare <code>G0</code> (tested).</li>
+<li>The diff adds, removes or changes no properties, enum options, task panel widgets, defaults or file format (checked the diff).</li>
+</ul>
+<h2>Issues</h2>
+<ul>
+<li><strong>#30160</strong> (Fixes): <strong>fixed.</strong> <code>TestGcodeProcessingUtils</code> (with the skipped <code>test_modal_blockdelete</code>) is deleted along with its dead module. <code>TestOutputOptions</code> and <code>TestEmptyMoveSuppression</code> run and pass. <code>TestDressupArray</code> already ran on main. <code>TestPathThreadMilling.TestObject</code> is a helper class, not a test. The five ToolBit/DocumentObject widget test classes are imported by <code>TestCAMGui.py</code> on main (the GUI suite was not run here).</li>
+</ul>
+<h2>Media</h2>
+<ul>
+<li><code>pocket_island_ab_job.png</code>: the pocket-island job used for the A/B.</li>
+<li><code>twp_block_ab_job.png</code>: the twp block on the AC-trunnion machine, with the drilling ops (canned cycles) as thick lines.</li>
+<li>No video: the PR changes no toolpath, task panel or default G-code, and there is no finding to reproduce.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<section class="review" id="review-1" data-job="33584-local-20261031-231311" data-state="draft">
+<details class="run">
 <summary><span class="rn">Review 1</span><span class="meta">2026-11-01 00:06 · PR head 7a5793f6c13 · main 24ea8589aa8 · requested by @Connor9220</span></summary>
 <div class="body">
 <section class="draft"><h2>Draft: not posted to the pr yet</h2><p>This review is waiting for approval. The comment below is what would be posted.</p><div class="summary"><p><strong>TL;DR</strong></p>

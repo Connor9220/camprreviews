@@ -21,6 +21,16 @@
  },
  {
   "pr": 33584,
+  "run": 2,
+  "job": "33584-local-20261031-231311",
+  "title": "CAM: Post test housekeeping and a fix for bare moves after the parameter filter",
+  "date": "2026-11-01 00:06",
+  "requester": "Connor9220",
+  "poster": true,
+  "head": "7a5793f6c13"
+ },
+ {
+  "pr": 33584,
   "run": 1,
   "job": "33584-local-20261031-231311",
   "title": "CAM: Post test housekeeping and a fix for bare moves after the parameter filter",
