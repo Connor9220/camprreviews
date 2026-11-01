@@ -10,16 +10,6 @@
   "head": "6c43fc6d8ea"
  },
  {
-  "pr": 33100,
-  "run": 1,
-  "job": "33100-local-20261101-005903",
-  "title": "CAM: Profile & PocketShape updated Task panels",
-  "date": "2026-11-01 01:11",
-  "requester": "Connor9220",
-  "poster": true,
-  "head": "6c43fc6d8ea"
- },
- {
   "pr": 33584,
   "run": 2,
   "job": "33584-local-20261031-231311",
