@@ -6,7 +6,7 @@
 <meta name="campr-job" content="33784-local-20261031-231311">
 <title>PR #33784 campr</title>
 <meta property="og:title" content="PR #33784: CAM: Fix combineHorizontalFaces">
-<meta property="og:image" content="1/poster.jpg">
+<meta property="og:image" content="2/poster.jpg">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
@@ -62,12 +62,138 @@ footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); p
 <body>
 <div class="wrap">
 <header style="display:grid;gap:6px">
-<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33784">FreeCAD PR #33784</a><span>1 review</span></div>
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33784">FreeCAD PR #33784</a><span>2 reviews</span></div>
 <h1>CAM: Fix combineHorizontalFaces</h1>
 </header>
-<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-10-31 23:54</span><span>Review 1 · head a6354fe · requested by @Connor9220</span></a></li></ol></nav>
-<section class="review" id="review-1" data-job="33784-local-20261031-231311" data-state="draft">
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-2"><span class="t">2026-10-31 23:54</span><span>Review 2 · head a6354fe · requested by @Connor9220</span></a></li><li><a href="#review-1"><span class="t">2026-10-31 23:54</span><span>Review 1 · head a6354fe · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-2" data-job="33784-local-20261031-231311" data-state="final">
 <details class="run" open>
+<summary><span class="rn">Review 2</span><span class="meta">2026-10-31 23:54 · PR head a6354fea489 · main 24ea8589aa8 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2094 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid-2" src="2/demo.mp4" controls preload="metadata" playsinline poster="2/poster.jpg"></video><figcaption>Repro: with Job Geometry Tolerance 0.1 mm the PR&#x27;s Profile succeeds but skips a 1 mm half-disc floor without any message; at 0.01 mm the pass is there</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-2" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Board with three pocket floors, one Profile (0.2 mm tool)</span><span class="det">10x8 mm rectangle, 1 mm half-disc, 2 mm half-disc. Job Geometry Tolerance = 0.01 mm (default)</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="5.88"><span class="t">0:05</span><span><span class="cap">Default tolerance: every floor gets a profile pass</span><span class="det">Green passes inside the rectangle and both half-discs</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="11.05"><span class="t">0:11</span><span><span class="cap">Set Job &gt; Geometry Tolerance to 0.1 mm and recompute</span><span class="det">On main this makes Profile and Pocket Shape fail with &#x27;Wire is not closed&#x27;</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="16.12"><span class="t">0:16</span><span><span class="cap">With the PR: the op succeeds, but the 1 mm half-disc has no pass</span><span class="det">The open wire is dropped without any message in the Report view; the 2 mm half-disc is still cut</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="23.05"><span class="t">0:23</span><span><span class="cap">Back to 0.01 mm: the 1 mm pass returns</span><span class="det">Features up to about 10x the geometry tolerance can be dropped</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="28.14"><span class="t">0:28</span><span><span class="cap">Done</span><span class="det"></span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="2/halfdisc_tol001.png"><img src="2/halfdisc_tol001.png" alt="PR, Geometry Tolerance 0.01 mm: both half-disc floors (1 mm and 2 mm) get a profile pass"></a><figcaption>PR, Geometry Tolerance 0.01 mm: both half-disc floors (1 mm and 2 mm) get a profile pass</figcaption></figure><figure class="shot"><a href="2/halfdisc_tol01_missing.png"><img src="2/halfdisc_tol01_missing.png" alt="PR, Geometry Tolerance 0.1 mm: the 1 mm half-disc has no pass and nothing is reported; main fails the whole op here"></a><figcaption>PR, Geometry Tolerance 0.1 mm: the 1 mm half-disc has no pass and nothing is reported; main fails the whole op here</figcaption></figure><figure class="shot"><a href="2/pcb_pr_profile.png"><img src="2/pcb_pr_profile.png" alt="Author&#x27;s PCB file (from the #33644 comment) on the PR: Profile recomputes (green); on main it fails with &#x27;Wire is not closed&#x27;"></a><figcaption>Author&#x27;s PCB file (from the #33644 comment) on the PR: Profile recomputes (green); on main it fails with &#x27;Wire is not closed&#x27;</figcaption></figure></div>
+<section class="notes"><h2>Test model</h2><ul><li><a href="2/halfdisc-tol0.1.FCStd">halfdisc-tol0.1.FCStd</a></li></ul></section>
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>Fixed:</strong> the &quot;Wire is not closed&quot; error from the #33644 comment is gone. On main, the author's PCB file fails Profile; with the PR, Profile and Pocket Shape both recompute.</li>
+<li><strong>Minor, new with this PR:</strong> a face that the tolerant cut collapses is now dropped <strong>without any message</strong>. With the job's Geometry Tolerance at 0.1 mm (the PCB file uses that), a 1 mm half-disc floor gets no toolpath at all. Main fails the op instead. A warning when a face is dropped would cover it.</li>
+<li>Ordinary jobs don't change: pocket-island (27 ops) and class tray are identical to main. The CAM unit tests pass.</li>
+</ul>
+<h2>What the PR changes</h2>
+<p>One line in <code>Path.Geom.combineHorizontalFaces()</code>: after <code>bboxFace.cut(faces, tol)</code>, open wires are filtered out before <code>Part.makeFace(..., &quot;Part::FaceMakerBullseye&quot;)</code>. The old (pre-#31074) code had the same <code>isClosed()</code> filter, so this puts it back. The function is used by Profile (horizontal faces), Pocket Shape, and Adaptive.</p>
+<h2>Checks</h2>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Unit tests (TestCAMApp)</td>
+<td>2094 run, OK (13 skipped, 4 expected failures). No new test.</td>
+</tr>
+<tr>
+<td>Author's file <code>cam_pcb_test.FCStd</code> (#33644 comment), A/B main vs PR</td>
+<td>main: Profile <code>Wire is not closed.</code>. PR: Profile 4328 commands, Pocket Shape 4078 commands, both Up-to-date.</td>
+</tr>
+<tr>
+<td>What gets dropped in that file</td>
+<td>208 base faces become 203 result faces. The 5 missing faces (Face204-208) are isolated 2-edge B-spline slivers of 0.002-0.003 mm², about 0.08 mm across. That is below the job's 0.1 mm Geometry Tolerance, so nothing real is lost there. Every other input face is covered by exactly one result face.</td>
+</tr>
+<tr>
+<td>Regression: <code>pocket-island-variants.FCStd</code> (27 ops), A/B</td>
+<td>IDENTICAL</td>
+</tr>
+<tr>
+<td>Regression: <code>class-tray-A-no-workplane.FCStd</code> (Adaptive, 2 Profiles, 2 Lead In/Out), A/B</td>
+<td>IDENTICAL</td>
+</tr>
+<tr>
+<td>Synthetic shapes with no open wires (dumbbell with a 0.05 mm neck, spur, 0.05 mm gap, thin trace, circles, squares, rings) at tol 0.01 and 0.1</td>
+<td>Main and PR give the same result</td>
+</tr>
+<tr>
+<td>GUI / task panels / old files</td>
+<td>Not affected: no property, panel or file-format change.</td>
+</tr>
+</tbody>
+</table>
+<h2>Finding: faces larger than the tolerance can disappear without a warning (minor)</h2>
+<p>The fuzzy cut doesn't only collapse faces that are below the tolerance. Two-edge faces (arc + line, lens or half-disc shapes) come out as an open wire up to roughly 10× the Geometry Tolerance. The PR drops that wire, so the whole face vanishes from the op and nothing is logged.</p>
+<p>Half-disc floors next to a normal face, run through the function (PR):</p>
+<table>
+<thead>
+<tr>
+<th>Geometry Tolerance</th>
+<th>Largest half-disc dropped</th>
+<th>Kept from</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.01 mm (default)</td>
+<td>0.1 mm diameter</td>
+<td>0.2 mm</td>
+</tr>
+<tr>
+<td>0.05 mm</td>
+<td>0.5 mm</td>
+<td>1.0 mm</td>
+</tr>
+<tr>
+<td>0.1 mm</td>
+<td>1.0 mm (0.39 mm²)</td>
+<td>1.5 mm</td>
+</tr>
+</tbody>
+</table>
+<p>Lens shapes at 0.1 mm behave the same way: 2 × 0.2 mm and 1 × 0.5 mm lenses are dropped. In every one of these cases main raises <code>Wire is not closed</code> instead.</p>
+<p>End to end in a real job (<code>halfdisc-tol0.1.FCStd</code>): a 40×30×5 block with 1 mm deep floors (a 10×8 rectangle, a 1 mm half-disc and a 2 mm half-disc), and Profile Inside plus Pocket Shape on all three floors with a 0.2 mm tool:</p>
+<ul>
+<li>Tolerance 0.01: all three floors get a pass.</li>
+<li>Tolerance 0.1, main: both ops are Invalid (<code>Wire is not closed</code>).</li>
+<li>Tolerance 0.1, PR: both ops are Up-to-date, but the 1 mm half-disc has no pass, and the Report view shows nothing.</li>
+</ul>
+<p>With the default tolerance only sub-0.1 mm slivers are affected, which is harmless. But PCB isolation jobs like the author's use 0.1 mm, and there a skipped 1 mm region means copper that isn't milled. The PR is still better than an op that fails outright. Suggestion: log a warning (with the count or location) when open wires are dropped, or fall back to a non-fuzzy cut for those faces.</p>
+<p>Related, also on main: if <strong>every</strong> selected face collapses (e.g. a single 1 mm half-disc at tol 0.1), the PR raises <code>Part::FaceMaker: result shape is null</code> where main raised <code>Wire is not closed</code>. Both are errors, so this is no regression, but an early &quot;nothing to process&quot; check would read better.</p>
+<h3>Repro</h3>
+<ol>
+<li>Make a block with a 1 mm diameter half-disc pocket floor and any normal pocket floor.</li>
+<li>Profile (Inside, 0.2 mm tool) on both floor faces.</li>
+<li>Job &gt; Geometry Tolerance = 0.1 mm, recompute.</li>
+<li>The half-disc gets no pass, and there is no message.</li>
+</ol>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Faces whose outline collapses under the job's Geometry Tolerance are now silently left out of Profile and Pocket Shape instead of failing the op (tested; see the finding).</li>
+<li>The same change reaches Adaptive (it calls the function with the default 0.01 tolerance) (not tested beyond the class tray A/B, which is identical).</li>
+</ul>
+<h2>Included from other PRs</h2>
+<ul>
+<li>#31074 (closed; its change is already on main): context only. This PR restores the <code>isClosed()</code> filter that #31074's rewrite dropped. Checked.</li>
+<li>#33644 (open): context only. The linked comment's PCB file is the repro used above.</li>
+</ul>
+<h2>Issues</h2>
+<ul>
+<li>Report in the #33644 comment (&quot;Wire is not closed&quot; on Profile and Pocket with <code>cam_pcb_test.FCStd</code>): <strong>fixed</strong>. Reproduced on main (Profile), and it recomputes on the PR.</li>
+</ul>
+<h2>Media</h2>
+<ul>
+<li><code>demo.mp4</code>: the tolerance repro on the half-disc board.</li>
+<li><code>pcb_pr_profile.png</code>: the author's PCB file on the PR.</li>
+<li><code>halfdisc_tol001.png</code> / <code>halfdisc_tol01_missing.png</code>: the same view at 0.01 mm and 0.1 mm.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<section class="review" id="review-1" data-job="33784-local-20261031-231311" data-state="draft">
+<details class="run">
 <summary><span class="rn">Review 1</span><span class="meta">2026-10-31 23:54 · PR head a6354fea489 · main 24ea8589aa8 · requested by @Connor9220</span></summary>
 <div class="body">
 <section class="draft"><h2>Draft: not posted to the pr yet</h2><p>This review is waiting for approval. The comment below is what would be posted.</p><div class="summary"><p><strong>TL;DR</strong></p>

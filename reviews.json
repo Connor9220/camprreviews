@@ -31,6 +31,16 @@
  },
  {
   "pr": 33784,
+  "run": 2,
+  "job": "33784-local-20261031-231311",
+  "title": "CAM: Fix combineHorizontalFaces",
+  "date": "2026-10-31 23:54",
+  "requester": "Connor9220",
+  "poster": true,
+  "head": "a6354fea489"
+ },
+ {
+  "pr": 33784,
   "run": 1,
   "job": "33784-local-20261031-231311",
   "title": "CAM: Fix combineHorizontalFaces",
