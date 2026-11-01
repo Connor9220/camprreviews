@@ -1,5 +1,45 @@
 [
  {
+  "pr": 33100,
+  "run": 2,
+  "job": "33100-local-20261101-005903",
+  "title": "CAM: Profile & PocketShape updated Task panels",
+  "date": "2026-11-01 01:11",
+  "requester": "Connor9220",
+  "poster": true,
+  "head": "6c43fc6d8ea"
+ },
+ {
+  "pr": 33100,
+  "run": 1,
+  "job": "33100-local-20261101-005903",
+  "title": "CAM: Profile & PocketShape updated Task panels",
+  "date": "2026-11-01 01:11",
+  "requester": "Connor9220",
+  "poster": true,
+  "head": "6c43fc6d8ea"
+ },
+ {
+  "pr": 33584,
+  "run": 1,
+  "job": "33584-local-20261031-231311",
+  "title": "CAM: Post test housekeeping and a fix for bare moves after the parameter filter",
+  "date": "2026-11-01 00:06",
+  "requester": "Connor9220",
+  "poster": true,
+  "head": "7a5793f6c13"
+ },
+ {
+  "pr": 33784,
+  "run": 1,
+  "job": "33784-local-20261031-231311",
+  "title": "CAM: Fix combineHorizontalFaces",
+  "date": "2026-10-31 23:54",
+  "requester": "Connor9220",
+  "poster": true,
+  "head": "a6354fea489"
+ },
+ {
   "pr": 33488,
   "run": 1,
   "job": "33488-local-20261031-231311",

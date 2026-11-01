@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="33100-local-20261101-005903">
+<title>PR #33100 campr</title>
+<meta property="og:title" content="PR #33100: CAM: Profile &amp; PocketShape updated Task panels">
+<meta property="og:image" content="2/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33100">FreeCAD PR #33100</a><span>2 reviews</span></div>
+<h1>CAM: Profile &amp; PocketShape updated Task panels</h1>
+</header>
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-2"><span class="t">2026-11-01 01:11</span><span>Review 2 · head 6c43fc6 · requested by @Connor9220</span></a></li><li><a href="#review-1"><span class="t">2026-11-01 01:11</span><span>Review 1 · head 6c43fc6 · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-2" data-job="33100-local-20261101-005903" data-state="draft">
+<details class="run" open>
+<summary><span class="rn">Review 2</span><span class="meta">2026-11-01 01:11 · PR head 6c43fc6d8ea · main 24ea8589aa8 · requested by @Connor9220</span></summary>
+<div class="body">
+<section class="draft"><h2>Draft: not posted to the pr yet</h2><p>This review is waiting for approval. The comment below is what would be posted.</p><div class="summary"><p><strong>TL;DR</strong></p>
+<ul>
+<li>The Profile panel now needs Qt 6.7+. On Ubuntu 24.04 builds (Qt 6.4) it won't open.</li>
+<li>The Pocket panel opens with the wrong fields enabled.</li>
+</ul>
+<p><strong>Profile panel breaks on Qt &lt; 6.7</strong>
+The <code>stateChanged</code> fallback was removed, so <code>checkStateChanged</code> raises AttributeError on Qt 6.4.</p>
+<ol>
+<li>Build with Ubuntu 24.04 Qt.</li>
+<li>Open a Profile op.</li>
+</ol>
+<p><strong>Pocket panel enable states not set on open</strong>
+<code>updateVisibility()</code> only runs when a field changes. Calling it from <code>setFields()</code> would fix this.</p>
+<ol>
+<li>Pocket Shape, ZigZag, Start at = Center.</li>
+<li>Open its panel: Start at and Use start point are enabled.</li>
+</ol>
+<p><strong>Not in the PR description</strong></p>
+<ul>
+<li>Ramp entry, Pocket Helix pattern and FinishingRampHelix removed (intentional for 26.3); old ops keep the ramp properties (tested)</li>
+<li>StartAt &quot;OutOfEdge&quot; renamed to &quot;Out of edge&quot;, migrates fine (tested)</li>
+<li>New Pocket and Profile panel fields (tested)</li>
+<li>Process holes/circles/perimeter grayed out instead of hidden (tested)</li>
+<li>Qt &lt; 6.7 fallback dropped (not tested)</li>
+<li>MillFace panel gets Start at/Sorting (not tested)</li>
+</ul>
+</div></section><section class="notes"><h2>Requested by @Connor9220</h2><p>Re-review: Billy (Connor9220) commented 10-25 on RampEntry removed from Profile and Helix still shown in PocketShape. Check what tarman3 changed since and whether those points are resolved. Earlier runs found: a saved Pocket with the Helix pattern silently becomes ZigZag on load; old Profile ops keep RampMethod/RampAngle properties; the Pocket panel&#x27;s updateVisibility may not run on open (verify). Use pocket-island-variants headless only (cam_ab) for the migration checks. Do the GUI checks on cl</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2094 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid-2" src="2/demo.mp4" controls preload="metadata" playsinline poster="2/poster.jpg"></video><figcaption>Pocket Shape panel on the class tray: a ZigZag pocket opens with Start at and Use start point enabled; they only gray out after the Pattern is changed and changed back</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-2" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Class tray with a Pocket Shape: Pattern = ZigZag, Start at = Center, 1 finishing pass</span><span class="det">ZigZag ignores Start at, so Start at and Use start point should be grayed out</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="5.48"><span class="t">0:05</span><span><span class="cap">Open the Pocket Shape panel</span><span class="det">On open, Start at and Use start point are still enabled (updateVisibility does not run when the panel opens)</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="11.98"><span class="t">0:11</span><span><span class="cap">Pick Pattern = Offset</span><span class="det">Start at stays enabled (right for Offset); Angle grays out</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="17.98"><span class="t">0:17</span><span><span class="cap">Pick Pattern = ZigZag again</span><span class="det">Now Start at grays out: the panel is only correct after a change, not when it opens</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="23.98"><span class="t">0:23</span><span><span class="cap">Cancel the panel</span><span class="det">Helix is no longer in the Pattern list; old pockets saved with Helix load as ZigZag</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="2/helix_pocket_main_vs_pr.png"><img src="2/helix_pocket_main_vs_pr.png" alt="Pocket saved with Pattern = Helix (pocket-island-variants, P_Helix). Blue = main (helical offset rings), orange = PR (loads as ZigZag)"></a><figcaption>Pocket saved with Pattern = Helix (pocket-island-variants, P_Helix). Blue = main (helical offset rings), orange = PR (loads as ZigZag)</figcaption></figure><figure class="shot"><a href="2/pocket_panel_expected.png"><img src="2/pocket_panel_expected.png" alt="Same panel after its own updateVisibility() runs: Start at and Use start point grayed out, which is what opening should show"></a><figcaption>Same panel after its own updateVisibility() runs: Start at and Use start point grayed out, which is what opening should show</figcaption></figure><figure class="shot"><a href="2/pocket_panel_on_open.png"><img src="2/pocket_panel_on_open.png" alt="PR: Pocket Shape panel just opened on a ZigZag pocket with Start at = Center. Start at and Use start point are enabled (wrong)"></a><figcaption>PR: Pocket Shape panel just opened on a ZigZag pocket with Start at = Center. Start at and Use start point are enabled (wrong)</figcaption></figure><figure class="shot"><a href="2/profile_panel_pr.png"><img src="2/profile_panel_pr.png" alt="PR: the new Profile panel on the class tray (Start at, Sorting, Finishing passes/offset/one step down, Use longest edge); enable states are correct when it opens"></a><figcaption>PR: the new Profile panel on the class tray (Start at, Sorting, Finishing passes/offset/one step down, Use longest edge); enable states are correct when it opens</figcaption></figure><figure class="shot"><a href="2/profile_ramp_main_vs_pr.png"><img src="2/profile_ramp_main_vs_pr.png" alt="Profile saved with Ramp Method = Method 3 at 5 deg (R_RampM3_5deg). Blue = main ramps in at the corner, orange = PR plunges straight down with no warning"></a><figcaption>Profile saved with Ramp Method = Method 3 at 5 deg (R_RampM3_5deg). Blue = main ramps in at the corner, orange = PR plunges straight down with no warning</figcaption></figure></div>
+
+<div class="summary"><h1>PR #33100 review: CAM: Profile &amp; PocketShape updated Task panels</h1>
+<p>Note: the requester notes were cut off at the end (&quot;Do the GUI checks on cl&quot;). I read that as &quot;on class-tray&quot; and did the GUI checks there.</p>
+<h2>TL;DR</h2>
+<ul>
+<li><strong>The Profile panel needs Qt 6.7 or newer.</strong> The PR removed the fallback for older Qt. FreeCAD's Ubuntu 24.04 builds use Qt 6.4, and there the Profile task panel will fail to open.</li>
+<li><strong>The Pocket panel shows the wrong fields enabled when it opens.</strong> For example, Start at stays enabled on a ZigZag pocket until you change the pattern.</li>
+</ul>
+<p>Billy's 10-25 points: Profile ramp entry is still <strong>removed, not hidden behind an experimental switch</strong>. The author declined to add one and pushed &quot;remove ramp&quot; (6c43fc6d, 10-25 08:17), which also removes the Helix pattern and Finishing Ramp Helix from Pocket Shape. So &quot;Helix still shown&quot; is fixed by removal. Nothing has been pushed since. The removal is intentional for 26.3 and is not reported as a defect.</p>
+<h2>What was reviewed</h2>
+<ul>
+<li>Head 6c43fc6d (2 commits), cherry-picked onto upstream main 24ea8589aa8 and built in review3.</li>
+<li>Unit tests: <code>TestCAMApp</code> ran 2094 tests: OK (13 skipped, 4 expected failures). The PR adds and changes no tests.</li>
+<li>A/B, headless (<code>cam_ab</code>, main 24ea8589aa8 vs PR) on <code>pocket-island-variants.FCStd</code>, 26 operations: properties after load, and paths after touch + recompute.</li>
+<li>GUI on <code>class-tray-A-no-workplane.FCStd</code>: the Profile panel on the existing Profile op, and a new Pocket Shape on the tray pocket floor, created through <code>CAM_Pocket_Shape</code>.</li>
+</ul>
+<h2>Findings</h2>
+<h3>1. Profile task panel needs Qt &gt;= 6.7</h3>
+<p><code>Path/Op/Gui/Profile.py</code> <code>getSignalsForUpdate()</code> now always uses <code>QCheckBox.checkStateChanged</code>. That signal was added in Qt 6.7. Main had a <code>hasattr(..., &quot;checkStateChanged&quot;)</code> check with a <code>stateChanged</code> fallback (&quot;Qt version &lt; 6.7.0&quot;), and the PR deletes it. The same check is still used in Waterline, RotarySurface and Flute.</p>
+<p>FreeCAD requires only Qt 6 and does not set a minimum minor version. <code>.github/workflows/sub_buildUbuntu.yml</code> runs on <code>ubuntu-24.04</code> with the apt <code>qt6-base-dev</code>, which is Qt 6.4.2. Debian 12 is also 6.4. On those builds, <code>self.form.useCompensation.checkStateChanged</code> raises <code>AttributeError</code> while the panel is set up, so the Profile panel cannot be opened or edited. CI does not open task panels, so it will not catch this.</p>
+<p>Not reproduced at runtime: this machine's pixi build uses Qt 6.11. The finding comes from the code and from Qt's documentation (&quot;introduced in Qt 6.7&quot;).</p>
+<p>Repro: build against Qt 6.4 (Ubuntu 24.04 packages), open any Profile op, then double-click it.</p>
+<p>Fix: keep the <code>hasattr</code> / <code>stateChanged</code> fallback, as before.</p>
+<h3>2. Pocket panel: enable states are not set when the panel opens</h3>
+<p><code>PocketBase.TaskPanelOpPage.updateVisibility()</code> is only connected to the pattern, finishing-passes and start-at signals. It is not called from <code>setFields()</code> or on open. Profile's new <code>updateData()</code> is fine: verified, its states are correct on open.</p>
+<p>Verified in the GUI (class tray, Pocket Shape with ZigZag, Start at = Center, Finishing passes 1). On open, <strong>Start at</strong> and <strong>Use start point</strong> are enabled. Calling the page's own <code>updateVisibility()</code> grays both out. Live changes work: Offset → Start at enabled and Angle disabled; Finishing passes 0 → Finishing offset and One step down disabled; Start at = Edge → Use start point enabled. A new Offset pocket happens to look right on open only because loading the combo fires the signal.</p>
+<p>Repro:</p>
+<ol>
+<li>Pocket Shape, Pattern = ZigZag, Start at = Center. OK.</li>
+<li>Double-click it.</li>
+<li>Start at and Use start point are editable.</li>
+<li>Switch the pattern to Offset and back to ZigZag: now they are grayed.</li>
+</ol>
+<p>Fix: call <code>self.updateVisibility()</code> at the end of <code>setFields()</code>.</p>
+<h2>Checked, fine</h2>
+<ul>
+<li>Default settings: every op without ramp/helix settings gives an identical path on main and on the PR (commands, feed length, Z levels): all Pocket patterns, finishing passes/offset/one step down, Profile multi-pass, StartAt Edge, and MillFace.</li>
+<li>The Profile StartAt &quot;OutOfEdge&quot; → &quot;Out of edge&quot; migration works on all 9 saved Profile ops, and their paths are unchanged.</li>
+<li>Profile panel: new fields exist, write to the op, and are enabled correctly on open (Start at/Pass stepover need passes &gt; 1; Finishing offset/One step down need finishing passes; Use longest edge is off when Use start point is on; the Process holes/circles/perimeter checkboxes are grayed out without faces).</li>
+<li>Pocket panel: Helix is gone from the Pattern list; tooltips come from the property descriptions.</li>
+</ul>
+<h3>Removed ramp and helix entry (intentional for 26.3, not a defect)</h3>
+<p>Ramp entry, the Helix pocket pattern and Finishing Ramp Helix are removed on purpose for 26.3. For reference: a saved Helix pocket loads as ZigZag, saved ramped Profiles now plunge, and <code>RampMethod</code>, <code>RampAngle</code> and <code>FinishingRampHelix</code> stay on old ops unused.</p>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Pocket &quot;Helix&quot; clearing pattern removed; saved Helix pockets load as ZigZag (tested; intentional for 26.3)</li>
+<li>Pocket &quot;Finishing Ramp Helix&quot; removed from new ops; old ops keep it, visible and ignored (tested; intentional for 26.3)</li>
+<li>Profile &quot;Ramp Method&quot;/&quot;Ramp Angle&quot; stay on old ops, visible and ignored; ramps become plunges without a warning (tested; intentional for 26.3)</li>
+<li>Profile Start At value renamed &quot;OutOfEdge&quot; → &quot;Out of edge&quot;, a file-format change with a migration (tested, works; job templates and setup sheets that store &quot;OutOfEdge&quot; not tested)</li>
+<li>New Pocket panel widgets: Start at, Sorting, Finishing passes, Finishing offset, Finishing one step down (tested)</li>
+<li>New Profile panel widgets: Start at, Sorting, Finishing passes, Finishing offset, Finishing one step down, Use longest edge (tested)</li>
+<li>Profile Process holes/circles/perimeter are now grayed out instead of hidden when no face is selected (tested)</li>
+<li>Profile panel drops the Qt &lt; 6.7 signal fallback (not tested at runtime, finding 1)</li>
+<li>Changed descriptions for Process holes/perimeter/circles; old documents keep the old tooltip text (tested, cosmetic)</li>
+<li>MillFace panel gains Start at and Sorting combos (not tested)</li>
+<li>Pocket Angle field is now a unit spin box bound to the property, so it supports expressions (not tested)</li>
+<li><code>setToolTips</code> now silently skips widgets or properties that do not exist (not tested)</li>
+</ul>
+<h2>Media</h2>
+<ul>
+<li><code>demo.mp4</code>: Pocket panel open-state issue, step by step.</li>
+<li><code>pocket_panel_on_open.png</code> / <code>pocket_panel_expected.png</code>: the panel just opened, and after <code>updateVisibility()</code>.</li>
+<li><code>helix_pocket_main_vs_pr.png</code>, <code>profile_ramp_main_vs_pr.png</code>: main (blue) vs PR (orange) paths from the headless A/B, loaded into FreeCAD for the pictures.</li>
+<li><code>profile_panel_pr.png</code>: the new Profile panel.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<section class="review" id="review-1" data-job="33100-local-20261101-005903" data-state="draft">
+<details class="run">
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-01 01:11 · PR head 6c43fc6d8ea · main 24ea8589aa8 · requested by @Connor9220</span></summary>
+<div class="body">
+<section class="draft"><h2>Draft: not posted to the pr yet</h2><p>This review is waiting for approval. The comment below is what would be posted.</p><div class="summary"><p><strong>TL;DR</strong></p>
+<ul>
+<li>The Profile panel now needs Qt 6.7+. On Ubuntu 24.04 builds (Qt 6.4) it won't open.</li>
+<li>The Pocket panel opens with the wrong fields enabled.</li>
+</ul>
+<p><strong>Profile panel breaks on Qt &lt; 6.7</strong>
+The <code>stateChanged</code> fallback was removed, so <code>checkStateChanged</code> raises AttributeError on Qt 6.4.</p>
+<ol>
+<li>Build with Ubuntu 24.04 Qt.</li>
+<li>Open a Profile op.</li>
+</ol>
+<p><strong>Pocket panel enable states not set on open</strong>
+<code>updateVisibility()</code> only runs when a field changes. Calling it from <code>setFields()</code> would fix this.</p>
+<ol>
+<li>Pocket Shape, ZigZag, Start at = Center.</li>
+<li>Open its panel: Start at and Use start point are enabled.</li>
+</ol>
+<p><strong>Not in the PR description</strong></p>
+<ul>
+<li>Ramp entry, Pocket Helix pattern and FinishingRampHelix removed (intentional for 26.3); old ops keep the ramp properties (tested)</li>
+<li>StartAt &quot;OutOfEdge&quot; renamed to &quot;Out of edge&quot;, migrates fine (tested)</li>
+<li>New Pocket and Profile panel fields (tested)</li>
+<li>Process holes/circles/perimeter grayed out instead of hidden (tested)</li>
+<li>Qt &lt; 6.7 fallback dropped (not tested)</li>
+<li>MillFace panel gets Start at/Sorting (not tested)</li>
+</ul>
+</div></section><section class="notes"><h2>Requested by @Connor9220</h2><p>Re-review: Billy (Connor9220) commented 10-25 on RampEntry removed from Profile and Helix still shown in PocketShape. Check what tarman3 changed since and whether those points are resolved. Earlier runs found: a saved Pocket with the Helix pattern silently becomes ZigZag on load; old Profile ops keep RampMethod/RampAngle properties; the Pocket panel&#x27;s updateVisibility may not run on open (verify). Use pocket-island-variants headless only (cam_ab) for the migration checks. Do the GUI checks on cl</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2094 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Pocket Shape panel on the class tray: a ZigZag pocket opens with Start at and Use start point enabled; they only gray out after the Pattern is changed and changed back</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Class tray with a Pocket Shape: Pattern = ZigZag, Start at = Center, 1 finishing pass</span><span class="det">ZigZag ignores Start at, so Start at and Use start point should be grayed out</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="5.48"><span class="t">0:05</span><span><span class="cap">Open the Pocket Shape panel</span><span class="det">On open, Start at and Use start point are still enabled (updateVisibility does not run when the panel opens)</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="11.98"><span class="t">0:11</span><span><span class="cap">Pick Pattern = Offset</span><span class="det">Start at stays enabled (right for Offset); Angle grays out</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="17.98"><span class="t">0:17</span><span><span class="cap">Pick Pattern = ZigZag again</span><span class="det">Now Start at grays out: the panel is only correct after a change, not when it opens</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="23.98"><span class="t">0:23</span><span><span class="cap">Cancel the panel</span><span class="det">Helix is no longer in the Pattern list; old pockets saved with Helix load as ZigZag</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/helix_pocket_main_vs_pr.png"><img src="1/helix_pocket_main_vs_pr.png" alt="Pocket saved with Pattern = Helix (pocket-island-variants, P_Helix). Blue = main (helical offset rings), orange = PR (loads as ZigZag)"></a><figcaption>Pocket saved with Pattern = Helix (pocket-island-variants, P_Helix). Blue = main (helical offset rings), orange = PR (loads as ZigZag)</figcaption></figure><figure class="shot"><a href="1/pocket_panel_expected.png"><img src="1/pocket_panel_expected.png" alt="Same panel after its own updateVisibility() runs: Start at and Use start point grayed out, which is what opening should show"></a><figcaption>Same panel after its own updateVisibility() runs: Start at and Use start point grayed out, which is what opening should show</figcaption></figure><figure class="shot"><a href="1/pocket_panel_on_open.png"><img src="1/pocket_panel_on_open.png" alt="PR: Pocket Shape panel just opened on a ZigZag pocket with Start at = Center. Start at and Use start point are enabled (wrong)"></a><figcaption>PR: Pocket Shape panel just opened on a ZigZag pocket with Start at = Center. Start at and Use start point are enabled (wrong)</figcaption></figure><figure class="shot"><a href="1/profile_panel_pr.png"><img src="1/profile_panel_pr.png" alt="PR: the new Profile panel on the class tray (Start at, Sorting, Finishing passes/offset/one step down, Use longest edge); enable states are correct when it opens"></a><figcaption>PR: the new Profile panel on the class tray (Start at, Sorting, Finishing passes/offset/one step down, Use longest edge); enable states are correct when it opens</figcaption></figure><figure class="shot"><a href="1/profile_ramp_main_vs_pr.png"><img src="1/profile_ramp_main_vs_pr.png" alt="Profile saved with Ramp Method = Method 3 at 5 deg (R_RampM3_5deg). Blue = main ramps in at the corner, orange = PR plunges straight down with no warning"></a><figcaption>Profile saved with Ramp Method = Method 3 at 5 deg (R_RampM3_5deg). Blue = main ramps in at the corner, orange = PR plunges straight down with no warning</figcaption></figure></div>
+
+<div class="summary"><h1>PR #33100 review: CAM: Profile &amp; PocketShape updated Task panels</h1>
+<p>Note: the requester notes were cut off at the end (&quot;Do the GUI checks on cl&quot;). I read that as &quot;on class-tray&quot; and did the GUI checks there.</p>
+<h2>TL;DR</h2>
+<ul>
+<li><strong>The Profile panel needs Qt 6.7 or newer.</strong> The PR removed the fallback for older Qt. FreeCAD's Ubuntu 24.04 builds use Qt 6.4, and there the Profile task panel will fail to open.</li>
+<li><strong>The Pocket panel shows the wrong fields enabled when it opens.</strong> For example, Start at stays enabled on a ZigZag pocket until you change the pattern.</li>
+</ul>
+<p>Billy's 10-25 points: Profile ramp entry is still <strong>removed, not hidden behind an experimental switch</strong>. The author declined to add one and pushed &quot;remove ramp&quot; (6c43fc6d, 10-25 08:17), which also removes the Helix pattern and Finishing Ramp Helix from Pocket Shape. So &quot;Helix still shown&quot; is fixed by removal. Nothing has been pushed since. The removal is intentional for 26.3 and is not reported as a defect.</p>
+<h2>What was reviewed</h2>
+<ul>
+<li>Head 6c43fc6d (2 commits), cherry-picked onto upstream main 24ea8589aa8 and built in review3.</li>
+<li>Unit tests: <code>TestCAMApp</code> ran 2094 tests: OK (13 skipped, 4 expected failures). The PR adds and changes no tests.</li>
+<li>A/B, headless (<code>cam_ab</code>, main 24ea8589aa8 vs PR) on <code>pocket-island-variants.FCStd</code>, 26 operations: properties after load, and paths after touch + recompute.</li>
+<li>GUI on <code>class-tray-A-no-workplane.FCStd</code>: the Profile panel on the existing Profile op, and a new Pocket Shape on the tray pocket floor, created through <code>CAM_Pocket_Shape</code>.</li>
+</ul>
+<h2>Findings</h2>
+<h3>1. Profile task panel needs Qt &gt;= 6.7</h3>
+<p><code>Path/Op/Gui/Profile.py</code> <code>getSignalsForUpdate()</code> now always uses <code>QCheckBox.checkStateChanged</code>. That signal was added in Qt 6.7. Main had a <code>hasattr(..., &quot;checkStateChanged&quot;)</code> check with a <code>stateChanged</code> fallback (&quot;Qt version &lt; 6.7.0&quot;), and the PR deletes it. The same check is still used in Waterline, RotarySurface and Flute.</p>
+<p>FreeCAD requires only Qt 6 and does not set a minimum minor version. <code>.github/workflows/sub_buildUbuntu.yml</code> runs on <code>ubuntu-24.04</code> with the apt <code>qt6-base-dev</code>, which is Qt 6.4.2. Debian 12 is also 6.4. On those builds, <code>self.form.useCompensation.checkStateChanged</code> raises <code>AttributeError</code> while the panel is set up, so the Profile panel cannot be opened or edited. CI does not open task panels, so it will not catch this.</p>
+<p>Not reproduced at runtime: this machine's pixi build uses Qt 6.11. The finding comes from the code and from Qt's documentation (&quot;introduced in Qt 6.7&quot;).</p>
+<p>Repro: build against Qt 6.4 (Ubuntu 24.04 packages), open any Profile op, then double-click it.</p>
+<p>Fix: keep the <code>hasattr</code> / <code>stateChanged</code> fallback, as before.</p>
+<h3>2. Pocket panel: enable states are not set when the panel opens</h3>
+<p><code>PocketBase.TaskPanelOpPage.updateVisibility()</code> is only connected to the pattern, finishing-passes and start-at signals. It is not called from <code>setFields()</code> or on open. Profile's new <code>updateData()</code> is fine: verified, its states are correct on open.</p>
+<p>Verified in the GUI (class tray, Pocket Shape with ZigZag, Start at = Center, Finishing passes 1). On open, <strong>Start at</strong> and <strong>Use start point</strong> are enabled. Calling the page's own <code>updateVisibility()</code> grays both out. Live changes work: Offset → Start at enabled and Angle disabled; Finishing passes 0 → Finishing offset and One step down disabled; Start at = Edge → Use start point enabled. A new Offset pocket happens to look right on open only because loading the combo fires the signal.</p>
+<p>Repro:</p>
+<ol>
+<li>Pocket Shape, Pattern = ZigZag, Start at = Center. OK.</li>
+<li>Double-click it.</li>
+<li>Start at and Use start point are editable.</li>
+<li>Switch the pattern to Offset and back to ZigZag: now they are grayed.</li>
+</ol>
+<p>Fix: call <code>self.updateVisibility()</code> at the end of <code>setFields()</code>.</p>
+<h2>Checked, fine</h2>
+<ul>
+<li>Default settings: every op without ramp/helix settings gives an identical path on main and on the PR (commands, feed length, Z levels): all Pocket patterns, finishing passes/offset/one step down, Profile multi-pass, StartAt Edge, and MillFace.</li>
+<li>The Profile StartAt &quot;OutOfEdge&quot; → &quot;Out of edge&quot; migration works on all 9 saved Profile ops, and their paths are unchanged.</li>
+<li>Profile panel: new fields exist, write to the op, and are enabled correctly on open (Start at/Pass stepover need passes &gt; 1; Finishing offset/One step down need finishing passes; Use longest edge is off when Use start point is on; the Process holes/circles/perimeter checkboxes are grayed out without faces).</li>
+<li>Pocket panel: Helix is gone from the Pattern list; tooltips come from the property descriptions.</li>
+</ul>
+<h3>Removed ramp and helix entry (intentional for 26.3, not a defect)</h3>
+<p>Ramp entry, the Helix pocket pattern and Finishing Ramp Helix are removed on purpose for 26.3. For reference: a saved Helix pocket loads as ZigZag, saved ramped Profiles now plunge, and <code>RampMethod</code>, <code>RampAngle</code> and <code>FinishingRampHelix</code> stay on old ops unused.</p>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Pocket &quot;Helix&quot; clearing pattern removed; saved Helix pockets load as ZigZag (tested; intentional for 26.3)</li>
+<li>Pocket &quot;Finishing Ramp Helix&quot; removed from new ops; old ops keep it, visible and ignored (tested; intentional for 26.3)</li>
+<li>Profile &quot;Ramp Method&quot;/&quot;Ramp Angle&quot; stay on old ops, visible and ignored; ramps become plunges without a warning (tested; intentional for 26.3)</li>
+<li>Profile Start At value renamed &quot;OutOfEdge&quot; → &quot;Out of edge&quot;, a file-format change with a migration (tested, works; job templates and setup sheets that store &quot;OutOfEdge&quot; not tested)</li>
+<li>New Pocket panel widgets: Start at, Sorting, Finishing passes, Finishing offset, Finishing one step down (tested)</li>
+<li>New Profile panel widgets: Start at, Sorting, Finishing passes, Finishing offset, Finishing one step down, Use longest edge (tested)</li>
+<li>Profile Process holes/circles/perimeter are now grayed out instead of hidden when no face is selected (tested)</li>
+<li>Profile panel drops the Qt &lt; 6.7 signal fallback (not tested at runtime, finding 1)</li>
+<li>Changed descriptions for Process holes/perimeter/circles; old documents keep the old tooltip text (tested, cosmetic)</li>
+<li>MillFace panel gains Start at and Sorting combos (not tested)</li>
+<li>Pocket Angle field is now a unit spin box bound to the property, so it supports expressions (not tested)</li>
+<li><code>setToolTips</code> now silently skips widgets or properties that do not exist (not tested)</li>
+</ul>
+<h2>Media</h2>
+<ul>
+<li><code>demo.mp4</code>: Pocket panel open-state issue, step by step.</li>
+<li><code>pocket_panel_on_open.png</code> / <code>pocket_panel_expected.png</code>: the panel just opened, and after <code>updateVisibility()</code>.</li>
+<li><code>helix_pocket_main_vs_pr.png</code>, <code>profile_ramp_main_vs_pr.png</code>: main (blue) vs PR (orange) paths from the headless A/B, loaded into FreeCAD for the pictures.</li>
+<li><code>profile_panel_pr.png</code>: the new Profile panel.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated reviews by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, reviews written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviewed PRs</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>
