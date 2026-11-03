@@ -1,5 +1,15 @@
 [
  {
+  "pr": 33868,
+  "run": 1,
+  "job": "33868-session-20261103-004500",
+  "title": "[crash] SIGSEGV `FreeCAD_26.3rc2-Linux-x86_64.appimage`",
+  "date": "2026-11-03 00:45",
+  "requester": "Connor9220",
+  "poster": true,
+  "reproduced": true
+ },
+ {
   "pr": 33940,
   "run": 1,
   "job": "33940-session-20261027-224319",

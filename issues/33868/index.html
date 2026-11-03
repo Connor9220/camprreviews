@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="33868-session-20261103-004500">
+<title>Issue #33868 campr</title>
+<meta property="og:title" content="Issue #33868: [crash] SIGSEGV `FreeCAD_26.3rc2-Linux-x86_64.appimage`">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/issues/33868">FreeCAD Issue #33868</a><span>1 repro</span></div>
+<h1>[crash] SIGSEGV `FreeCAD_26.3rc2-Linux-x86_64.appimage`</h1>
+</header>
+<nav class="toc" aria-label="Repros"><h2>Repros, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-11-03 00:45</span><span>Repro 1 · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="33868-session-20261103-004500" data-state="final">
+<details class="run" open>
+<summary><span class="rn">Repro 1</span><span class="meta">2026-11-03 00:45 · main f69b1eb0648 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">Tried against upstream main <code>f69b1eb0648</code>: <strong>reproduced</strong></p>
+<figure class="player"><video id="vid-1" src="1/gesture-dimension-crash.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Real mouse and keyboard (XTest) on upstream main f69b1eb0648 with the Gesture navigation style: double-click a dimension, type a value, press Enter and move the mouse. FreeCAD segfaults in GestureNavigationStyle::EventQueue::forwardAll().</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="2.3"><span class="t">0:02</span><span><span class="cap">Gesture style, editing a sketch</span><span class="det">Upstream main f69b1eb0648, default settings apart from the Gesture navigation style</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="5.8"><span class="t">0:05</span><span><span class="cap">Double-click the 40 mm dimension</span><span class="det">The Insert Length dialog opens while Gesture is still replaying the postponed press</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="10.6"><span class="t">0:10</span><span><span class="cap">Type a new value</span><span class="det">Pointer over the 3D view, outside the dialog</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="15.9"><span class="t">0:15</span><span><span class="cap">Enter, then move the mouse</span><span class="det">The moves reach the 3D view inside the dialog&#x27;s event loop</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="18.5"><span class="t">0:18</span><span><span class="cap">Segfault</span><span class="det">SIGSEGV in GestureNavigationStyle::EventQueue::forwardAll()</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/dialog-before-enter.png"><img src="1/dialog-before-enter.png" alt="Just before Enter: the Insert Length dialog is open and the pointer is over the 3D view, outside the dialog."></a><figcaption>Just before Enter: the Insert Length dialog is open and the pointer is over the 3D view, outside the dialog.</figcaption></figure></div>
+<section class="notes"><h2>Test model</h2><ul><li><a href="1/gesture-dimension-crash.FCStd">gesture-dimension-crash.FCStd</a></li></ul></section>
+<div class="summary"><p><strong>Reproduced:</strong> Yes</p>
+<h2>TL;DR</h2>
+<ul>
+<li><strong>Confirmed on current main</strong> (<code>f69b1eb0648</code>) and on the 26.3rc2 AppImage the reporter used. The backtrace is the reporter's own: <code>EventQueue::forwardAll()+0xd4</code> called from <code>AwaitingMoveState::react</code>.</li>
+<li><strong>Trigger:</strong> Gesture navigation style, a dimension dialog in a sketch, and the mouse moving as the dialog closes.</li>
+<li><strong>Cause:</strong> a re-entrant call into the Gesture style's state machine. The state that is still running is destroyed, and its event queue is emptied while <code>forwardAll()</code> is still using it.</li>
+<li><strong>Fix:</strong> guard the state machine against re-entry (a small patch, below). It hasn't been built or tested yet.</li>
+</ul>
+<h2>How it was reproduced</h2>
+<p>FreeCAD ran on an off-screen X display and was driven with real X input (XTest mouse and keyboard events), not scripted calls. The model is a PartDesign Body with a padded sketch: a 60 × 40 mm rectangle and an 8 mm radius hole, fully dimensioned. It's attached as <code>gesture-dimension-crash.FCStd</code>.</p>
+<ol>
+<li>Set the navigation style to Gesture and open the sketch.</li>
+<li>Double-click a dimension. The Insert Length dialog opens.</li>
+<li>Move the pointer over the 3D view, outside the dialog, and type a new value.</li>
+<li>Press Enter and move the mouse more than 5 px right away.</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>Build</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>26.3rc2 AppImage (<code>9fb16e7f9</code>)</td>
+<td>SIGSEGV on the first attempt, 2 of 2 runs</td>
+</tr>
+<tr>
+<td>Upstream main <code>f69b1eb0648</code></td>
+<td>SIGSEGV on the first attempt, 2 of 2 runs</td>
+</tr>
+</tbody>
+</table>
+<p>Backtrace on main (gdb attached):</p>
+<pre><code>#0 Gui::GestureNavigationStyle::EventQueue::forwardAll()
+#1 Gui::GestureNavigationStyle::AwaitingMoveState::react(Event const&amp;)
+#2 boost::statechart::simple_state&lt;AwaitingMoveState, ...&gt;::react_impl
+#3 boost::statechart::state_machine&lt;NaviMachine, IdleState&gt;::process_event
+#4 Gui::GestureNavigationStyle::processSoEvent(SoEvent const*)
+#5 Gui::NavigationStyle::processEvent(SoEvent const*)
+#6 Gui::View3DInventorViewer::processSoEvent(SoEvent const*)
+#7 SIM::Coin3D::Quarter::EventFilter::eventFilter(QObject*, QEvent*)
+</code></pre>
+<p>The Gesture debug log (<code>NavigationDebug</code>) shows the sequence:</p>
+<pre><code>button1 press 100 (697,345)      &lt;- second click of the double-click
+postponed: button1 press
+ -&gt; AwaitingMoveState
+button1 release 0 (697,345)      &lt;- refire starts: replays the press, the dialog opens
+Sketcher::Solve() ...            &lt;- Enter: the value is applied
+ -&gt; IdleState                    &lt;- nested transition, from a mouse move, inside refire
+(SIGSEGV)
+</code></pre>
+<p>On the reporter's AppImage, the faulting instruction in their first trace (<code>react+0x4a2</code>) reads the state machine pointer from the destroyed <code>AwaitingMoveState</code> object. That's the <code>return transit&lt;IdleState&gt;()</code> right after <code>refire()</code>. In the other two traces the fault is in <code>forwardAll()+0xd4</code>, the virtual destructor call in <code>pop()</code> on a queue that has already been emptied.</p>
+<h2>Why it happens</h2>
+<p>The Gesture style holds back a mouse press until it knows whether the press starts a navigation drag. On release, <code>AwaitingMoveState::react</code> calls <code>refire()</code>. That replays the held-back press through <code>EventQueue::forwardAll()</code>, then the release, then transits to <code>IdleState</code>.</p>
+<p>In a sketch, the replayed press is the second click of a double-click on a dimension. <code>ViewProviderSketch::editDoubleClicked()</code> runs <code>EditDatumDialog::exec()</code>, which starts a nested event loop. All of this happens inside <code>forwardAll()</code>. The Dimension tool opens the same dialog from its click handler, so it can take the same path (not tested separately).</p>
+<p>When Enter closes the dialog, Qt finishes the current batch of window system events before <code>exec()</code> returns. The main window is no longer blocked by the modal dialog, so mouse moves already in that batch are delivered to the 3D view. Each one reaches <code>GestureNavigationStyle::processSoEvent</code> and calls <code>naviMachine-&gt;processEvent()</code> again, while the outer <code>react()</code> is still running.</p>
+<p>The machine is still in <code>AwaitingMoveState</code>. With no buttons down and the pointer more than 5 px from the press, that state calls <code>refire()</code> and transits to <code>IdleState</code>. Leaving the state runs <code>~AwaitingMoveState()</code>, which empties the queue with <code>discardAll()</code>. Back in the outer call:</p>
+<ul>
+<li><code>forwardAll()</code> pops from an empty queue (crash in <code>forwardAll</code>), or</li>
+<li><code>react()</code> continues on a destroyed object (crash at its <code>transit</code>).</li>
+</ul>
+<p>The timing explains &quot;hard to reproduce&quot;: the moves have to land in the same event batch as the key or click that closes the dialog. A high-rate mouse makes that more likely.</p>
+<p>This is the same kind of bug as #24869, fixed in #25548. That fix changed the navigation context menu from <code>exec()</code> to <code>popup()</code>. Any other nested event loop reached while events are being replayed still re-enters the machine.</p>
+<p>Not reproduced: right-clicking for the sketch context menu, then clicking outside it to close it. On Qt 6 with X11, that click is not passed on to the 3D view.</p>
+<h2>Proposed fix</h2>
+<p>Don't feed the state machine while it's already handling an event. An event that arrives from a nested event loop goes to the base navigation style instead, as <code>IdleState</code> would forward it anyway. The patch applies cleanly to main <code>f69b1eb0648</code>:</p>
+<pre><code class="language-diff">diff --git a/src/Gui/Navigation/GestureNavigationStyle.cpp b/src/Gui/Navigation/GestureNavigationStyle.cpp
+--- a/src/Gui/Navigation/GestureNavigationStyle.cpp
++++ b/src/Gui/Navigation/GestureNavigationStyle.cpp
+@@ -76,6 +76,7 @@
+ #include &lt;App/Application.h&gt;
+ #include &lt;Base/Interpreter.h&gt;
+ #include &lt;Base/Console.h&gt;
++#include &lt;Base/Tools.h&gt;
+ 
+ #include &quot;GestureNavigationStyle.h&quot;
+ #include &quot;Application.h&quot;
+@@ -1050,6 +1051,12 @@
+ 
+ 
+     if (!smev.flags-&gt;processed) {
++        // A dialog opened while postponed events are replayed runs a nested event loop. Events it
++        // delivers must not re-enter the state machine, or the running state is destroyed.
++        if (inNaviMachine) {
++            return superclass::processSoEvent(ev);
++        }
++        Base::StateLocker lock(inNaviMachine);
+         this-&gt;naviMachine-&gt;processEvent(smev);
+     }
+     if (!smev.flags-&gt;propagated &amp;&amp; !smev.flags-&gt;processed) {
+diff --git a/src/Gui/Navigation/GestureNavigationStyle.h b/src/Gui/Navigation/GestureNavigationStyle.h
+--- a/src/Gui/Navigation/GestureNavigationStyle.h
++++ b/src/Gui/Navigation/GestureNavigationStyle.h
+@@ -100,6 +100,8 @@
+ protected:  // members variables
+     std::unique_ptr&lt;NaviMachine&gt; naviMachine;
+     EventQueue postponedEvents;
++    /// true while naviMachine is handling an event; see processSoEvent
++    bool inNaviMachine = false;
+ 
+     // settings:
+     /// if false, tilting with touchscreen gestures will be disabled
+</code></pre>
+<p>The button-state tracking above this point still runs for every event, so the up/down state stays correct. The Maya Gesture style doesn't use the state machine and isn't affected.</p>
+<h2>Not done</h2>
+<ul>
+<li>The patch has not been built, and the repro has not been rerun against it.</li>
+<li>1.1.4, the reporter's last good version, was not tested. The Gesture code is almost the same there, so the window may simply be easier to hit in 26.3. That's not confirmed.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated repro attempts by Billy Huddleston's campr harness: FreeCAD built from source at current upstream main, GUI checks on an off-screen display, written by Claude. <a href="https://connor9220.github.io/camprreviews/">All issue repros</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>
