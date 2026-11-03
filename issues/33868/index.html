@@ -78,10 +78,10 @@ footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); p
 <div class="summary"><p><strong>Reproduced:</strong> Yes</p>
 <h2>TL;DR</h2>
 <ul>
-<li><strong>Confirmed on current main</strong> (<code>f69b1eb0648</code>) and on the 26.3rc2 AppImage the reporter used. The backtrace is the reporter's own: <code>EventQueue::forwardAll()+0xd4</code> called from <code>AwaitingMoveState::react</code>.</li>
+<li><strong>Confirmed on a source build of current main</strong> (<code>f69b1eb0648</code>), the 26.3rc2 AppImage and the 1.1.4 AppImage. All three show the reporter's backtrace: <code>EventQueue::forwardAll()</code> called from <code>AwaitingMoveState::react</code>. It's not specific to the AppImage, and it's not a 26.3 regression.</li>
 <li><strong>Trigger:</strong> Gesture navigation style, a dimension dialog in a sketch, and the mouse moving as the dialog closes.</li>
-<li><strong>Cause:</strong> a re-entrant call into the Gesture style's state machine. The state that is still running is destroyed, and its event queue is emptied while <code>forwardAll()</code> is still using it.</li>
-<li><strong>Fix:</strong> guard the state machine against re-entry (a small patch, below). It hasn't been built or tested yet.</li>
+<li><strong>Cause:</strong> a re-entrant call into the Gesture style's state machine. The state that is still running is destroyed, and its event queue is emptied while <code>forwardAll()</code> is still using it. The replay design dates back to the 2019 Gesture rewrite (<code>8a99785477c</code>).</li>
+<li><strong>Fix, tested:</strong> guarding the state machine against re-entry fixes it. With the patch on main: 9 of 9 attempts with no crash, and an 80-step random navigation run had no problems.</li>
 </ul>
 <h2>How it was reproduced</h2>
 <p>FreeCAD ran on an off-screen X display and was driven with real X input (XTest mouse and keyboard events), not scripted calls. The model is a PartDesign Body with a padded sketch: a 60 × 40 mm rectangle and an 8 mm radius hole, fully dimensioned. It's attached as <code>gesture-dimension-crash.FCStd</code>.</p>
@@ -100,12 +100,20 @@ footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); p
 </thead>
 <tbody>
 <tr>
+<td>Upstream main <code>f69b1eb0648</code>, built from source</td>
+<td>SIGSEGV on the first attempt, 2 of 2 runs</td>
+</tr>
+<tr>
 <td>26.3rc2 AppImage (<code>9fb16e7f9</code>)</td>
 <td>SIGSEGV on the first attempt, 2 of 2 runs</td>
 </tr>
 <tr>
-<td>Upstream main <code>f69b1eb0648</code></td>
-<td>SIGSEGV on the first attempt, 2 of 2 runs</td>
+<td>1.1.4 AppImage (the reporter's &quot;last known good&quot;)</td>
+<td>SIGSEGV on the first attempt, 2 of 2 runs, same <code>forwardAll()</code> frame</td>
+</tr>
+<tr>
+<td>Main <code>f69b1eb0648</code> <strong>with the patch below</strong></td>
+<td>No crash: 3 runs × 4 edits (9 dialogs opened, 9 survived, values applied)</td>
 </tr>
 </tbody>
 </table>
@@ -141,8 +149,8 @@ Sketcher::Solve() ...            &lt;- Enter: the value is applied
 <p>The timing explains &quot;hard to reproduce&quot;: the moves have to land in the same event batch as the key or click that closes the dialog. A high-rate mouse makes that more likely.</p>
 <p>This is the same kind of bug as #24869, fixed in #25548. That fix changed the navigation context menu from <code>exec()</code> to <code>popup()</code>. Any other nested event loop reached while events are being replayed still re-enters the machine.</p>
 <p>Not reproduced: right-clicking for the sketch context menu, then clicking outside it to close it. On Qt 6 with X11, that click is not passed on to the 3D view.</p>
-<h2>Proposed fix</h2>
-<p>Don't feed the state machine while it's already handling an event. An event that arrives from a nested event loop goes to the base navigation style instead, as <code>IdleState</code> would forward it anyway. The patch applies cleanly to main <code>f69b1eb0648</code>:</p>
+<h2>Fix</h2>
+<p>Don't feed the state machine while it's already handling an event. An event that arrives from a nested event loop goes to the base navigation style instead, as <code>IdleState</code> would forward it anyway. The patch applies cleanly to main <code>f69b1eb0648</code> and was built and tested there:</p>
 <pre><code class="language-diff">diff --git a/src/Gui/Navigation/GestureNavigationStyle.cpp b/src/Gui/Navigation/GestureNavigationStyle.cpp
 --- a/src/Gui/Navigation/GestureNavigationStyle.cpp
 +++ b/src/Gui/Navigation/GestureNavigationStyle.cpp
@@ -181,11 +189,14 @@ diff --git a/src/Gui/Navigation/GestureNavigationStyle.h b/src/Gui/Navigation/Ge
      /// if false, tilting with touchscreen gestures will be disabled
 </code></pre>
 <p>The button-state tracking above this point still runs for every event, so the up/down state stays correct. The Maya Gesture style doesn't use the state machine and isn't affected.</p>
-<h2>Not done</h2>
+<h2>Testing the fix</h2>
+<p>The patch was applied to a source build of main <code>f69b1eb0648</code> and built incrementally.</p>
 <ul>
-<li>The patch has not been built, and the repro has not been rerun against it.</li>
-<li>1.1.4, the reporter's last good version, was not tested. The Gesture code is almost the same there, so the window may simply be easier to hit in 26.3. That's not confirmed.</li>
+<li><strong>Same repro, patched:</strong> 3 runs of 4 dimension edits each, with Enter and an immediate mouse move every time. There were 9 dialogs and 9 survived, with the new values applied: 61, 62 and 64 mm. In one edit per run the double-click missed, because the label had moved after the previous value change. Unpatched main crashed on the first edit in every run.</li>
+<li><strong>Regression check:</strong> 80 random real-input steps on the patched build, in and out of sketch edit, exited cleanly with no exceptions. The steps covered double-clicking dimensions, the Dimension tool, LMB rotate, RMB pan, tilt with both buttons, the wheel, long press, the right-click menu, Shift box select, undo, and leaving and re-entering the sketch.</li>
 </ul>
+<h2>No bisect</h2>
+<p>There is no good-to-bad range to bisect: 1.1.4, the reporter's last known good version, crashes the same way with the same steps. The postponed-event replay in <code>AwaitingMoveState</code> (<code>refire()</code> and <code>EventQueue::forwardAll()</code>) comes from the Gesture style rewrite <code>8a99785477c</code> (2019, in 0.19). Any modal dialog opened from a replayed click can be re-entered this way. Because the crash depends on event timing, it shows up more or less often from one setup to another, which fits the reporter seeing 1.1.4 as good.</p>
 </div>
 </div>
 </details>
