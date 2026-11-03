@@ -1,0 +1,181 @@
+<section class="review" id="review-2" data-job="33739-6592621248" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 2</span><span class="meta">2026-11-02 20:56 · PR head ed43271d5ec · main 65e00462ee7 · requested by @davidgilkaufman</span></summary>
+<div class="body">
+<section class="notes"><h2>Requested by @davidgilkaufman</h2><p>please. Also please check supposing #33909 merges first, will this have conflicts or will it merge cleanly?</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2095 tests · OK (skipped=12, expected failures=4)</code></p>
+<figure class="player"><video id="vid-2" src="2/demo.mp4" controls preload="metadata" playsinline poster="2/poster.jpg"></video><figcaption>Rest machining on the PR: a 3 mm Adaptive rest op after 10 mm roughing cuts only the leftovers; turning Use Rest Machining off gives the full pocket, which is what main produced even with it on.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-2" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Roughing: Adaptive, 10 mm tool</span><span class="det">Pocket floor at Z = 12 (model sits from Z = 0 to 20), round island in the middle</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="5.77"><span class="t">0:05</span><span><span class="cap">PR: rest op, 3 mm tool, Use Rest Machining = true</span><span class="det">Cuts only what the 10 mm tool left: corners and wall passes (3266 commands)</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="13.58"><span class="t">0:13</span><span><span class="cap">Turn Use Rest Machining off</span><span class="det">Full pocket again: 44392 commands. On main the rest op gives this same full path with rest machining ON, because main looks for cleared area at Z = 0</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="24.73"><span class="t">0:24</span><span><span class="cap">So on main, rest machining did nothing here</span><span class="det">And with Model Aware on, main&#x27;s rest op went Invalid (arcs in the cleared area). The PR fixes both (tested headless, main vs PR).</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="2/rest_like_main.png"><img src="2/rest_like_main.png" alt="The same 3 mm op cutting the whole pocket (44392 commands). On main the rest op gave exactly this path with Use Rest Machining on, because it looked for cleared area at Z=0 while the floor is at Z=12."></a><figcaption>The same 3 mm op cutting the whole pocket (44392 commands). On main the rest op gave exactly this path with Use Rest Machining on, because it looked for cleared area at Z=0 while the floor is at Z=12.</figcaption></figure><figure class="shot"><a href="2/rest_pr.png"><img src="2/rest_pr.png" alt="PR: 10 mm roughing (blue) and the 3 mm rest op (red), which only cleans corners and walls (3266 commands)."></a><figcaption>PR: 10 mm roughing (blue) and the 3 mm rest op (red), which only cleans corners and walls (3266 commands).</figcaption></figure><figure class="shot"><a href="2/toppocket_main.png"><img src="2/toppocket_main.png" alt="twp test block, Adaptive Top Pocket, main (stored output, clipper 1). Entry helix at the upper left; rapids in red."></a><figcaption>twp test block, Adaptive Top Pocket, main (stored output, clipper 1). Entry helix at the upper left; rapids in red.</figcaption></figure><figure class="shot"><a href="2/toppocket_pr.png"><img src="2/toppocket_pr.png" alt="Same op recomputed on the PR (clipper 2). Same coverage, entry helix moved to the upper right, about 3% less cutting length."></a><figcaption>Same op recomputed on the PR (clipper 2). Same coverage, entry helix moved to the upper right, about 3% less cutting length.</figcaption></figure></div>
+
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>No defects found.</strong> Adaptive paths on the PR clear the same area as main with no gouges. Every Adaptive path still changes a little: up to 20% more G-code lines, and sometimes the entry helix moves.</li>
+<li><strong>Both rest-machining fixes (#33909) work.</strong> On main a rest op re-cut the whole pocket when the floor was above Z=0, and in model-aware mode it failed outright. On the PR it cuts only what the bigger tool left.</li>
+<li><strong>Merge order:</strong> if #33909 merges first, this PR still merges cleanly. The shared hunks are identical, and this PR's extra lines are pure additions well away from them.</li>
+<li><strong>Note:</strong> now that rest machining really works, computing the cleared area can take a while (about 39 s for a 10k-command roughing op here). That cost is in existing code. Main skipped it only because it looked at the wrong height.</li>
+</ul>
+<h2>Requester's question: merge order with #33909</h2>
+<p>If #33909 merges first, this PR merges <strong>cleanly</strong>.</p>
+<p>Checked with git as well: <code>git merge-tree</code> of #33909 onto main (<code>1f7337d</code>), then this PR onto that result, has no conflicts, and its tree is identical to main plus this PR alone. This PR already carries copies of #33909's four commits.</p>
+<ul>
+<li>#33909 head <code>41ec5e5</code> vs this PR's head <code>ed43271</code>, on the two shared files (<code>Adaptive.py</code>, <code>TestPathAdaptive.py</code>): the diff is 92 lines, all insertions, no deletions. Every #33909 hunk appears in this PR byte for byte, with the same context.</li>
+<li>This PR's extra lines are the <code>_debug_results_callback</code> hook (near line 54, and after each <code>a2d.Execute</code> call at lines 464 and 731) and the SVG debug helpers in the test. None of them touch or sit next to a #33909 hunk (lines 406 and 515 in <code>Adaptive.py</code>; the import and <code>testRestMachining</code> in the test). A 3-way merge sees the same change on both sides, plus additions elsewhere.</li>
+<li>GitHub reports both PRs as mergeable against current main.</li>
+<li>I could not run <code>git merge-tree</code> in this harness, so this comes from the diffs, not from an actual merge run.</li>
+</ul>
+<h2>What I checked</h2>
+<p>Setup: PR applied on main <code>65e00462ee7</code> and built. Full CAM suite: <strong>2095 tests, OK</strong> (12 skipped, 4 expected failures). That includes the new <code>testRestMachining</code> and #33705's <code>test_regression_33705_path_crosses_stock</code>.</p>
+<h3>1. Clipper 1 to Clipper 2 translation (the C++ change)</h3>
+<p><code>cam_ab</code> can only swap Python, and building a second <code>area.so</code> from main was not allowed in this harness. As the main side I used the <strong>Adaptive output stored in the test models</strong>. They were saved by build R48912, which already has every main change to <code>Adaptive.cpp</code> except #33705 (round stock only; these jobs use box stock). The PR side is a recompute with the input cache cleared.</p>
+<table>
+<thead>
+<tr>
+<th>Op (model)</th>
+<th>Paths</th>
+<th>Path points</th>
+<th>Cut length (mm)</th>
+<th>Link length (mm)</th>
+<th>G-code commands</th>
+<th>Coverage of floor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Adaptive (class tray A) main</td>
+<td>50</td>
+<td>1499</td>
+<td>1610.4</td>
+<td>248.5</td>
+<td>6048</td>
+<td>99.998%</td>
+</tr>
+<tr>
+<td>Adaptive (class tray A) PR</td>
+<td>50</td>
+<td>1804 (+20%)</td>
+<td>1612.3</td>
+<td>260.3</td>
+<td>7268 (+20%)</td>
+<td>99.998%</td>
+</tr>
+<tr>
+<td>Adaptive Top Pocket (twp block) main</td>
+<td>402</td>
+<td>5550</td>
+<td>1699.8</td>
+<td>771.1</td>
+<td>27815</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Adaptive Top Pocket (twp block) PR</td>
+<td>378</td>
+<td>5587</td>
+<td>1652.9 (-2.8%)</td>
+<td>750.6</td>
+<td>28000</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Adaptive Facet30 Pocket (twp block) main</td>
+<td>118</td>
+<td>1595</td>
+<td>505.6</td>
+<td>207.3</td>
+<td>3218</td>
+<td>n/a</td>
+</tr>
+<tr>
+<td>Adaptive Facet30 Pocket (twp block) PR</td>
+<td>118</td>
+<td>1752 (+10%)</td>
+<td>505.0</td>
+<td>206.7</td>
+<td>3532 (+10%)</td>
+<td>n/a</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Gouge check on the PR's Top Pocket found no gouges (the check hit its time cap partway through the moves).</li>
+<li>In the Top Pocket the entry helix moved from the upper-left corner to the upper-right (see <code>toppocket_main.png</code> / <code>toppocket_pr.png</code>). Both spots are valid.</li>
+<li>The extra points come from the tool-bound and finishing offsets. On main they ran on Clipper 2 with its default arc tolerance; on the PR they use an absolute arc tolerance of 0.25 (<code>ClipperOffset clipof(2.0, 0.25)</code>, Adaptive.cpp:2215, plus the <code>OffsetPaths</code> wrappers). So round joins get more vertices.</li>
+<li>A sweep on the pocket-island model ran on the PR only: clearing, ForceInsideOut, stock to leave, no finishing with KeepToolDownRatio 8, profiling outside the island, model-aware on floor and hole, a 3 mm tool at 40% step-over with helix limits, and an open edge. Every op recomputed with no errors and no Report-view errors.
+<ul>
+<li>Coverage: 99.87% on the 6 mm clearing op. The 8 missed grid points are corner points at the edge of what the tool can reach. The 3 mm op reached 100%.</li>
+<li>The model-aware op stopped at Z=12 because its Final Depth is 12. That comes from the op settings, not from the PR.</li>
+</ul>
+</li>
+</ul>
+<h3>2. Included from #33909: rest machining fixes (Python, A/B'd headless against main)</h3>
+<p>Model: pocket-island block (Z 0..20, pocket floor at Z=12, round island). The setup is 10 mm Adaptive roughing, then a 3 mm Adaptive with Use Rest Machining on, plus a 3 mm full op for reference.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rest op, plain mode</td>
+<td>44392 commands, identical to the full 3 mm op (rest ignored)</td>
+<td>3266 commands (corners, walls)</td>
+</tr>
+<tr>
+<td>Rest op, Model Aware</td>
+<td><strong>Invalid</strong> (assert on an arc edge in the cleared area)</td>
+<td>3266 commands, valid</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Depth fix:</strong> non-model-aware Adaptive flattens its input to Z=0. Main therefore asked for the cleared area at or below Z=0, which finds nothing when the model sits above Z=0 (the usual setup). The PR asks at Final Depth instead. Fixed.</li>
+<li><strong>Arc fix:</strong> cleared areas now contain arcs. Main's <code>assert edge.Curve.TypeId == &quot;Part::GeomLine&quot;</code> failed and the op went Invalid. The PR discretizes the arcs. Fixed.</li>
+<li>Both were shown in the GUI as well; see <code>demo.mp4</code>.</li>
+</ul>
+<h3>3. Old files</h3>
+<ul>
+<li>No properties were added or removed, and there are no migrations.</li>
+<li>Opening the main-saved twp block and recomputing gives the PR output (Facet30 3218 to 3532 commands).</li>
+</ul>
+<h3>4. GUI</h3>
+<ul>
+<li>No task panel or <code>.ui</code> changes. The Use Rest Machining toggle works from the Property View (recorded in the demo).</li>
+</ul>
+<h2>From the code (not reproduced)</h2>
+<p>These came from <code>/code-review medium 33739</code>. I could not trigger them from FreeCAD.</p>
+<ul>
+<li><code>Adaptive.cpp:968</code>: <code>SimplifyPaths</code> replaced <code>CleanPolygons</code>. Clipper 1 emptied polygons that dropped below 3 points; <code>SimplifyPath</code> can leave a 2-point, zero-area path in the cleared area. <code>Compute2DPolygonCentroid</code> then divides by zero area in <code>initToolDir</code>. The same pattern is at lines 992 and 2406.</li>
+<li><code>Adaptive.cpp:2446</code>: in <code>FindEntryPoint</code>'s symmetry-breaking retry, <code>GetBounds</code> on an empty <code>Paths64</code> returns sentinel INT64 extremes, where Clipper 1 returned a zero rect. The rect is then built from extreme coordinates, and <code>lastValidOffset</code> is stale.</li>
+<li><code>TestPathAdaptive.py:609</code>: the new test's comment says non-model-aware Adaptive only sees cleared area at or below Z=0. That is no longer true after the depth fix. The test puts the floor at Z=-1, so it covers the arc fix but not the depth fix.</li>
+</ul>
+<p>Checked and dropped:</p>
+<ul>
+<li><code>stockInputPaths</code> is no longer cleared at the start of <code>Execute</code> (Adaptive.cpp:1800). This only matters if one <code>Adaptive2d</code> object is reused, and the op never does that. Reusing one already returns the previous call's results on main too (the <code>results</code> list is never cleared). In my reuse test, the second job's own paths matched a fresh object's.</li>
+<li>Rounding to <code>Point64</code> (rounds where Clipper 1 truncated) and the 0.25 arc tolerance: these explain the small output changes above. They are not defects.</li>
+<li>The efficiency remarks (the duplicate offset before the <code>FindEntryPoint</code> loop, copying in <code>OffsetPath</code>, <code>DebugSVGInfo</code> always being filled): quality notes only.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Every existing Adaptive toolpath changes a little on recompute: 10-20% more G-code lines, cut length within -3%..+0.1%, and the entry helix can move. Tested.</li>
+<li>Rest machining recompute time: on the pocket-island model the cleared-area step takes about 39 s on both main and the PR (unchanged <code>getClearedAreas</code>). Main skipped it in plain mode because it looked at Z=0, so a rest op that was instant on main now takes about 40 s. Tested.</li>
+<li>New module-level <code>_debug_results_callback</code> hook in <code>Path/Op/Adaptive.py</code>, called after each <code>a2d.Execute</code>. It is developer-only and not visible to users. Tested indirectly: the tests pass with it unset.</li>
+<li>Tooltip text of the Path Area <code>Explode</code>, <code>OpenMode</code> and <code>ClipperScale</code> properties reworded (&quot;ClipperLib&quot; to &quot;Clipper&quot;). Not tested.</li>
+<li>clipper 1 sources (<code>libarea/clipper.cpp/.hpp</code>) deleted from the build. Tested: builds and runs.</li>
+</ul>
+<h2>Included from #33909</h2>
+<ul>
+<li>Rest machining handles arcs in the cleared area. Tested: main Invalid, PR OK.</li>
+<li>Rest machining checks the cleared area at Final Depth instead of Z=0. Tested: main re-cut the whole pocket, PR only leftovers.</li>
+<li>New <code>testRestMachining</code>. Tested: passes; covers the arc fix only.</li>
+</ul>
+<h2>Other references</h2>
+<ul>
+<li>#33705 (round-stock <code>map::at</code> fix, merged): the PR kept its <code>seenZ</code> change (Adaptive.cpp:2124), and its regression test passes. Tested.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>

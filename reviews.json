@@ -1,6 +1,16 @@
 [
  {
   "pr": 33739,
+  "run": 2,
+  "job": "33739-6592621248",
+  "title": "CAM: Migrate the Adaptive operation to clipper2, delete clipper 1",
+  "date": "2026-11-02 20:56",
+  "requester": "davidgilkaufman",
+  "poster": true,
+  "head": "ed43271d5ec"
+ },
+ {
+  "pr": 33739,
   "run": 1,
   "job": "33739-6592621248",
   "title": "CAM: Migrate the Adaptive operation to clipper2, delete clipper 1",
