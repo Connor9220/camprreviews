@@ -1,0 +1,126 @@
+<section class="review" id="review-1" data-job="33909-6591932309" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-02 20:03 · PR head 41ec5e56295 · main 65e00462ee7 · requested by @davidgilkaufman</span></summary>
+<div class="body">
+<section class="notes"><h2>Requested by @davidgilkaufman</h2><p>please</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2095 tests · OK (skipped=12, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Roughing pass, then the 3 mm rest op on the PR (corners and island only), with Use Rest Machining off for comparison, then main&#x27;s output for the same op (full re-clear)</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Roughing: Adaptive, 10 mm end mill</span><span class="det">40x40x8 pocket around a round island, model at Z 0 to 20. Gray = roughing toolpath.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="5.38"><span class="t">0:05</span><span><span class="cap">PR: rest op, 3 mm end mill, Use Rest Machining = true</span><span class="det">Green = cuts, red = rapids. It only cuts what the 10 mm tool left: the corners and the ring around the island. 2120 commands, 669 mm of feed.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="9.88"><span class="t">0:09</span><span><span class="cap">Turn Use Rest Machining off</span><span class="det">Without the roughing pass the 3 mm tool re-clears the whole pocket (30723 commands, 8864 mm of feed).</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="18.88"><span class="t">0:18</span><span><span class="cap">main, Use Rest Machining ON: the same full re-clear</span><span class="det">Red = main&#x27;s path for the same op, computed headless and loaded here. main looks for cleared area at Z=0, so the roughing cuts at Z 12 never count.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="23.38"><span class="t">0:23</span><span><span class="cap">PR, Use Rest Machining ON: corners and island only</span><span class="det">The PR checks at the op&#x27;s Final Depth (Z 12) and finds the roughing cuts. Together they leave no reachable floor uncut and the rest op does not gouge.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="27.88"><span class="t">0:27</span><span><span class="cap">Model below Z=0: main fails, the PR works</span><span class="det">Same job moved to Z -20 to 0: main sees the cleared area, hits an arc and stops with AssertionError (no path). The PR gives this same 2120-command path.</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/main_rest_path.png"><img src="1/main_rest_path.png" alt="main: the same rest op with Use Rest Machining on ignores the roughing pass and re-clears the whole pocket (30723 commands, 8864 mm of feed)"></a><figcaption>main: the same rest op with Use Rest Machining on ignores the roughing pass and re-clears the whole pocket (30723 commands, 8864 mm of feed)</figcaption></figure><figure class="shot"><a href="1/pr_rest_path.png"><img src="1/pr_rest_path.png" alt="PR: the rest op alone cuts only the four corners and the ring around the island (2120 commands, 669 mm of feed)"></a><figcaption>PR: the rest op alone cuts only the four corners and the ring around the island (2120 commands, 669 mm of feed)</figcaption></figure><figure class="shot"><a href="1/pr_setup_rough_plus_rest.png"><img src="1/pr_setup_rough_plus_rest.png" alt="Test setup on the PR: 10 mm Adaptive roughing (gray) plus the 3 mm rest op (green cuts, red rapids) in a 40x40x8 pocket around an island"></a><figcaption>Test setup on the PR: 10 mm Adaptive roughing (gray) plus the 3 mm rest op (green cuts, red rapids) in a 40x40x8 pocket around an island</figcaption></figure></div>
+
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>No defects found.</strong> Both fixes do what the PR says, and the full CAM test suite passes.</li>
+<li><strong>Fix 1 (arcs):</strong> on main, an Adaptive rest op that actually sees a previous op's cleared area stops with an <code>AssertionError</code> and has no path. On the PR it recomputes. Tested in standard mode, model-aware mode and on a tilted work plane.</li>
+<li><strong>Fix 2 (depth):</strong> on main, rest machining looks for cleared area at Z=0. For a model sitting on Z 0..20 it never finds the roughing pass, so a 3 mm rest op re-clears the whole pocket (8864 mm of feed). On the PR it cuts only the corners and the ring around the island (669 mm of feed), leaves no reachable floor uncut, and doesn't gouge.</li>
+<li>Existing jobs with Use Rest Machining on will get different (correct) toolpaths when they recompute.</li>
+</ul>
+<h2>What the PR does</h2>
+<p>Two changes in <code>Path/Op/Adaptive.py</code>, plus one new unit test:</p>
+<ol>
+<li><code>get_cleared_area()</code> accepted only straight edges in the cleared-area shape (<code>assert edge.Curve.TypeId == &quot;Part::GeomLine&quot;</code>). Since the Clipper/arc-fitting changes, <code>Area.getClearedArea()</code> returns arcs as well. The PR discretizes <code>Part::GeomCircle</code> edges instead of asserting.</li>
+<li><code>Execute()</code> (standard, not model-aware) now passes <code>obj.FinalDepth.Value</code> as the cleared-area check height. Before, it used the Z of the working edges, which <code>combineHorizontalFaces()</code> flattens to Z=0. The model-aware path already passed explicit depths.</li>
+</ol>
+<h2>Test setup</h2>
+<ul>
+<li>Model: the prepared <code>pocket-island</code> part (120x70x20 block, 40x40x8 sharp-cornered pocket around a 12 mm round island).</li>
+<li>Two Adaptive ops on the pocket floor (Face12): <strong>Rough10</strong> with a 10 mm end mill, then <strong>Rest3</strong> with a 3 mm end mill and Use Rest Machining on. Step Down 4 mm for both.</li>
+<li>Variants: the same job with the model moved to Z -20..0, and that version with the roughing op stopped at Z -4 (half depth).</li>
+<li>Plus the prepared <code>twp-test-block</code> job: Use Rest Machining turned on for &quot;Adaptive Facet30 Pocket&quot; (30° work plane, after a facing op on that plane) and for &quot;Adaptive Top Pocket&quot;.</li>
+<li>Each comparison is <code>cam_ab</code>: the same document recomputed headless with the PR's base commit (<code>main</code> side) and with the PR.</li>
+</ul>
+<p><img src="media/pr_setup_rough_plus_rest.png" alt="setup" /></p>
+<h2>Results, main vs PR</h2>
+<table>
+<thead>
+<tr>
+<th>Case</th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Model Z 0..20, Rest3 (standard mode)</td>
+<td>Up-to-date, <strong>30723 cmds, 8864 mm feed</strong>, cleared area empty (roughing ignored)</td>
+<td>Up-to-date, <strong>2120 cmds, 669 mm feed</strong>, cleared area 2 wires / 335 pts</td>
+</tr>
+<tr>
+<td>Model Z -20..0, Rest3</td>
+<td><strong>Invalid: <code>AssertionError</code></strong> in <code>get_cleared_area</code> (arc edge)</td>
+<td>Up-to-date, 2120 cmds</td>
+</tr>
+<tr>
+<td>Model Z -20..0, roughing only to Z -4</td>
+<td><strong>Invalid: <code>AssertionError</code></strong> (main counted the half-depth roughing as cleared, then hit an arc)</td>
+<td>Up-to-date, 30723 cmds: full re-clear, correct because nothing reached the floor</td>
+</tr>
+<tr>
+<td>Model Z 0..20, both ops Model Aware</td>
+<td>Rest3 <strong><code>AssertionError</code></strong></td>
+<td>Rest3 2129 cmds</td>
+</tr>
+<tr>
+<td>twp-block, Facet30 pocket (30° work plane), rest on</td>
+<td><strong>Invalid: <code>AssertionError</code></strong></td>
+<td>Up-to-date, 3258 cmds; the facing pass at the facet top correctly doesn't count as cleared at the -6 mm floor</td>
+</tr>
+<tr>
+<td>twp-block, Top pocket, rest on</td>
+<td>27915 cmds (no cleared area: facing is at Z 50)</td>
+<td>same 27915 cmds</td>
+</tr>
+</tbody>
+</table>
+<p>Roughing op output is identical on both sides in every case.</p>
+<table>
+<thead>
+<tr>
+<th>main: rest op re-clears everything</th>
+<th>PR: corners and island only</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><img src="media/main_rest_path.png" alt="main" /></td>
+<td><img src="media/pr_rest_path.png" alt="pr" /></td>
+</tr>
+</tbody>
+</table>
+<p>Checks on the PR result (model Z 0..20):</p>
+<ul>
+<li><strong>Coverage:</strong> a 0.5 mm grid on the pocket floor at Z 12, checked against the feed moves at depth of Rough10 plus Rest3: 5952 points, 5860 cut by the roughing, 88 by the rest op, 4 unreachable for a 3 mm tool (the sharp corners), <strong>0 missed</strong>.</li>
+<li><strong>Gouges:</strong> <code>cam_gouge_check</code> on Rest3 cutting moves: no gouges (1899 moves).</li>
+</ul>
+<p>Video: <a href="media/demo.mp4">demo.mp4</a> shows the roughing pass, the PR rest op, the same op with Use Rest Machining off, main's output, and the PR output again.</p>
+<h2>Code review findings checked and dropped</h2>
+<p><code>/code-review medium 33909</code> raised eight items. None turned out to be a defect:</p>
+<ul>
+<li><em>Arc edges might be reversed or out of order in the wire.</em> <code>Area::toShape(CCurve)</code> builds each arc with its axis at ±Z to match the travel direction, adds edges in travel order, and the main code already relied on <code>Vertexes[0]</code> for lines. On the real cleared area (59 edges, 41 of them arcs) there were 0 reversed edges and 0 gaps between consecutive edges. Checked, fine.</li>
+<li><em>The assert would still trip on other curve types.</em> <code>toShape</code> only produces lines and circles. Dropped.</li>
+<li><em>Final Depth for every step-down re-clears upper levels when the previous op stopped short of the floor.</em> This is conservative, not wrong: one 2D path is reused for every level, so only area cleared down to the floor is safe to skip. Seen in the half-depth case above. Not a defect.</li>
+<li><em>Fine 0.002 mm arc deflection makes the input state larger.</em> 335 points here. No measurable effect.</li>
+<li>Code-quality items (an existing helper in <code>adaptive_common.py</code>, the unused <code>zOverride=None</code> default, the fixed document name in the test): not defects.</li>
+</ul>
+<h2>Also on main (not this PR)</h2>
+<ul>
+<li>The rest op's recompute spends about <strong>31 s inside <code>PathOpUtil.getClearedAreas()</code></strong> (core <code>Path.getClearedArea</code>) for this 14.5k-command roughing pass. main takes the same 31 s (30.8 s vs 31.8 s) whenever it actually sees the cleared area. Users will notice it more now, because on a normal Z 0..20 model main never got that far.</li>
+</ul>
+<h2>Unit tests</h2>
+<ul>
+<li>Full CAM suite: <code>Ran 2095 tests</code>, <strong>OK</strong> (skipped=12, expected failures=4). The new <code>testRestMachining</code> passes (1.1 s).</li>
+<li>The new test covers fix 1 only. Its pocket floor is at Z -1, which is below Z 0, so main's Z 0 check already counts the roughing cut and only the arc assertion makes it fail. Without fix 2 (but with fix 1) the test would still pass. This is from reading the code; I didn't run it that way. It also checks only that the rest op recomputes, not that it cuts less than a non-rest op. A case with the model above Z 0 (or a command or length comparison) would cover fix 2.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Existing documents with Use Rest Machining on (standard mode, model above Z 0) get a different, much shorter rest toolpath on recompute, because the roughing pass now counts (tested).</li>
+<li>Previous ops that stop above the rest op's Final Depth no longer count as cleared, so the rest op re-clears the full pocket in that case (tested).</li>
+<li>No properties, enum options, panel widgets, defaults or file-format changes.</li>
+</ul>
+<h2>Issues</h2>
+<ul>
+<li>None referenced. PR #33739 (the Clipper 2 migration) is the source of these cherry-picks. It is context only and was not tested here.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
