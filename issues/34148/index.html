@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="34148-session-20261106-162546">
+<title>Issue #34148 campr</title>
+<meta property="og:title" content="Issue #34148: test suite failing cam: cam workbench test suite">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/issues/34148">FreeCAD Issue #34148</a><span>1 repro</span></div>
+<h1>test suite failing cam: cam workbench test suite</h1>
+</header>
+<nav class="toc" aria-label="Repros"><h2>Repros, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-11-06 16:30</span><span>Repro 1 · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="34148-session-20261106-162546" data-state="final">
+<details class="run" open>
+<summary><span class="rn">Repro 1</span><span class="meta">2026-11-06 16:30 · main 5ce3b8804dd · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">Tried against upstream main <code>5ce3b8804dd</code>: <strong>reproduced</strong></p>
+
+
+
+<div class="summary"><p><strong>Reproduced:</strong> Yes</p>
+<h2>TL;DR</h2>
+<ul>
+<li><strong>The test is <code>TestPathAdaptive.testRestMachining</code>.</strong> Run alone it aborts with the reporter's assertion, <code>std::list&lt;heeks::CVertex&gt;::front()</code>, <code>'!this-&gt;empty()'</code>.</li>
+<li><strong>The bug is in <code>CArea::NaiveOffset</code>, not the test.</strong> A path move with no XY travel gives a curve of only zero-length segments. The offset curve stays empty, and <code>front()</code> is called on it.</li>
+<li><strong>Normal builds don't crash.</strong> Reading the empty list happens to do no harm, and that move just adds nothing to the cleared area.</li>
+<li><strong>Fix tested:</strong> with the patch, all 2097 CAM tests pass with assertions on, headless and in the GUI. Adaptive toolpaths are byte-identical on two models.</li>
+</ul>
+<h2>How it was reproduced</h2>
+<p>The tree was a clean build of upstream main <code>5ce3b8804dd</code>, which includes the Adaptive move to Clipper2 (#33739). The reporter's commit <code>b9fb94ca48a</code> has the same <code>AreaClipper.cpp</code> and <code>Area.cpp</code>.</p>
+<p>The flag alone does not reproduce it here. The pixi environment uses libstdc++ 13.4, whose <code>std::list::front()</code> has no empty check, so a build with <code>-D_GLIBCXX_ASSERTIONS</code> passes every test. The reporter's libstdc++ 16 has that check.</p>
+<p>To match it, GCC 16-style checks were added to a copy of <code>bits/stl_list.h</code> (<code>front</code>, <code>back</code>, <code>pop_front</code>, <code>pop_back</code>). <code>libarea-native</code>, <code>area</code> and <code>PathApp</code> were then rebuilt against that copy with <code>-D_GLIBCXX_ASSERTIONS</code>.</p>
+<p>This was x86_64 with clang, not the reporter's Fedora aarch64 GCC 16 build. Only those three libraries had assertions on.</p>
+<table>
+<thead>
+<tr>
+<th>Build</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Main, stock flags</td>
+<td>2096 tests, OK</td>
+</tr>
+<tr>
+<td>Main, assertions, flag only (libstdc++ 13 header)</td>
+<td>Tested on <code>12f49672ed9</code>: 2095 tests, OK, the check isn't there</td>
+</tr>
+<tr>
+<td>Main, assertions with list checks, <code>TestCAMApp</code></td>
+<td>SIGABRT in <code>testRestMachining</code></td>
+</tr>
+<tr>
+<td>Same, that test alone (run on <code>12f49672ed9</code>)</td>
+<td>SIGABRT, same backtrace</td>
+</tr>
+<tr>
+<td>Main + patch, stock flags</td>
+<td>2097 tests, OK</td>
+</tr>
+<tr>
+<td>Main + patch, assertions with list checks, headless</td>
+<td>2097 tests, OK</td>
+</tr>
+<tr>
+<td>Main + patch, assertions with list checks, GUI on Xvfb</td>
+<td>2097 tests, OK</td>
+</tr>
+</tbody>
+</table>
+<p>Backtrace:</p>
+<pre><code>#4 std::__glibcxx_assert_fail
+#5 std::list&lt;heeks::CVertex&gt;::front
+#6 heeks::CArea::NaiveOffset (offset=2.53)
+#7 heeks::CArea::Thicken (value=2.53)
+#8 ClearedAreaSegmentVisitor::getClearedArea
+#9 Path::Area::getClearedArea (diameter=5, zmax=-0.99)
+#10 Path::PathPy::getClearedArea
+</code></pre>
+<h2>Why it happens</h2>
+<p><code>get_cleared_area</code> in <code>Path/Op/Adaptive.py</code> calls <code>Path.getClearedArea</code> on the earlier ops when <code>UseRestMachining</code> is on. <code>ClearedAreaSegmentVisitor::line()</code> makes a 2-vertex curve for every G0/G1 at or below the depth, then <code>Thicken</code> offsets them all.</p>
+<p>The roughing path in this test has 46 moves that end where they start, for example a G1 that repeats the point it is already at. Each gives a curve with two identical vertices.</p>
+<p><code>NaiveOffset</code> special-cases <code>size() == 1</code> and skips segments with <code>len == 0</code>. A 2-vertex curve of identical points gets past the first check and then skips its only segment, so <code>cPos</code> and <code>cNeg</code> stay empty. <code>IsClosed()</code> is true, so <code>cPos.m_vertices.front()</code> runs on an empty list (<code>AreaClipper.cpp:559</code>). gdb stops in <code>NaiveOffset</code> without a line number; 559 is the first <code>front()</code> that can reach an empty list.</p>
+<p>From reading the code: without assertions, <code>front()</code> and <code>back()</code> on the empty list return the same memory. <code>addJoin</code> sees the points as equal and returns, the writes copy that memory onto itself, and the two empty curves drop out. So <code>Thicken</code> returns nothing for that move.</p>
+<h2>Who it affects</h2>
+<p>Any Adaptive op with Rest Machining on, built with this flag and a libstdc++ that has the check, should abort in normal use, not only in the test. Both models tested here had these moves in their roughing paths (46 and 178). This real-use crash was not run outside the test. As far as I know, Fedora and Arch turn this flag on in their default package flags, so distro packages may be exposed. That was not tested either.</p>
+<h2>The fix</h2>
+<p>The single-point block in <code>NaiveOffset</code> moves below the segment loop, and its condition changes from <code>curve.m_vertices.size() == 1</code> to <code>cPos.m_vertices.empty()</code>. One vertex still lands there, because the loop doesn't run. Curves with only zero-length segments now land there too.</p>
+<p>The patch is <code>naiveoffset-zero-length.patch</code>. <code>test_thicken_zero_length</code> in <code>TestAreaOperations.py</code> fails on a normal build of main (<code>0 != 1</code> curves), so CI will catch this from now on. It passes with the patch. clang-format 23.1.0 and black are clean. The file was compiled with the normal <code>-Werror</code> flags.</p>
+<p>The patch applies to main <code>5ce3b8804dd</code> and to <code>releases/FreeCAD-26-3</code> at <code>b916af74f73</code>. The 26.3 branch has the same <code>NaiveOffset</code> code and the same test (#34111). It was not built or run there.</p>
+<p>PaddleStroke's fork commit AstoCAD/FreeCAD@60bce76d59 makes the same fix with the same <code>cPos.m_vertices.empty()</code> check. It shares the circle code through a lambda and adds a Path-level test in <code>TestPathCore.py</code>. The results here were measured on the patch above, not on that commit.</p>
+<h2>What changes with the patch</h2>
+<p>A curve of only zero-length segments now behaves like a single vertex in all three <code>NaiveOffset</code> callers.</p>
+<table>
+<thead>
+<tr>
+<th>Call on a zero-length curve at r=2.5</th>
+<th>Main</th>
+<th>Patch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Thicken</code></td>
+<td>nothing</td>
+<td>disc, area 19.635</td>
+</tr>
+<tr>
+<td><code>OpenOffset(2.5)</code></td>
+<td>not run</td>
+<td>disc on the positive side, nothing on the negative side</td>
+</tr>
+<tr>
+<td><code>Offset(2.5)</code></td>
+<td>not run</td>
+<td>disc, area 19.635</td>
+</tr>
+<tr>
+<td><code>Offset(-2.5)</code></td>
+<td>not run</td>
+<td>nothing</td>
+</tr>
+<tr>
+<td><code>getClearedArea(5, ...)</code>, repeated point or Z-only move</td>
+<td>not run</td>
+<td>disc, area 20.109 (radius 2.53)</td>
+</tr>
+</tbody>
+</table>
+<p>Adaptive rest machining A/B, main against patch:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Tools</th>
+<th>Roughing G-code</th>
+<th>Rest G-code</th>
+<th>Cleared area (mm²)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>testRestMachining</code> geometry</td>
+<td>5 mm, 4 mm</td>
+<td>identical, 1520 commands</td>
+<td>identical, 169 commands</td>
+<td>1497.816, unchanged</td>
+</tr>
+<tr>
+<td>Pocket with island and a wall stub, 3 levels</td>
+<td>10 mm, 3 mm</td>
+<td>identical, 16704 commands</td>
+<td>identical, 1806 commands</td>
+<td>6315.460 to 6315.461</td>
+</tr>
+</tbody>
+</table>
+<p>The discs almost always sit inside area the neighboring moves already cover, so output doesn't change. A path with an isolated Z-only move below the depth would now count that disc as cleared, which is correct.</p>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated repro attempts by Billy Huddleston's campr harness: FreeCAD built from source at current upstream main, GUI checks on an off-screen display, written by Claude. <a href="https://connor9220.github.io/camprreviews/">All issue repros</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>

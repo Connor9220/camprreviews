@@ -1,0 +1,152 @@
+<section class="review" id="review-1" data-job="34148-session-20261106-162546" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Repro 1</span><span class="meta">2026-11-06 16:30 · main 5ce3b8804dd · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">Tried against upstream main <code>5ce3b8804dd</code>: <strong>reproduced</strong></p>
+
+
+
+<div class="summary"><p><strong>Reproduced:</strong> Yes</p>
+<h2>TL;DR</h2>
+<ul>
+<li><strong>The test is <code>TestPathAdaptive.testRestMachining</code>.</strong> Run alone it aborts with the reporter's assertion, <code>std::list&lt;heeks::CVertex&gt;::front()</code>, <code>'!this-&gt;empty()'</code>.</li>
+<li><strong>The bug is in <code>CArea::NaiveOffset</code>, not the test.</strong> A path move with no XY travel gives a curve of only zero-length segments. The offset curve stays empty, and <code>front()</code> is called on it.</li>
+<li><strong>Normal builds don't crash.</strong> Reading the empty list happens to do no harm, and that move just adds nothing to the cleared area.</li>
+<li><strong>Fix tested:</strong> with the patch, all 2097 CAM tests pass with assertions on, headless and in the GUI. Adaptive toolpaths are byte-identical on two models.</li>
+</ul>
+<h2>How it was reproduced</h2>
+<p>The tree was a clean build of upstream main <code>5ce3b8804dd</code>, which includes the Adaptive move to Clipper2 (#33739). The reporter's commit <code>b9fb94ca48a</code> has the same <code>AreaClipper.cpp</code> and <code>Area.cpp</code>.</p>
+<p>The flag alone does not reproduce it here. The pixi environment uses libstdc++ 13.4, whose <code>std::list::front()</code> has no empty check, so a build with <code>-D_GLIBCXX_ASSERTIONS</code> passes every test. The reporter's libstdc++ 16 has that check.</p>
+<p>To match it, GCC 16-style checks were added to a copy of <code>bits/stl_list.h</code> (<code>front</code>, <code>back</code>, <code>pop_front</code>, <code>pop_back</code>). <code>libarea-native</code>, <code>area</code> and <code>PathApp</code> were then rebuilt against that copy with <code>-D_GLIBCXX_ASSERTIONS</code>.</p>
+<p>This was x86_64 with clang, not the reporter's Fedora aarch64 GCC 16 build. Only those three libraries had assertions on.</p>
+<table>
+<thead>
+<tr>
+<th>Build</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Main, stock flags</td>
+<td>2096 tests, OK</td>
+</tr>
+<tr>
+<td>Main, assertions, flag only (libstdc++ 13 header)</td>
+<td>Tested on <code>12f49672ed9</code>: 2095 tests, OK, the check isn't there</td>
+</tr>
+<tr>
+<td>Main, assertions with list checks, <code>TestCAMApp</code></td>
+<td>SIGABRT in <code>testRestMachining</code></td>
+</tr>
+<tr>
+<td>Same, that test alone (run on <code>12f49672ed9</code>)</td>
+<td>SIGABRT, same backtrace</td>
+</tr>
+<tr>
+<td>Main + patch, stock flags</td>
+<td>2097 tests, OK</td>
+</tr>
+<tr>
+<td>Main + patch, assertions with list checks, headless</td>
+<td>2097 tests, OK</td>
+</tr>
+<tr>
+<td>Main + patch, assertions with list checks, GUI on Xvfb</td>
+<td>2097 tests, OK</td>
+</tr>
+</tbody>
+</table>
+<p>Backtrace:</p>
+<pre><code>#4 std::__glibcxx_assert_fail
+#5 std::list&lt;heeks::CVertex&gt;::front
+#6 heeks::CArea::NaiveOffset (offset=2.53)
+#7 heeks::CArea::Thicken (value=2.53)
+#8 ClearedAreaSegmentVisitor::getClearedArea
+#9 Path::Area::getClearedArea (diameter=5, zmax=-0.99)
+#10 Path::PathPy::getClearedArea
+</code></pre>
+<h2>Why it happens</h2>
+<p><code>get_cleared_area</code> in <code>Path/Op/Adaptive.py</code> calls <code>Path.getClearedArea</code> on the earlier ops when <code>UseRestMachining</code> is on. <code>ClearedAreaSegmentVisitor::line()</code> makes a 2-vertex curve for every G0/G1 at or below the depth, then <code>Thicken</code> offsets them all.</p>
+<p>The roughing path in this test has 46 moves that end where they start, for example a G1 that repeats the point it is already at. Each gives a curve with two identical vertices.</p>
+<p><code>NaiveOffset</code> special-cases <code>size() == 1</code> and skips segments with <code>len == 0</code>. A 2-vertex curve of identical points gets past the first check and then skips its only segment, so <code>cPos</code> and <code>cNeg</code> stay empty. <code>IsClosed()</code> is true, so <code>cPos.m_vertices.front()</code> runs on an empty list (<code>AreaClipper.cpp:559</code>). gdb stops in <code>NaiveOffset</code> without a line number; 559 is the first <code>front()</code> that can reach an empty list.</p>
+<p>From reading the code: without assertions, <code>front()</code> and <code>back()</code> on the empty list return the same memory. <code>addJoin</code> sees the points as equal and returns, the writes copy that memory onto itself, and the two empty curves drop out. So <code>Thicken</code> returns nothing for that move.</p>
+<h2>Who it affects</h2>
+<p>Any Adaptive op with Rest Machining on, built with this flag and a libstdc++ that has the check, should abort in normal use, not only in the test. Both models tested here had these moves in their roughing paths (46 and 178). This real-use crash was not run outside the test. As far as I know, Fedora and Arch turn this flag on in their default package flags, so distro packages may be exposed. That was not tested either.</p>
+<h2>The fix</h2>
+<p>The single-point block in <code>NaiveOffset</code> moves below the segment loop, and its condition changes from <code>curve.m_vertices.size() == 1</code> to <code>cPos.m_vertices.empty()</code>. One vertex still lands there, because the loop doesn't run. Curves with only zero-length segments now land there too.</p>
+<p>The patch is <code>naiveoffset-zero-length.patch</code>. <code>test_thicken_zero_length</code> in <code>TestAreaOperations.py</code> fails on a normal build of main (<code>0 != 1</code> curves), so CI will catch this from now on. It passes with the patch. clang-format 23.1.0 and black are clean. The file was compiled with the normal <code>-Werror</code> flags.</p>
+<p>The patch applies to main <code>5ce3b8804dd</code> and to <code>releases/FreeCAD-26-3</code> at <code>b916af74f73</code>. The 26.3 branch has the same <code>NaiveOffset</code> code and the same test (#34111). It was not built or run there.</p>
+<p>PaddleStroke's fork commit AstoCAD/FreeCAD@60bce76d59 makes the same fix with the same <code>cPos.m_vertices.empty()</code> check. It shares the circle code through a lambda and adds a Path-level test in <code>TestPathCore.py</code>. The results here were measured on the patch above, not on that commit.</p>
+<h2>What changes with the patch</h2>
+<p>A curve of only zero-length segments now behaves like a single vertex in all three <code>NaiveOffset</code> callers.</p>
+<table>
+<thead>
+<tr>
+<th>Call on a zero-length curve at r=2.5</th>
+<th>Main</th>
+<th>Patch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Thicken</code></td>
+<td>nothing</td>
+<td>disc, area 19.635</td>
+</tr>
+<tr>
+<td><code>OpenOffset(2.5)</code></td>
+<td>not run</td>
+<td>disc on the positive side, nothing on the negative side</td>
+</tr>
+<tr>
+<td><code>Offset(2.5)</code></td>
+<td>not run</td>
+<td>disc, area 19.635</td>
+</tr>
+<tr>
+<td><code>Offset(-2.5)</code></td>
+<td>not run</td>
+<td>nothing</td>
+</tr>
+<tr>
+<td><code>getClearedArea(5, ...)</code>, repeated point or Z-only move</td>
+<td>not run</td>
+<td>disc, area 20.109 (radius 2.53)</td>
+</tr>
+</tbody>
+</table>
+<p>Adaptive rest machining A/B, main against patch:</p>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Tools</th>
+<th>Roughing G-code</th>
+<th>Rest G-code</th>
+<th>Cleared area (mm²)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>testRestMachining</code> geometry</td>
+<td>5 mm, 4 mm</td>
+<td>identical, 1520 commands</td>
+<td>identical, 169 commands</td>
+<td>1497.816, unchanged</td>
+</tr>
+<tr>
+<td>Pocket with island and a wall stub, 3 levels</td>
+<td>10 mm, 3 mm</td>
+<td>identical, 16704 commands</td>
+<td>identical, 1806 commands</td>
+<td>6315.460 to 6315.461</td>
+</tr>
+</tbody>
+</table>
+<p>The discs almost always sit inside area the neighboring moves already cover, so output doesn't change. A path with an isolated Z-only move below the depth would now count that disc as cleared, which is correct.</p>
+</div>
+</div>
+</details>
+</section>

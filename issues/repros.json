@@ -1,5 +1,15 @@
 [
  {
+  "pr": 34148,
+  "run": 1,
+  "job": "34148-session-20261106-162546",
+  "title": "test suite failing cam: cam workbench test suite",
+  "date": "2026-11-06 16:30",
+  "requester": "Connor9220",
+  "poster": false,
+  "reproduced": true
+ },
+ {
   "pr": 33868,
   "run": 1,
   "job": "33868-session-20261103-004500",
