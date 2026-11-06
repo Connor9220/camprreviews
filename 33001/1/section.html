@@ -1,0 +1,230 @@
+<section class="review" id="review-1" data-job="33001-6690861597" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-06 12:51 · PR head 36787e01ad2 · main 12f49672ed9 · requested by @davidgilkaufman</span></summary>
+<div class="body">
+<section class="notes"><h2>Requested by @davidgilkaufman</h2><p>can you thoroughly validate this in the context of canned cycles and circular holes</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2095 tests · OK (skipped=12, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Flexy Height on Drilling (no change), Profile on circular holes (works, Z60 to Z37) and Pocket (the link becomes a feed move through uncut stock).</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Drilling, Line of Sight, Flexy Height off</span><span class="det">Rib top Z16, boss top Z35, retract Z13. Links climb to clearance, Z60.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="5.15"><span class="t">0:05</span><span><span class="cap">Drilling: tick Flexy Height</span><span class="det">The G-code does not change: canned cycle links stay at Z60. Drilling never passes the setting on.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="14.16"><span class="t">0:14</span><span><span class="cap">Profile on circular holes, Flexy Height off</span><span class="det">Same part. The link over the boss climbs to clearance, Z60.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="19.13"><span class="t">0:19</span><span><span class="cap">Profile: tick Flexy Height</span><span class="det">The link now hops over the boss at Z37 (boss top + 2 mm). The feature works here.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="27.2"><span class="t">0:27</span><span><span class="cap">Pocket, stock 3.2 mm above the model, Flexy Height off</span><span class="det">The red link is a rapid above the stock, at Z26.2.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="32.11"><span class="t">0:32</span><span><span class="cap">Pocket: tick Flexy Height</span><span class="det">The link is now a green feed move at Z21, under the stock top (Z23.2): it cuts the uncut stock over the rib.</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/drilling_flexy_on.png"><img src="1/drilling_flexy_on.png" alt="Drilling with Flexy Height on: the same path as with it off, climbing to Z60 between holes."></a><figcaption>Drilling with Flexy Height on: the same path as with it off, climbing to Z60 between holes.</figcaption></figure><figure class="shot"><a href="1/drilling_panel_flexy.png"><img src="1/drilling_panel_flexy.png" alt="Drilling with Line of Sight and Flexy Height ticked: the checkbox is enabled, but the links still climb to clearance height (Z60)."></a><figcaption>Drilling with Line of Sight and Flexy Height ticked: the checkbox is enabled, but the links still climb to clearance height (Z60).</figcaption></figure><figure class="shot"><a href="1/pocket_flexy_off.png"><img src="1/pocket_flexy_off.png" alt="Pocket, Flexy Height off: the red link between pockets is a rapid above the stock, at Z26.2."></a><figcaption>Pocket, Flexy Height off: the red link between pockets is a rapid above the stock, at Z26.2.</figcaption></figure><figure class="shot"><a href="1/pocket_flexy_on.png"><img src="1/pocket_flexy_on.png" alt="Pocket, Flexy Height on: the link is a green feed move at Z21, below the stock top at Z23.2, so it cuts the uncut stock over the rib."></a><figcaption>Pocket, Flexy Height on: the link is a green feed move at Z21, below the stock top at Z23.2, so it cuts the uncut stock over the rib.</figcaption></figure><figure class="shot"><a href="1/profile_holes_flexy_off.png"><img src="1/profile_holes_flexy_off.png" alt="Profile on circular holes, Flexy Height off: the link over the boss climbs to clearance height, Z60."></a><figcaption>Profile on circular holes, Flexy Height off: the link over the boss climbs to clearance height, Z60.</figcaption></figure><figure class="shot"><a href="1/profile_holes_flexy_on.png"><img src="1/profile_holes_flexy_on.png" alt="Profile on circular holes, Flexy Height on: the link hops over the boss at Z37. The feature works on this op."></a><figcaption>Profile on circular holes, Flexy Height on: the link hops over the boss at Z37. The feature works on this op.</figcaption></figure><figure class="shot"><a href="1/workplane_label.png"><img src="1/workplane_label.png" alt="Set Work Plane from Face: the new work plane is named with the literal text f{picked.Label.{sub} in the Heights page selector."></a><figcaption>Set Work Plane from Face: the new work plane is named with the literal text f{picked.Label.{sub} in the Heights page selector.</figcaption></figure></div>
+
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>Flexy Height does nothing on circular hole operations.</strong> On Drilling, Helix, Tapping and Thread Milling the checkbox is enabled, but the toolpath does not change. Canned cycle links still climb to clearance height.</li>
+<li><strong>On Pocket and Profile the hop can cut uncut stock.</strong> Its height comes from the model only, so the link can become a feed move below the stock top. Main stays above the stock.</li>
+<li><strong>Links can get slower with it on.</strong> A hop below Retract height runs at the vertical feed instead of as a rapid. In one test, link feed time went from 18 s to 47 s.</li>
+<li><strong>Picking a work plane from a face now gives it a garbled name.</strong> An unrelated edit in this PR broke the label, so every such plane is called <code>f{picked.Label.{sub}</code>.</li>
+</ul>
+<p>With Flexy Height off, nothing changes: all four prepared files give the same toolpaths as main, and old files load fine.</p>
+<h2>Canned cycles and circular holes</h2>
+<p>This is what the requester asked about. The test part was a 140 x 80 x 10 plate with four holes, a low rib (top Z16) and a tall boss (top Z35) between them, Retract Z13 and Clearance Z60.</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Combinations tested</th>
+<th>Toolpath changed by Flexy Height?</th>
+<th>With the setting forced through</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Drilling</td>
+<td>3 strategies x G98/G99 x peck on/off (12)</td>
+<td>No, links stay at Z60</td>
+<td>Links at Z18 and Z37</td>
+</tr>
+<tr>
+<td>Helix</td>
+<td>3 strategies x 2 step downs (6)</td>
+<td>No, links stay at Z60</td>
+<td>Links at Z18 and Z37</td>
+</tr>
+<tr>
+<td>Tapping (real tap bit)</td>
+<td>Line of Sight</td>
+<td>No</td>
+<td>Not applicable, it has no linking</td>
+</tr>
+<tr>
+<td>Thread Milling (real thread cutter)</td>
+<td>Line of Sight</td>
+<td>No</td>
+<td>Not applicable, it has no linking</td>
+</tr>
+<tr>
+<td>Profile on circular holes</td>
+<td>3 strategies</td>
+<td>Yes, link over the boss goes from Z60 to Z37</td>
+<td>Already works</td>
+</tr>
+</tbody>
+</table>
+<p><strong>&quot;Forced through&quot;</strong> means a temporary patch in the test session that made Drilling and Helix pass the setting on. Nothing in the tree changed. It shows what the one missing argument would do. On Drilling the cycles stayed intact: the G81/G83 words and R values were unchanged, the moves still ended at Retract height, and G98 and G99 both gave sensible moves. So wiring it in looks low risk for Drilling.</p>
+<p><strong>Not tested:</strong> posted G-code. Reviews do not post, so how the post closes a cycle group (G80) around a hop was not checked.</p>
+<p><strong>Also on main, not this PR:</strong> Tapping ignores the collision strategy completely. With Line of Sight, it rapids from X40 Y60 to X100 Y20 at Z13, straight through the Z35 boss. The A/B against main is identical. Flexy Height does not help here, because Tapping has no linking to hook into. Thread Milling also has no linking and always retracts to clearance height.</p>
+<h2>Defects</h2>
+<h3>1. Flexy Height is ignored on most operations that show it</h3>
+<p>The checkbox and property appear on every operation with linking, but only <code>get_linking_args()</code> forwards the setting. I recorded each call to the linking code while recomputing the 5-axis test block with Flexy Height on:</p>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Linking calls</th>
+<th>Calls with Flexy on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pocket</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Profile (two ops)</td>
+<td>3</td>
+<td>3</td>
+</tr>
+<tr>
+<td>Drilling</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Helix</td>
+<td>1</td>
+<td>0</td>
+</tr>
+<tr>
+<td>MillFacing (two ops)</td>
+<td>4</td>
+<td>0</td>
+</tr>
+<tr>
+<td>Engrave</td>
+<td>10</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p>Deburr, Flute and the Boundary2 dressup build their own arguments the same way, but that is from reading the code only.</p>
+<p>Repro:</p>
+<ol>
+<li>Open a Drilling op with a boss between holes and Retract below the boss top.</li>
+<li>Set the strategy to Line of Sight and tick Flexy Height.</li>
+<li>Recompute. The G-code is the same as with it off.</li>
+</ol>
+<h3>2. The hop can cut uncut stock</h3>
+<p><code>get_extra_clearance_height()</code> only looks at the model. The stock can sit above it, and the template stock here does, by 3.175 mm. The dressup path has a floor for exactly this case (<code>get_dressup_linking_moves</code>), but the operation path does not.</p>
+<p>Part: 120 x 60 x 20 block, two pockets with a 20 mm rib between them, stock top Z23.175, default heights, Collision Clearance 1 mm, 6 mm tool.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Link between pockets</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Flexy Height off (same as main)</td>
+<td>G0 at Z26.175, above the stock</td>
+</tr>
+<tr>
+<td>Flexy Height on</td>
+<td>G1 at Z21, 300 mm/min, about 2.2 mm into the stock over the 20 mm rib</td>
+</tr>
+</tbody>
+</table>
+<p>Line of Sight and Tool Diameter gave the same result. With the default clearance (the tool diameter, 6 mm) the hop lands at Z26, above this stock, so this needs a clearance smaller than the stock allowance.</p>
+<p>Repro:</p>
+<ol>
+<li>Pocket two features separated by a rib, with stock above the model.</li>
+<li>Set Line of Sight, Collision Clearance 1 mm, Flexy Height on.</li>
+<li>Recompute. The link is a feed move below the stock top.</li>
+</ol>
+<h3>3. Links can get slower with Flexy Height on</h3>
+<p>Area operations turn every link move below Retract height into G1 at the vertical feed (<code>Area.py:375</code>). With default heights, Retract sits above the stock, so the hop usually lands below it. A long link that was a rapid becomes a slow feed move.</p>
+<table>
+<thead>
+<tr>
+<th>Case (Line of Sight, 300 mm/min vertical feed)</th>
+<th>Link feed time off</th>
+<th>Link feed time on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Profile on circular holes, Retract Z41.2, clearance 2 mm</td>
+<td>18.3 s</td>
+<td>46.6 s</td>
+</tr>
+<tr>
+<td>Pocket, default heights, clearance 6 mm</td>
+<td>142.5 s</td>
+<td>159.1 s</td>
+</tr>
+</tbody>
+</table>
+<p>Rapid distance does drop (348 mm to 159 mm on the Profile), but a rapid is far faster than 300 mm/min. The existing rule is on main. This PR is what puts long links below Retract height.</p>
+<p>Repro:</p>
+<ol>
+<li>Use Profile on holes with a boss between them, default heights, Line of Sight.</li>
+<li>Tick Flexy Height and recompute.</li>
+<li>The link over the boss changes from G0 to G1 at the vertical feed.</li>
+</ol>
+<h3>4. Set Work Plane from Face gives a garbled name</h3>
+<p><code>Path/Op/Gui/Base.py:359</code>: an unrelated string rewrite produced <code>label=&quot;f{picked.Label.{sub}&quot;</code>, with the <code>f</code> inside the quotes and a brace missing. On main the label is the object and face, such as <code>Model-Body.Face19</code>. With the PR, every plane made this way gets the same literal text, in the tree and in the Heights page selector, so planes cannot be told apart.</p>
+<p>I ran the menu action's handler and selected a face on the class tray. The menu entry itself was not clicked.</p>
+<p>Repro:</p>
+<ol>
+<li>Right-click an operation and choose Set Work Plane from Face.</li>
+<li>Pick a planar face.</li>
+<li>Open the operation's Heights page. The work plane is named <code>f{picked.Label.{sub}</code>.</li>
+</ol>
+<h3>5. The checkbox goes out of sync and overwrites the property</h3>
+<p><code>FlexyHeight</code> is not in the <code>pageUpdateData()</code> list, so the checkbox does not follow the property while the panel is open. The next edit to any field writes the old checkbox value back.</p>
+<p>Repro:</p>
+<ol>
+<li>Open a Profile panel with Line of Sight and tick Flexy Height.</li>
+<li>With the panel still open, set Flexy Height to false in the Property View. The checkbox stays ticked.</li>
+<li>Change Retract on the Heights page. Flexy Height is true again.</li>
+</ol>
+<h3>6. Tool Diameter hops are too low beside an obstacle</h3>
+<p>The hop height is measured from the tool centerline, even under Tool Diameter and Tool Shape. If a tall feature is within the tool radius of the link, the hop fails the check and the link falls back to the old heights, so Flexy Height silently does nothing. It stays safe.</p>
+<p>I reproduced this by calling the generator directly, not through an operation: a link 3 mm beside a Z30 rib, 10 mm tool, clearance 1 mm. It tries Z28, which collides, then goes to Z60. A hop at Z31 would have cleared it.</p>
+<p>Repro:</p>
+<ol>
+<li>Call <code>get_linking_moves()</code> with <code>tool_diameter=10</code>, the link 3 mm beside a Z30 rib, and <code>flexy_clearance_height=True</code>.</li>
+<li>The traverse goes to clearance height instead of about Z31.</li>
+</ol>
+<h2>From the code (not reproduced)</h2>
+<ul>
+<li><code>Path/Op/Gui/Base.py:1304</code>: compares the property to the checkbox widget, not <code>.isChecked()</code>, so the check is always true. No visible effect found: opening the panel already marks the op as touched without running this code.</li>
+<li><code>Path/Op/Gui/Base.py:1354</code>: <code>checkStateChanged</code> needs Qt 6.7 and has no guard, unlike <code>Drilling.py</code> and others, so the Heights page could fail on older Qt. This build uses Qt 6.11, so it could not be tested. <code>Profile.py</code> and <code>Engrave.py</code> already have the same unguarded use.</li>
+<li><code>Path/Op/Gui/Base.py:1325</code>: <code>setChecked()</code> runs without blocking signals, unlike the combo above it, so a refresh could re-enter <code>getFields()</code>. I could not trigger a wrong result.</li>
+<li><code>Path/Op/Base.py:1819</code>: <code>FlexyHeight</code> is not in <code>SetupPropertiesLinking()</code>. The SetupSheet has the other linking settings but not this one (confirmed on the test files), so a job template cannot set a default.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Work plane label rewrite in <code>Path/Op/Gui/Base.py</code> (tested, defect 4)</li>
+<li>Error message rewrite beside it, same text (not tested)</li>
+<li>Lead In/Out links follow Flexy Height: the link over the boss went from Z60 to Z37 (tested)</li>
+<li>Boundary dressup links follow Flexy Height, even on a Helix that ignores it (not tested)</li>
+<li>Trailing whitespace removed from the strategy tooltip (not tested)</li>
+</ul>
+<h2>Checked, fine</h2>
+<ul>
+<li><strong>Default settings:</strong> <code>pocket-island-variants</code> is IDENTICAL on main and the PR. On the 5-axis test block, the class tray and the pre-#30402 file, every path hash matches. The only difference is the new property.</li>
+<li><strong>Old files:</strong> every operation with linking gets Flexy Height = False on load, and nothing is lost.</li>
+<li><strong>Claim:</strong> the hop works on Pocket and Profile under all three strategies.</li>
+<li><strong>Panel:</strong> the checkbox is disabled for Clearance Height and Retract Height, enabled for the other three, and writes the property.</li>
+<li><strong>Unit tests:</strong> the full CAM suite passes (2095 run, 12 skipped, 4 expected failures). The only test change is a <code>FlexyHeight: False</code> stub, so the new logic has no tests.</li>
+</ul>
+<h2>Notes on this review</h2>
+<ul>
+<li><strong>Video not checked frame by frame.</strong> The frame extraction tool was not available in this run. The property values and resulting paths were read back from FreeCAD after recording, and they matched the captions.</li>
+<li><strong>One retake.</strong> My test script orphaned the Profile op in the first recording, so its &quot;off&quot; step showed a stale path. I reloaded the file and re-recorded it, and retook the Profile stills. The numbers above were not affected.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
