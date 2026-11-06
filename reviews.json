@@ -1,5 +1,15 @@
 [
  {
+  "pr": 32576,
+  "run": 1,
+  "job": "32576-6690647223",
+  "title": "CAM: Sanity - Fixes",
+  "date": "2026-11-06 12:26",
+  "requester": "sliptonic",
+  "poster": true,
+  "head": "8f6a26a77c5"
+ },
+ {
   "pr": 33739,
   "run": 2,
   "job": "33739-6592621248",

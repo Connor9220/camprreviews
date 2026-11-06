@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="32576-6690647223">
+<title>PR #32576 campr</title>
+<meta property="og:title" content="PR #32576: CAM: Sanity - Fixes">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/32576">FreeCAD PR #32576</a><span>1 review</span></div>
+<h1>CAM: Sanity - Fixes</h1>
+</header>
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-11-06 12:26</span><span>Review 1 · head 8f6a26a · requested by @sliptonic</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="32576-6690647223" data-state="final">
+<details class="run" open>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-06 12:26 · PR head 8f6a26a77c5 · main 12f49672ed9 · requested by @sliptonic</span></summary>
+<div class="body">
+<section class="notes"><h2>Requested by @sliptonic</h2><p>and consider structural direction and where refactoring might be appropriate.</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2095 tests · OK (skipped=12, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Walkthrough on the class tray job: the new dropdown, Quick Validate on an operation, the Sanity Check NameError, the lit button with nothing selected, and the UTC squawk time.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">New: Sanity Check and Quick Validate share one toolbar dropdown</span><span class="det">With an operation selected, both entries are enabled (on main only the Job worked)</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="11.47"><span class="t">0:11</span><span><span class="cap">Quick Validate runs on a selected operation</span><span class="det">Results appear in the Report view at the bottom</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="21.97"><span class="t">0:21</span><span><span class="cap">Bug: Sanity Check fails when a report path is set in Preferences</span><span class="det">NameError in the Report view, no save dialog, no report. Main offers the file name here.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="34.47"><span class="t">0:34</span><span><span class="cap">Bug: with nothing selected the toolbar button stays enabled</span><span class="det">Both entries are gray, but the button itself (red box) is lit, and clicking it does nothing</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="44.51"><span class="t">0:44</span><span><span class="cap">Bug: squawk times are now UTC, shown with no zone</span><span class="det">Report view time at left is local; the squawk time is five hours ahead here</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/finding_button_lit_nothing_selected.png"><img src="1/finding_button_lit_nothing_selected.png" alt="Bug: nothing selected. Both dropdown entries are gray, but the toolbar button (red box) stays enabled, and clicking it does nothing."></a><figcaption>Bug: nothing selected. Both dropdown entries are gray, but the toolbar button (red box) stays enabled, and clicking it does nothing.</figcaption></figure><figure class="shot"><a href="1/finding_report_path_nameerror.png"><img src="1/finding_report_path_nameerror.png" alt="Bug: with a report path set in Preferences, Sanity Check stops with NameError: name &#x27;obj&#x27; is not defined. No save dialog, no report."></a><figcaption>Bug: with a report path set in Preferences, Sanity Check stops with NameError: name &#x27;obj&#x27; is not defined. No save dialog, no report.</figcaption></figure><figure class="shot"><a href="1/finding_squawk_time_utc.png"><img src="1/finding_squawk_time_utc.png" alt="Bug: the squawk time reads 05:22:57 PM while the local Report view time at left reads 12:22:57. It is UTC, shown with no zone."></a><figcaption>Bug: the squawk time reads 05:22:57 PM while the local Report view time at left reads 12:22:57. It is UTC, shown with no zone.</figcaption></figure><figure class="shot"><a href="1/finding_workplane_not_resolved.png"><img src="1/finding_workplane_not_resolved.png" alt="Bug: work plane WP Facet30 is selected under the Job. Both commands stay disabled, so &#x27;any object from Job&#x27; does not hold here, and the button (red box) is still lit."></a><figcaption>Bug: work plane WP Facet30 is selected under the Job. Both commands stay disabled, so &#x27;any object from Job&#x27; does not hold here, and the button (red box) is still lit.</figcaption></figure><figure class="shot"><a href="1/pr_dropdown_operation_selected.png"><img src="1/pr_dropdown_operation_selected.png" alt="PR: with an operation selected, Sanity Check and Quick Validate are both enabled in the new toolbar dropdown, and Quick Validate has its new icon."></a><figcaption>PR: with an operation selected, Sanity Check and Quick Validate are both enabled in the new toolbar dropdown, and Quick Validate has its new icon.</figcaption></figure><figure class="shot"><a href="1/setup_tray_toolpaths.png"><img src="1/setup_tray_toolpaths.png" alt="Test setup: class tray job with Adaptive and two Profile operations with Lead In/Out, stock faded so the toolpaths show."></a><figcaption>Test setup: class tray job with Adaptive and two Profile operations with Lead In/Out, stock faded so the toolpaths show.</figcaption></figure></div>
+
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>Sanity Check crashes if a report path is set in Preferences.</strong> No save dialog and no report. This worked on main.</li>
+<li><strong>Squawk times are now UTC with no zone shown.</strong> A user in New York sees a time five hours ahead of the clock.</li>
+<li><strong>The toolbar button no longer grays out.</strong> With nothing usable selected it stays lit, and clicking it does nothing and says nothing.</li>
+<li><strong>&quot;Any object from Job&quot; misses work planes and tool bits.</strong> Sanity stays unavailable for those, so the claim is only partly true.</li>
+</ul>
+<p>The dropdown, the menu entry, Quick Validate and the wider selection all work otherwise. Toolpaths are not touched.</p>
+<h2>What was checked</h2>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CAM unit tests</td>
+<td>2095 run, OK (12 skipped, 4 expected failures). The PR adds no tests.</td>
+</tr>
+<tr>
+<td>Toolbar group <code>CAM_SanityTools</code></td>
+<td>Present in Project Setup, dropdown has both commands</td>
+</tr>
+<tr>
+<td><code>CAM_QuickValidate</code> in the CAM menu</td>
+<td>Present, runs on a selected operation with the real mouse</td>
+</tr>
+<tr>
+<td>Sanity from a non-Job object</td>
+<td>Works for operation, dressup, Stock, Tool Controller and Model clone</td>
+</tr>
+<tr>
+<td>Full HTML report from a selected operation</td>
+<td>Written in 1.6 s, with the report path preference stubbed in memory to avoid the crash below</td>
+</tr>
+<tr>
+<td>Operation from a second Job</td>
+<td>Resolves to that second Job</td>
+</tr>
+<tr>
+<td>Main vs PR, Sanity output</td>
+<td>Squawks and run summary identical on class tray, TWP block and the pre-#30402 file; only the time differs</td>
+</tr>
+</tbody>
+</table>
+<p>The A/B compared the PR against its parent commit, <code>12f49672ed9</code>, on main. The PR changes no toolpath code, so the comparison covered Sanity output rather than path statistics.</p>
+<h2>Defects</h2>
+<h3>1. Sanity Check crashes when a report path is set</h3>
+<p><code>SanityCmd.py:78</code> still passes <code>obj</code> to <code>apply_path_substitutions()</code>, but the PR removed that variable. The fix is to pass <code>job</code>.</p>
+<p>The preference is empty by default, so a quick test misses this, but anyone who has set it loses the command entirely. The test profile here already had a path set.</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Result with <code>.../CAMCheck/%d.html</code> set, Job selected</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Main</td>
+<td>Offers <code>.../CAMCheck/class-tray-A-no-workplane.html</code> in the save dialog</td>
+</tr>
+<tr>
+<td>PR</td>
+<td><code>NameError: name 'obj' is not defined</code>, no dialog, no report</td>
+</tr>
+</tbody>
+</table>
+<ol>
+<li>In Preferences, CAM, Job, set a Sanity report output file.</li>
+<li>Select a Job, or any operation.</li>
+<li>Run Sanity Check. The error appears in the Report view.</li>
+</ol>
+<h3>2. Squawk times are UTC with no zone shown</h3>
+<p><code>Sanity.py:108</code> uses <code>datetime.now(tz=utc)</code> and formats it with <code>%c</code>, which prints no zone, into a variable named <code>local_date_str</code>.</p>
+<p>Moving the default out of the signature is a real fix: main freezes the time when the module is imported. The new default just swaps one wrong time for another. Measured on a machine in EST:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>Two calls 3 s apart</th>
+<th>Local clock</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Main</td>
+<td><code>12:19:17 PM</code>, <code>12:19:17 PM</code> (frozen)</td>
+<td><code>12:19:20 PM</code></td>
+</tr>
+<tr>
+<td>PR</td>
+<td><code>05:19:21 PM</code>, <code>05:19:24 PM</code> (live, UTC)</td>
+<td><code>12:19:24 PM</code></td>
+</tr>
+</tbody>
+</table>
+<p>The post processor's own squawks use local time (<code>Processor.py:3391</code>), so one Quick Validate or post dialog list can mix both. <code>datetime.datetime.now()</code> fixes it.</p>
+<ol>
+<li>On a machine not set to UTC, run Sanity Check on a job with a squawk.</li>
+<li>Compare the squawk Date in the report with the clock.</li>
+</ol>
+<h3>3. The toolbar button stays enabled and then does nothing</h3>
+<p><code>PathCommandGroup.IsActive</code> (<code>InitGui.py:54</code>) only checks that an object named <code>Job...</code> exists, and ignores its child commands. The dropdown entries and CAM menu entries gray out correctly, but the button itself does not. Clicking it reaches the new guard in <code>Activated</code>, which returns with no message.</p>
+<p>The CAM menu entry for the same command is disabled in the same state, so the group is what changes this. The Post group behaves the same way on main, so the pattern already exists; it is new for Sanity.</p>
+<ol>
+<li>Open a document with a Job and select nothing.</li>
+<li>Click the Sanity toolbar button. Nothing happens and nothing is printed.</li>
+</ol>
+<h3>4. &quot;Any object from Job&quot; misses work planes and tool bits</h3>
+<p><code>findParentJob()</code> returns nothing for these rows under the Job:</p>
+<ul>
+<li>the <code>Workplanes</code> group and each work plane in it</li>
+<li>each ToolBit under a Tool Controller</li>
+</ul>
+<p><code>job.Workplanes</code> exists, but it is missing from the list <code>findParentJob()</code> checks. Selecting one of these rows leaves both commands disabled, and combined with defect 3, the button looks ready and does nothing. CAM_Post is limited the same way, so fixing the helper helps both.</p>
+<ol>
+<li>Open a job with a work plane, such as the TWP block.</li>
+<li>Select <code>WP Facet30</code>, or the <code>Workplanes</code> group.</li>
+<li>Sanity Check and Quick Validate are disabled in the CAM menu.</li>
+</ol>
+<h2>From the code (not reproduced)</h2>
+<p>None. Four review candidates were dropped:</p>
+<ul>
+<li>Only the first Job in a multi-Job selection is checked: main does the same (tested).</li>
+<li><code>_toolData</code> appends <code>None</code> for legacy tools (<code>Sanity.py:450</code>): untouched by this PR, also on main.</li>
+<li><code>translate()</code> gets an f-string (<code>SanityCmd.py:166</code>): untouched by this PR, also on main.</li>
+<li>The dressup loop does not follow <code>App::Link</code>: main's name check does not either, so this is no regression. See the refactoring notes.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<p>No properties, enum options, defaults or file formats changed, and nothing was removed.</p>
+<ul>
+<li>Quick Validate has a new icon, <code>CAM_SanityQuick.svg</code> (tested). Its metadata title still says <code>CAM_Sanity</code>.</li>
+<li>The <code>P, V</code> shortcut runs Quick Validate (tested on the PR; main not compared).</li>
+<li>Squawk times are live per call rather than frozen at import, and now UTC (tested, defect 2).</li>
+<li>The run summary finds dressups by proxy module instead of by <code>Dressup</code> in the name (tested). This fixes a crash: on main an operation named <code>MyDressupProfile</code> raises <code>'list' object has no attribute 'Label'</code>, and the PR lists it correctly. A dressup named <code>WrappedLead</code> shows as <code>WrappedLead:Profile</code> on the PR; main was not compared for that case.</li>
+<li>Selecting an object with no Proxy, such as a Body, no longer raises <code>AttributeError</code> in <code>IsActive</code> (tested against main's code).</li>
+<li><code>addIconPath</code> was removed from <code>Activated</code> (tested: icons still load; <code>InitGui.py</code> already adds that path).</li>
+</ul>
+<h2>Included PRs and issues</h2>
+<p>The PR links no other PRs or issues.</p>
+<h2>Structural direction and refactoring</h2>
+<p>This section answers the request to consider direction. Items 1 and 2 are small enough for this PR. The rest suit follow-ups.</p>
+<ol>
+<li><strong>One selection-to-Job helper.</strong> The same lookup is pasted four times in <code>SanityCmd.py</code> (lines 59, 64, 133, 138), and the same idiom is in <code>Post/Command.py:126</code> and <code>SimulatorGL.py:246</code>. A shared helper, such as <code>selectedJob()</code>, would replace them. The two Sanity commands could also share a base class for <code>IsActive</code>.</li>
+<li><strong>Fix job resolution in <code>findParentJob()</code>, not in the commands.</strong> Adding <code>i.Workplanes</code> closes the work plane gap, and following a ToolBit up to its Tool Controller closes the other. Better still, the Job could own the list of what it contains, so new child groups can't be missed again.</li>
+<li><strong>Let <code>PathCommandGroup</code> reflect its children.</strong> <code>IsActive</code> could return true only if a child command is active, instead of matching the name prefix <code>Job</code>. This also changes the Post, Simulator and other groups, so it needs checking across all of them.</li>
+<li><strong>Split <code>CAMSanity</code> into checks and report.</strong> It currently gathers data, runs the rules and builds images together, and <code>__init__</code> does all of it. <code>validate_job()</code> has to bypass the constructor with <code>object.__new__</code>, a temp folder and a dummy image builder to avoid that. A plain checks layer would serve Quick Validate and the post dialog (<code>DlgPostProcess.py:681</code>), with the data, images and HTML used only for the report.</li>
+<li><strong>One squawk constructor.</strong> <code>CAMSanity.squawk()</code> never uses instance state, and <code>Processor.py:3390</code> builds the same dictionary separately with its own icon map. One shared function would have prevented the mixed times in defect 2.</li>
+<li><strong>Remove <code>validate_for_postprocessing()</code> (<code>Sanity.py:680</code>).</strong> Only a unit test calls it. It also finds critical squawks by matching English keywords against translated text, so it would fail in other languages.</li>
+<li><strong>Share the dressup check.</strong> The new loop at <code>Sanity.py:359</code> copies the condition in <code>baseOp()</code> (<code>Path/Base/Util.py:179</code>) without its <code>App::Link</code> branch. An <code>isDressup()</code> helper used by both would keep them together.</li>
+<li><strong>Make the command logic testable.</strong> <code>SanityCmd.py</code> has no tests, which is how defect 1 passed CI. Moving the file name logic into a plain function, such as <code>default_report_path(job)</code>, would let a unit test cover it.</li>
+<li><strong>Bring the right-click menu along.</strong> The tree context menu still offers Sanity Check only on the Job, and never offers Quick Validate (<code>InitGui.py:417</code>, tested). Right-clicking an operation shows neither, even though both now work there.</li>
+</ol>
+<h2>Test notes</h2>
+<ul>
+<li>Test models: class tray A, TWP block job, and pocket-island saved before #30402.</li>
+<li>The report path preference was left as found. Where it had to be bypassed, it was stubbed in memory only.</li>
+<li>The demo video could not be frame-checked here, because the frame extraction tool was not available. Four of its five steps were rehearsed as stills, and the Report view confirmed the steps that print output ran.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated reviews by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, reviews written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviewed PRs</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>
