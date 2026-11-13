@@ -1,0 +1,61 @@
+<section class="review" id="review-1" data-job="34410-6866350672" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-13 17:43 · PR head 481edb24d05 · main 3aedd3665ef · requested by @davidgilkaufman</span></summary>
+<div class="body">
+<section class="notes"><h2>Requested by @davidgilkaufman</h2><p>validate that before this pr when a rest machining op computes, the operations it takes into account get marked dirty, and that after this pr they do not</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2137 tests · OK (skipped=11, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>PR build: changing only RestPocket (Use Rest Machining) recomputes it; RoughPocket, whose path it reads, stays Up-to-date in the tree.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Setup on the PR build</span><span class="det">RoughPocket: 10 mm end mill, leaves 3 mm on the walls. RestPocket: copy of it with Use Rest Machining = true, so it reads RoughPocket&#x27;s path through getClearedArea.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="8.75"><span class="t">0:08</span><span><span class="cap">Change only RestPocket</span><span class="det">Step Down 4 mm -&gt; 3 mm on RestPocket. RestPocket recomputes and calls getClearedArea on RoughPocket&#x27;s path.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="17.75"><span class="t">0:17</span><span><span class="cap">RoughPocket stays Up-to-date</span><span class="det">No touched mark on RoughPocket or the Job in the tree after the rest op computed. Before the PR the call wrote op.Path back and touched RoughPocket.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="24.75"><span class="t">0:24</span><span><span class="cap">Again: Step Down back to 4 mm</span><span class="det">Same result: only RestPocket recomputes, nothing else is left dirty.</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/rest_pocket.png"><img src="1/rest_pocket.png" alt="RestPocket alone (PR build): rest machining cuts only the 3 mm ring left on the walls and around the island (feed extent X 15-45)."></a><figcaption>RestPocket alone (PR build): rest machining cuts only the 3 mm ring left on the walls and around the island (feed extent X 15-45).</figcaption></figure><figure class="shot"><a href="1/rough_pocket.png"><img src="1/rough_pocket.png" alt="RoughPocket alone: 10 mm end mill with Extra Offset 3 mm, leaving a 3 mm wall of stock (feed extent X 18-42)."></a><figcaption>RoughPocket alone: 10 mm end mill with Extra Offset 3 mm, leaving a 3 mm wall of stock (feed extent X 18-42).</figcaption></figure><figure class="shot"><a href="1/setup_both.png"><img src="1/setup_both.png" alt="Test setup: 120x70x20 block (wireframe), 40x40x8 pocket with a round island; RoughPocket and RestPocket paths together."></a><figcaption>Test setup: 120x70x20 block (wireframe), 40x40x8 pocket with a round island; RoughPocket and RestPocket paths together.</figcaption></figure></div>
+<section class="notes"><h2>Test model</h2><ul><li><a href="1/rest-test.FCStd">rest-test.FCStd</a></li></ul></section>
+<div class="summary"><h1>PR #34410: CAM: fix operations getting marked as dirty after getClearedArea is called</h1>
+<h2>TL;DR</h2>
+<ul>
+<li>No defects found. The fix works: after the PR, a rest-machining operation no longer leaves the earlier operations it reads marked as needing a recompute.</li>
+<li>Before the PR, reading an earlier op's path for rest machining wrote that path back onto the op, which marked it dirty. I confirmed this from the code, not by running it: no pre-PR build was available in this job.</li>
+<li>Toolpaths don't change. The full CAM unit test suite passes.</li>
+</ul>
+<h2>Requester's question</h2>
+<blockquote>
+<p>validate that before this pr when a rest machining op computes, the operations it takes into account get marked dirty, and that after this pr they do not</p>
+</blockquote>
+<p><strong>After the PR (tested at runtime): they are not marked dirty.</strong> I tested this on a two-pocket job in the review tree's FreeCAD (PR build):</p>
+<ol>
+<li>A 120x70x20 block with a 40x40x8 pocket around a round island (Ø12).</li>
+<li>RoughPocket: Pocket Shape, 10 mm end mill, Final Depth 12, Step Down 4, Extra Offset 3 mm. It leaves a 3 mm wall of stock (feed extent X 18-42, Y 23-47).</li>
+<li>RestPocket: a copy of RoughPocket made with CAM_OperationCopy in the same Job, with Use Rest Machining = true and Extra Offset 0. It cuts only the 3 mm ring left on the walls and around the island (feed extent X 15-45, Y 20-50; 631.7 mm of feed against 326.3 mm for the rough pass). So <code>getClearedAreas()</code> really does read RoughPocket's path through <code>Path.getClearedArea()</code>.</li>
+<li>I changed only RestPocket (Comment, then Step Down 4 → 3 → 4 mm through the Property View in the demo) and recomputed. RestPocket recomputed each time (its new comment shows up in its path), and RoughPocket stayed <code>Up-to-date</code> afterwards. So did the other ops. Nothing was left touched, and the Report view stayed free of errors.</li>
+</ol>
+<p><strong>Before the PR: they are marked dirty. I confirmed this from the code, but couldn't reproduce it at runtime here.</strong> The chain on main:</p>
+<ul>
+<li><code>Path/Op/Util.py:591</code> does <code>path = op.Path</code>. <code>PyObjectBase::__getattro</code> (<code>src/Base/PyObjectBase.cpp:326-331</code>, <code>ATTR_TRACKING</code> is defined) tags the returned <code>Path.Toolpath</code> object with its parent (the op) and the attribute name <code>Path</code>.</li>
+<li><code>Util.py:599</code> then calls <code>path.getClearedArea(...)</code>. For a method that isn't marked <code>@constmethod</code>, the binding generator (<code>src/Tools/bindings/templates/templateClassPyExport.py:692-694</code>) emits <code>startNotify()</code> after the call. You can see it in this build's generated <code>PathPy.cpp</code>: <code>setFromGCode</code> still has it, and <code>getClearedArea</code> no longer does.</li>
+<li><code>PyObjectBase::startNotify()</code> (<code>PyObjectBase.cpp:505-535</code>) calls <code>__setattro(parent, &quot;Path&quot;, this)</code>, which means <code>op.Path = path</code>. That sets the op's <code>Path</code> property and touches the op, mid-recompute of the rest op.</li>
+<li>So on main, every earlier op that the rest op considers, in the same work plane frame, is left touched after the rest op computes. If the earlier op is a dressup (and not a rest-machining pass), the dressup is touched. Ops on a parallel work plane at a different origin go through <code>PathUtil.applyPlacementToPath()</code> first. That returns a fresh, untracked path, so on main those ops were not touched either.</li>
+</ul>
+<p>Why not reproduced: this is a C++ binding change, so the &quot;before&quot; side needs a FreeCAD binary built from main. <code>cam_ab</code> only swaps CAM Python. This job has only the PR build, and it may not rebuild or edit the review tree. The bridge's <code>execute_python</code> was declined (code approval), so I didn't run scripted probes such as calling a still non-const Path method on <code>op.Path</code> to show the same notify path. All runtime checks used the bridge's structured tools (<code>cam_fixture</code>, <code>gui_run_command</code>, <code>edit_object</code>, <code>recompute_document</code>, <code>cam_path_stats</code>) and the recorded demo.</p>
+<h2>What I checked</h2>
+<ul>
+<li><strong>Diff:</strong> two lines. <code>@constmethod</code> on <code>getClearedArea</code> in <code>App/Path.pyi</code>, and <code>PathPy::getClearedArea(...) const</code> in <code>App/PathPyImp.cpp</code>. The body only reads <code>getToolpathPtr()</code> (a const accessor) and passes it to <code>Area::getClearedArea(const Toolpath*, ...)</code>, so the method really is const.</li>
+<li><strong>Generated binding (PR build):</strong> <code>staticCallback_getClearedArea</code> no longer has the <code>isConst()</code> rejection or the <code>startNotify()</code> call. The truly mutating methods (<code>addCommands</code>, <code>insertCommand</code>, <code>deleteCommand</code>, <code>setFromGCode</code>) keep both. <code>toGCode</code>, <code>copy</code> and <code>getCycleTime</code> were already const.</li>
+<li><strong>Callers:</strong> the only Python caller is <code>Path/Op/Util.py:getClearedAreas()</code>, used by rest machining in <code>Path/Op/Area.py:305</code> (Pocket and other Area ops) and <code>Path/Op/Adaptive.py:518</code>. Nothing relied on the old write-back.</li>
+<li><strong>Toolpaths:</strong> unchanged by design. The method's result is the same; only the side effect on the owning op goes away. I didn't run a main-vs-PR toolpath A/B, because the change is in the binding layer and cam_ab can't swap it.</li>
+<li><strong>Unit tests:</strong> the full CAM suite (<code>TestCAMApp</code>) ran 2137 tests: OK (11 skipped, 4 expected failures). The PR adds no test. A test in <code>TestPathOpUtil</code> could recompute, call <code>getClearedAreas()</code> and assert that the earlier op isn't <code>Touched</code>.</li>
+<li><strong>Code review (<code>/code-review medium 34410</code>):</strong> no correctness findings. It raised two notes, which I dropped: the missing regression test (not a defect), and <code>Command.transform</code> also not being marked const (also on main, not part of this PR).</li>
+</ul>
+<h2>From the code (not reproduced)</h2>
+<p>None.</p>
+<h2>Not in the PR description</h2>
+<ul>
+<li><code>Path.getClearedArea()</code> can now also be called on an immutable (const) <code>Path.Toolpath</code> object; before, it raised &quot;This object is immutable&quot;. This is a side effect of <code>@constmethod</code> and harmless. (not tested)</li>
+</ul>
+<p>No properties, panels, defaults or file format changed.</p>
+<h2>Media</h2>
+<ul>
+<li><code>demo.mp4</code>: the PR build. Only RestPocket is changed, and RoughPocket stays Up-to-date in the tree.</li>
+<li><code>setup_both.png</code>, <code>rough_pocket.png</code>, <code>rest_pocket.png</code>: the test setup and each pocket's path.</li>
+</ul>
+<p>The test document is saved as <code>rest-test.FCStd</code> in the job folder. It also contains a second, unused Job (Job001) left over from building the fixture.</p>
+</div>
+</div>
+</details>
+</section>
