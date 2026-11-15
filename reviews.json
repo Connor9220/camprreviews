@@ -1,5 +1,15 @@
 [
  {
+  "pr": 33954,
+  "run": 1,
+  "job": "33954-mine-20261114-231639",
+  "title": "CAM: fix spiral facing leaving material in the center",
+  "date": "2026-11-14 23:24",
+  "requester": "Connor9220",
+  "poster": true,
+  "head": "cd7f3250a6c"
+ },
+ {
   "pr": 34330,
   "run": 1,
   "job": "34330-mine-20261114-221236",

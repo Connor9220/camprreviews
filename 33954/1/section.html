@@ -1,0 +1,177 @@
+<section class="review" id="review-1" data-job="33954-mine-20261114-231639" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-14 23:24 · PR head cd7f3250a6c · main d956ec56163 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2139 tests · OK (skipped=11, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Spiral Rectangular facing at 80% stepover: main leaves a strip in the center (red), the PR clears it; then the live op recomputes at 60% and 80%.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">main: Spiral Rectangular facing at 80% stepover</span><span class="det">6 mm end mill on a 100 x 60 plate. The red strip is stock the tool never touches (81 mm2).</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="6.29"><span class="t">0:06</span><span><span class="cap">Same plate, top view on main</span><span class="det">The last loop stops short of the center line, so a strip is left between its two long sides.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="11.27"><span class="t">0:11</span><span><span class="cap">PR: the same operation, same settings</span><span class="det">The last loop now sits one tool radius from the center line: no uncut stock left.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="16.77"><span class="t">0:16</span><span><span class="cap">PR, live operation: Step Over 60%</span><span class="det">Editing the facing operation in the Property View recomputes the spiral.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="25.77"><span class="t">0:25</span><span><span class="cap">PR, live operation: back to Step Over 80%</span><span class="det">Fewer loops, and the innermost loop still closes the center.</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/main_spiral_80pct.png"><img src="1/main_spiral_80pct.png" alt="main: 6 mm end mill, 80% stepover on a 100 x 60 plate. The red strip (81 mm2) is never touched by the tool."></a><figcaption>main: 6 mm end mill, 80% stepover on a 100 x 60 plate. The red strip (81 mm2) is never touched by the tool.</figcaption></figure><figure class="shot"><a href="1/main_spiral_80pct_top.png"><img src="1/main_spiral_80pct_top.png" alt="main, top view: the innermost loop stops short of the center line and leaves the red strip."></a><figcaption>main, top view: the innermost loop stops short of the center line and leaves the red strip.</figcaption></figure><figure class="shot"><a href="1/pr_spiral_80pct.png"><img src="1/pr_spiral_80pct.png" alt="PR, same op and settings: the innermost loop reaches the center, nothing left uncut."></a><figcaption>PR, same op and settings: the innermost loop reaches the center, nothing left uncut.</figcaption></figure></div>
+<section class="notes"><h2>Test model</h2><ul><li><a href="1/facing-spiral.FCStd">facing-spiral.FCStd</a></li></ul></section>
+<div class="summary"><h1>PR #33954 review: CAM: fix spiral facing leaving material in the center</h1>
+<h2>TL;DR</h2>
+<ul>
+<li>No defects found. Spiral Rectangular facing now reaches the center at every stepover I tried. On main, 80% stepover left a strip of uncut stock in the middle (81 to 102 mm² on my test plates). The PR leaves none.</li>
+<li>The runaway case is fixed too. On main, a boundary just over two stepovers wide produced 14,005 moves. The PR produces 9.</li>
+<li>Existing spiral facing ops give a different (shorter) toolpath when recomputed. The PR description says so.</li>
+</ul>
+<h2>What I checked</h2>
+<h3>The claim: the center is cleared</h3>
+<p>I built a 100 x 60 x 20 plate with a shallow pocket and a through hole, in a Job with default stock. On it I added a MillFacing op: Spiral Rectangular, 6 mm end mill, Step Over 80%. I ran the op through main's and the PR's <code>spiral_facing.py</code> and measured the stock top that the tool never sweeps. That area is the stock-top rectangle minus the union of every feed move at final depth, each widened by the tool radius.</p>
+<table>
+<thead>
+<tr>
+<th>Step Over</th>
+<th>main: uncut</th>
+<th>PR: uncut</th>
+<th>main: commands</th>
+<th>PR: commands</th>
+<th>main: feed length</th>
+<th>PR: feed length</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>50%</td>
+<td>0</td>
+<td>0</td>
+<td>59</td>
+<td>55</td>
+<td>2784.6 mm</td>
+<td>2702.6 mm</td>
+</tr>
+<tr>
+<td>70%</td>
+<td>0</td>
+<td>0</td>
+<td>43</td>
+<td>39</td>
+<td>1898.9 mm</td>
+<td>1765.4 mm</td>
+</tr>
+<tr>
+<td>80%</td>
+<td><strong>84 mm²</strong> (81.18 exact)</td>
+<td><strong>0</strong></td>
+<td>35</td>
+<td>35</td>
+<td>1555.8 mm</td>
+<td>1528.7 mm</td>
+</tr>
+<tr>
+<td>90%</td>
+<td>1.08 mm²</td>
+<td>1.08 mm²</td>
+<td>35</td>
+<td>35</td>
+<td>1507.8 mm</td>
+<td>1511.9 mm</td>
+</tr>
+</tbody>
+</table>
+<p><code>cam_coverage</code> on the PR op at 80% (0.2 mm grid) agrees: 0 points missed.</p>
+<p>I also ran the generator directly on 4 rectangle sizes x 7 stepovers. Uncut area on a 0.1 mm grid:</p>
+<table>
+<thead>
+<tr>
+<th>Size</th>
+<th>main @80%</th>
+<th>PR @80%</th>
+<th>main @90%</th>
+<th>PR @90%</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>100 x 60</td>
+<td>101.8 mm²</td>
+<td>0</td>
+<td>9.0 mm²</td>
+<td>0.99 mm²</td>
+</tr>
+<tr>
+<td>114 x 94</td>
+<td>44.0 mm²</td>
+<td>0</td>
+<td>17.9 mm²</td>
+<td>1.5 mm²</td>
+</tr>
+<tr>
+<td>47 x 47</td>
+<td>3.2 mm²</td>
+<td>0</td>
+<td>0.80 mm²</td>
+<td>0.77 mm²</td>
+</tr>
+<tr>
+<td>30 x 20</td>
+<td>18.6 mm²</td>
+<td>0</td>
+<td>0.85 mm²</td>
+<td>0.80 mm²</td>
+</tr>
+</tbody>
+</table>
+<p>From 25% to 70%, both main and the PR leave 0 at every size. The PR uses 4 to 8 fewer commands there, because main's extra loops near the center are gone. Conventional, reverse, 90° and 30° angle variants at 70% all leave 0 on both.</p>
+<p>At 90%, both versions leave small cusps at the loop corners. This is the known geometric limit above about 85% that the author mentions. The PR makes it smaller or equal in every case I measured.</p>
+<h3>The runaway loop</h3>
+<table>
+<thead>
+<tr>
+<th>Boundary, tool 5 mm</th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>6.002 x 9, 40%</td>
+<td>14,005 commands</td>
+<td>9</td>
+</tr>
+<tr>
+<td>6.2 x 9, 40%</td>
+<td>145 commands</td>
+<td>9</td>
+</tr>
+</tbody>
+</table>
+<p>Confirmed as described.</p>
+<h3>First engagement</h3>
+<p>The first loop's offset is the same as before (<code>stepover - radius</code>), so the first cut is unchanged. The change only moves the inner loops.</p>
+<h3>Unit tests</h3>
+<p>The full CAM suite passes on the PR build: 2139 tests, OK (11 skipped, 4 expected failures). The two new tests in <code>TestPathFacingGenerator</code> run and pass:</p>
+<ul>
+<li><code>test_spiral_reaches_center_high_stepover</code> checks the claim at 80%.</li>
+<li><code>test_spiral_no_extra_loops_near_center</code> checks the runaway case. It only catches a large runaway (fewer than 20 commands), not one extra loop. That is fine for a regression guard.</li>
+</ul>
+<h3>GUI</h3>
+<p>No task panel or <code>.ui</code> changes. In the GUI I edited Step Over on the live MillFacing op through the Property View (80 → 60 → 80). The op recomputed each time and stayed up to date. This is in the video.</p>
+<h3>Old files</h3>
+<p>No properties were added, removed or renamed. A saved Spiral Rectangular op loads unchanged, and gives the new, shorter path when recomputed (see the table above).</p>
+<h2>From the code (not reproduced)</h2>
+<p>None. The code-review pass raised only minor items. I checked them and dropped them:</p>
+<ul>
+<li><strong>Divide by zero at Step Over 0</strong> (<code>spiral_facing.py:219</code>): also on main. The PR did not change that line's behavior.</li>
+<li><strong>Corner cusps above about 85% stepover</strong>: also on main, and disclosed in the PR.</li>
+<li><strong>Duplicate lap when the remainder is just above 1e-6 mm</strong> (<code>spiral_facing.py:215</code>): an 8.0004 mm wide boundary at 80% / 5 mm now gives a second lap 0.2 µm inside the first, where main gave one lap. It is harmless, wastes one lap, and only happens when the half-width is within a few microns of the stepover. Not a defect.</li>
+<li>Dead transition branches for start corners 1 and 3, and the overlapping loop exit checks: cleanup only. The branches were already there before this PR.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Every existing Spiral Rectangular facing op produces a different path when recomputed (mostly fewer loops). The description does mention this, so I list it only for completeness. (tested)</li>
+<li>No properties, enum options, panel widgets, defaults or file-format changes.</li>
+</ul>
+<h2>Issues</h2>
+<ul>
+<li><strong>#33940</strong> (CAM: MillFacing some material in the center is not faced): <strong>fixed</strong>. I could not download the reporter's <code>foo.zip</code> in this session, so I reproduced the same symptom on my own plate: main leaves a center strip, the PR leaves none.</li>
+</ul>
+<h2>Media</h2>
+<ul>
+<li><code>demo.mp4</code>: main's leftover strip, the PR's path on the same op, then a live Step Over edit.</li>
+<li><code>main_spiral_80pct.png</code>, <code>main_spiral_80pct_top.png</code>: main at 80%, uncut strip in red.</li>
+<li><code>pr_spiral_80pct.png</code>: PR, same op and settings.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
