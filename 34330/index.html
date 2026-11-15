@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="campr-job" content="34330-mine-20261114-221236">
+<meta name="campr-job" content="34330-mine-20261114-231639-redo">
 <title>PR #34330 campr</title>
 <meta property="og:title" content="PR #34330: CAM: Naive offset fix zero-length paths">
 <meta property="og:image" content="1/poster.jpg">
@@ -65,29 +65,108 @@ footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); p
 <div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/34330">FreeCAD PR #34330</a><span>1 review</span></div>
 <h1>CAM: Naive offset fix zero-length paths</h1>
 </header>
-<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-11-14 23:08</span><span>Review 1 · head a1733b7 · requested by @Connor9220</span></a></li></ol></nav>
-<section class="review" id="review-1" data-job="34330-mine-20261114-221236" data-state="final">
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-11-15 00:25</span><span>Review 1 · head a1733b7 · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="34330-mine-20261114-231639-redo" data-state="final">
 <details class="run" open>
-<summary><span class="rn">Review 1</span><span class="meta">2026-11-14 23:08 · PR head a1733b72c09 · main d956ec56163 · requested by @Connor9220</span></summary>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-15 00:25 · PR head a1733b72c09 · main d956ec56163 · requested by @Connor9220</span></summary>
 <div class="body">
 
 <p class="tests">CAM unit tests with the PR applied: <code>Ran 2139 tests · OK (skipped=11, expected failures=4)</code></p>
-
-<div class="shots"><figure class="shot"><a href="1/pocket_plunges_setup.png"><img src="1/pocket_plunges_setup.png" alt="Test setup on the PR: the pocket-island pocket path. Its straight vertical plunges (red) are the moves the PR now treats as a single cleared circle in rest machining."></a><figcaption>Test setup on the PR: the pocket-island pocket path. Its straight vertical plunges (red) are the moves the PR now treats as a single cleared circle in rest machining.</figcaption></figure><figure class="shot"><a href="1/rest_facing_pr.png"><img src="1/rest_facing_pr.png" alt="PR build, top view: the facing op with Rest Machining on skips the pocket the earlier ops cleared and still faces the island top, as expected."></a><figcaption>PR build, top view: the facing op with Rest Machining on skips the pocket the earlier ops cleared and still faces the island top, as expected.</figcaption></figure></div>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Cleared area on the PR build: a lone plunge counts, but a plunge followed by a retract at the same spot counts nothing; then MillFace rest machining on main vs the PR (40 s).</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Cleared area of three short paths, 6 mm tool, PR build</span><span class="det">Green fill = what rest machining counts as cleared. Black ring = the tool&#x27;s footprint at the bottom of a plunge.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="6.18"><span class="t">0:06</span><span><span class="cap">A: a single plunge to Z -5</span><span class="det">Its tool circle is counted as cleared (on main: nothing).</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="12.1"><span class="t">0:12</span><span><span class="cap">B: the same plunge, then a retract at the same spot</span><span class="det">Plunge and retract each add the same circle; the union uses even-odd fill, so the two cancel. Nothing is counted.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="18.05"><span class="t">0:18</span><span><span class="cap">C: a cut, then a separate plunge + retract</span><span class="det">The cut counts. The plunge circle is lost again (two circles, cancelled).</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="23.99"><span class="t">0:23</span><span><span class="cap">Pocket-island model: MillFace rest machining on main</span><span class="det">M_ZigZag_Fin1 with rest machining on (and on the earlier MillFace ops): 982.6 mm.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="29.98"><span class="t">0:29</span><span><span class="cap">Same op on the PR: 1057.2 mm</span><span class="det">Same sub-millimeter scallops, now joined by one long pass along the top stock edge (+75 mm). Earlier ops&#x27; cleared areas differ by only ~0.1 mm2.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="35.18"><span class="t">0:35</span><span><span class="cap">End</span><span class="det"></span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/main_millface_rest.png"><img src="1/main_millface_rest.png" alt="Main: MillFace M_ZigZag_Fin1 with rest machining (pocket-island model), 982.6 mm of path, scallop cleanup only."></a><figcaption>Main: MillFace M_ZigZag_Fin1 with rest machining (pocket-island model), 982.6 mm of path, scallop cleanup only.</figcaption></figure><figure class="shot"><a href="1/pr_millface_rest.png"><img src="1/pr_millface_rest.png" alt="PR: the same op is 1057.2 mm; the scallops are now joined by a long pass along the top stock edge."></a><figcaption>PR: the same op is 1057.2 mm; the scallops are now joined by a long pass along the top stock edge.</figcaption></figure><figure class="shot"><a href="1/pr_plunge_retract_cancel.png"><img src="1/pr_plunge_retract_cancel.png" alt="PR build, 6 mm tool: A (plunge only) gets its circle; B (plunge + retract) and the plunge in C get none. Black rings mark the tool footprint that should be counted."></a><figcaption>PR build, 6 mm tool: A (plunge only) gets its circle; B (plunge + retract) and the plunge in C get none. Black rings mark the tool footprint that should be counted.</figcaption></figure></div>
 
 <div class="summary"><h2>TL;DR</h2>
 <ul>
-<li>No defects found. The fix is the same <code>NaiveOffset</code> change that was checked against the crash on the issue, and it moves the existing single-point handling below the segment loop.</li>
-<li>All 2139 CAM tests pass on the PR, including the two new Thicken tests and Adaptive's <code>testRestMachining</code> (the test that aborted in #34148).</li>
-<li>One behavior change the description doesn't spell out: rest machining now counts the bottom of every straight plunge as cleared, including plunges that start above the section height. That is physically right. I could not measure it against main here.</li>
+<li>The core fix works: thickening a zero-length curve now gives the tool circle. On main it returns an empty area, which is the undefined <code>list::front()</code> call behind #34148. All 2139 CAM tests pass.</li>
+<li>New bug in the third commit: rest machining now counts a straight plunge as cleared, but only if no other vertical move happens at the same spot. A plunge followed by a retract at the same XY adds two identical circles, and the even-odd union cancels them, so nothing is counted.</li>
+<li>Rest-machining output can change slightly. On the pocket-island model, one rest-machined MillFace op went from 982.6 mm to 1057.2 mm: the same sub-millimeter scallops, joined by one extra 55 mm pass along the stock edge.</li>
 </ul>
 <h2>What the PR does</h2>
 <ol>
-<li><code>libarea/AreaClipper.cpp</code> (<code>CArea::NaiveOffset</code>): the &quot;curve of one point → circle&quot; block moves from before the segment loop to after it, and its condition changes from <code>curve.m_vertices.size() == 1</code> to <code>cPos.m_vertices.empty()</code>. A curve made only of zero-length segments (a repeated point, or a pure Z move flattened to XY) now becomes a circle instead of reaching <code>cPos.m_vertices.front()</code> on an empty list. That call was undefined behavior, and it aborts with <code>_GLIBCXX_ASSERTIONS</code> when libstdc++ checks <code>list::front</code> (#34148).</li>
-<li><code>App/Area.cpp</code> (<code>ClearedAreaSegmentVisitor::line</code>): a move with no XY travel goes to <code>point()</code> at its lower end instead of becoming a zero-length segment.</li>
-<li>Tests: <code>test_thicken_point</code> and <code>test_thicken_zero_length</code> in <code>TestAreaOperations</code>.</li>
+<li><code>libarea/AreaClipper.cpp</code> (<code>CArea::NaiveOffset</code>): the &quot;single point becomes a circle&quot; block now runs after the segment loop, triggered by an empty <code>cPos</code>. A curve made only of zero-length segments becomes a circle instead of reaching <code>cPos.m_vertices.front()</code> on an empty list.</li>
+<li><code>App/Area.cpp</code> (<code>ClearedAreaSegmentVisitor::line</code>): a G0/G1 move with no XY travel calls <code>point()</code> at its lower end, which adds a tool circle to <code>holes</code>, instead of a zero-length segment.</li>
+<li>Two new tests, <code>test_thicken_point</code> and <code>test_thicken_zero_length</code>.</li>
 </ol>
-<h2>What I checked</h2>
+<h2>Since the previous run</h2>
+<p>The PR head is unchanged (a1733b72c09). The previous run reported no defects but could not compare with main. This run had a full main build (d956ec56163), so the main vs PR comparisons below are new. The previous run's scope item (&quot;plunges from above now count&quot;) is now measured against main, and the plunge/retract finding below is new.</p>
+<h2>Defect</h2>
+<p><strong>A plunge followed by a retract at the same spot is not counted as cleared.</strong>
+<code>line()</code> now sends every vertical G0/G1 move to <code>point()</code>, using the move's lower end. A plunge and the retract right after it both end at the same bottom point, so <code>holes</code> gets two identical circles. <code>getClearedArea()</code> merges them with <code>result.Union(holes)</code>, and <code>CArea::Union</code> clips with <code>FillRule::EvenOdd</code> (<code>AreaClipper.cpp:286</code>), so identical circles cancel in pairs. The new &quot;count the plunge&quot; behavior therefore works only when a spot has an odd number of vertical moves. This is never worse than main, which counts none of these, but the third commit's change is lost in the drill-like case it would help most. Measured with <code>Path.getClearedArea(6.0, 0.0, bbox)</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plunge Z+5 to Z-3, nothing else</td>
+<td>0</td>
+<td>28.84 mm² (one circle)</td>
+</tr>
+<tr>
+<td>Plunge, then retract at the same XY</td>
+<td>0</td>
+<td><strong>0</strong></td>
+</tr>
+<tr>
+<td>Two plunge+retract pairs at different XY</td>
+<td>0</td>
+<td><strong>0</strong></td>
+</tr>
+<tr>
+<td>Cut 10 mm, then plunge+retract elsewhere</td>
+<td>89.44</td>
+<td>89.44 (plunge lost)</td>
+</tr>
+<tr>
+<td>Plunge from Z-1 to Z-3 (both below zmax), nothing else</td>
+<td>0</td>
+<td>28.84</td>
+</tr>
+<tr>
+<td><code>G81</code> twice at the same XY</td>
+<td>0</td>
+<td>0 (also on main: same even-odd union)</td>
+</tr>
+</tbody>
+</table>
+<p>Repro: build <code>Path.Path</code> from <code>G0 X20 Y20 Z5</code>, <code>G1 X20 Y20 Z-3</code>, <code>G0 X20 Y20 Z5</code>, call <code>getClearedArea(6, 0, FreeCAD.BoundBox(-50,-50,-50,50,50,50))</code>, and the shape has no wires. Remove the last line and you get the circle. Possible fixes: merge <code>holes</code> with a non-zero or positive fill (<code>Clip(ClipType::Union, holes, FillRule::NonZero)</code>), which also fixes the existing double-<code>G81</code> case, or call <code>point()</code> only for downward moves.</p>
+<p><img src="media/pr_plunge_retract_cancel.png" alt="plunge vs plunge+retract" /></p>
+<h2>Main vs PR on real operations (<code>cam_ab</code>, main's own C++ build as side A)</h2>
+<table>
+<thead>
+<tr>
+<th>Model / setup</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pocket-island-variants, all 26 ops as saved (no rest machining)</td>
+<td>Identical</td>
+</tr>
+<tr>
+<td>twp-test-block-job, all 16 ops (drilling, helix, adaptive, profile, dressups)</td>
+<td>Identical (<code>MillFacing</code> is invalid on both sides)</td>
+</tr>
+<tr>
+<td>pocket-island-variants with Use Rest Machining on P_ZigZag, P_Line, P_Grid, P_ZigZag_Fin1, P_StartAtEdge, M_default, M_Fin1, M_ZigZag_Fin1</td>
+<td>7 of 8 identical. <strong>M_ZigZag_Fin1: main 512 cmds / 982.6 mm, PR 498 cmds / 1057.2 mm</strong></td>
+</tr>
+<tr>
+<td>Same, with rest machining only on M_ZigZag_Fin1</td>
+<td>Identical (66 cmds, 190.5 mm)</td>
+</tr>
+</tbody>
+</table>
+<p>The M_ZigZag_Fin1 difference is deterministic: three recomputes on each side give the same result, and the PR build run against itself is identical. The cleared areas the earlier ops give at the floor (Z 20) differ only slightly: P_NoClear_Fin1 1158.96 → 1158.84 mm² and M_Fin1 2282.78 → 2282.77 mm². Both have vertical moves at the floor, which now go through <code>point()</code> and the union. That small change in the edge slivers changes how the rest area splits into regions. The PR path cleans the same scallops but joins them with one 55 mm pass along the Y=67 stock edge. I can't call either side more correct at that scale. It is listed below as an unannounced output change, not as a defect.</p>
+<p><img src="media/main_millface_rest.png" alt="main" />
+<img src="media/pr_millface_rest.png" alt="PR" /></p>
+<p>Video: <code>media/demo.mp4</code> (40 s) shows the three cleared-area cases and the main/PR MillFace paths.</p>
+<h2>Other checks</h2>
 <table>
 <thead>
 <tr>
@@ -101,52 +180,40 @@ footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); p
 <td>2139 ran, OK (11 skipped, 4 expected failures)</td>
 </tr>
 <tr>
-<td><code>TestAreaOperations</code>, <code>TestPathAdaptive</code>, <code>TestPathOpUtil</code> re-run</td>
-<td>88 ran, all pass; both new tests ran</td>
+<td>New tests vs main</td>
+<td><code>Thicken</code> of <code>[(5,5),(5,5)]</code>: main returns 0 curves / area 0, so <code>test_thicken_zero_length</code> fails on main. The PR returns one curve of area 4π (12.566). <code>test_thicken_point</code> passes on both (that path was already handled).</td>
 </tr>
 <tr>
-<td>New tests exercise the claim</td>
-<td>Yes: <code>[(5,5),(5,5)]</code> thickened by 2 must give one curve of area 4π, which is exactly the empty-<code>cPos</code> path</td>
+<td>Zero-length segment in the middle of a curve <code>[(0,0),(5,0),(5,0),(10,5)]</code></td>
+<td>Same on both (area 60.764)</td>
 </tr>
 <tr>
-<td>pocket-island-variants (26 Pocket / Profile / MillFace ops) recomputed on the PR</td>
-<td>All recompute without errors</td>
-</tr>
-<tr>
-<td>Pocket with Rest Machining after ops that already cleared it (<code>P_Line</code>)</td>
-<td>Empty path (correct)</td>
-</tr>
-<tr>
-<td>MillFace with Rest Machining after the pockets (<code>M_default</code>)</td>
-<td>Skips the cleared pocket, still faces the island top (screenshot)</td>
-</tr>
-<tr>
-<td>Code review (<code>/code-review medium</code>)</td>
-<td>8 findings, none survive (see below)</td>
+<td>Task panels / properties / file format</td>
+<td>Not touched by the PR. No GUI check needed.</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Main vs PR toolpaths: not measured.</strong> The PR changes only C++, and <code>cam_ab</code> swaps only CAM Python, so both sides would run the same library. This bot session could not build a separate main copy of <code>libarea-native.so</code> / <code>PathApp.so</code>, or run Python probes in FreeCAD. The saved paths in pocket-island-variants differ from the PR's recompute (for example, <code>P_Helix</code> loads as ZigZag). That comes from main's own Python since the file was saved: Pocket's <code>Helix</code> clearing pattern is gone from <code>PocketBase.py</code> and falls back to the first enum. The PR touches no op Python. By the code, the only toolpath effect is in rest machining (Pocket/MillFace &quot;Use Rest Machining&quot; and Adaptive rest machining), through the extra plunge circles below.</p>
-<p>No video: there is no GUI change and no toolpath difference I could show side by side.</p>
-<h2>Code review findings (all dropped)</h2>
+<h2>Code review findings (<code>/code-review medium</code>)</h2>
 <ul>
-<li>Visitor constructor enlarges its parameter <code>bbox</code>, not the member (<code>App/Area.cpp:693-699</code>), so the stored box is never widened by the radius. Real, but <strong>also on main</strong>, and the PR doesn't make it worse: plunges went through the same unwidened box before.</li>
-<li>Exact <code>len == 0</code> / <code>sRadius == 0</code> tests (<code>AreaClipper.cpp:437, 459</code>): unchanged code, also on main.</li>
-<li>An arc with zero start radius as the only segment now becomes a circle: malformed input no CAM op produces; before, it hit the same undefined <code>front()</code> call.</li>
-<li>&quot;Negative offset of a point is empty&quot; comment vs <code>OpenOffset(-r)</code>: wrong. <code>NaiveOffset</code> always receives <code>abs(offset)</code>, and single-point curves behaved this way on main already.</li>
-<li>No tests for Offset/OpenOffset or for the cleared-area change, plus two duplication cleanups: not defects.</li>
+<li>Vertical moves crossing zmax now count, but ramps crossing it still don't (<code>Area.cpp:674</code>). This is a behavior change, not a bug: counting the bottom of a straight plunge is physically right. Listed under &quot;Not in the PR description&quot;.</li>
+<li><code>bbox.Enlarge(radius)</code> in the visitor constructor enlarges the parameter, not the member (<code>Area.cpp:698</code>). Also on main. Dropped.</li>
+<li>Exact <code>len == 0</code> / <code>sRadius == 0</code> tests, and <code>pPrev</code> not updated after a skipped degenerate arc (<code>AreaClipper.cpp:437, 459</code>). Unchanged code, also on main. Dropped.</li>
+<li>The empty-<code>cPos</code> fallback turns a curve made only of malformed arcs into one circle (<code>AreaClipper.cpp:536</code>). No CAM op produces such curves, and on main the same input reached the undefined <code>front()</code> call. Dropped.</li>
+<li>&quot;Negative offset is empty&quot; comment vs a direct negative call (<code>AreaClipper.cpp:534</code>). Every caller passes <code>abs(offset)</code>. Dropped.</li>
+<li>Redundant circles in <code>holes</code> (performance), two places handling zero-length moves, and missing tests: not defects. While checking the &quot;redundant circles&quot; item I found the even-odd cancellation above, which is a real defect.</li>
 </ul>
 <h2>From the code (not reproduced)</h2>
 <p>None.</p>
 <h2>Not in the PR description</h2>
 <ul>
-<li>Rest machining (Pocket, MillFace, Adaptive) now counts a straight plunge's bottom circle as cleared even when the plunge starts above the section height. Before, such moves were skipped entirely, because both ends had to be at or below it. Ramps and helixes that cross that height are still skipped (as on main). (tested on the PR only: rest-machining ops recompute correctly; not compared with main)</li>
-<li><code>Area.Offset()</code> / <code>OpenOffset()</code> (Python API) on a curve of only zero-length segments now return a circle instead of hitting undefined behavior, not just <code>Thicken()</code>. (not tested)</li>
+<li>Rest machining (Pocket, MillFace, Adaptive) now counts the bottom circle of a straight vertical G0/G1 move as cleared, including plunges that start above the section height. Main skipped them. Ramps and helixes crossing that height are still skipped. <strong>Tested</strong> against main: a lone plunge gives 0 on main and 28.84 mm² on the PR. Paired with a retract it gives 0 on both (the defect above).</li>
+<li>Rest-machining toolpaths can change on existing documents with no setting changed. <strong>Tested</strong>: M_ZigZag_Fin1 982.6 → 1057.2 mm on pocket-island with rest machining on. Ops without rest machining were identical on both models.</li>
+<li><code>Area.Offset()</code> / <code>OpenOffset()</code> (Python API) on a curve of only zero-length segments now return a circle, not just <code>Thicken()</code>. <strong>Not tested.</strong></li>
 </ul>
-<p>No properties, enums, panels, defaults or file format change.</p>
+<p>No properties, enum options, panel widgets, defaults or file format change.</p>
 <h2>Issues</h2>
 <ul>
-<li>#34148 (CAM test suite aborts under <code>_GLIBCXX_ASSERTIONS</code>): <strong>not tested on this build.</strong> Reproducing it needs a libstdc++ with <code>list::front</code> checks plus <code>-D_GLIBCXX_ASSERTIONS</code>, which this build doesn't have. The <code>NaiveOffset</code> change is the same logic as the patch that cleared the abort under assertions in the earlier repro on the issue. <code>testRestMachining</code> and the new regression test pass here.</li>
+<li>#34148 (CAM test suite crashes): <strong>not tested</strong> as a crash. The abort needs a libstdc++ whose <code>std::list::front()</code> checks for an empty list (built with <code>_GLIBCXX_ASSERTIONS</code>). This build's libstdc++ 13 has no such check, and this unattended run could not build a checked copy. The faulty call is confirmed gone: on main, <code>Thicken()</code> of a zero-length curve takes the undefined path and returns an empty area, while the PR returns the correct circle. <code>TestPathAdaptive.testRestMachining</code>, the test that aborted in the issue, passes on the PR.</li>
 </ul>
 </div>
 </div>
