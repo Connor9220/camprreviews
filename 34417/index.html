@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="34417-mine-20261114-221236">
+<title>PR #34417 campr</title>
+<meta property="og:title" content="PR #34417: CAM: Fix the position of the bCNC block headers in the machine-based post">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/34417">FreeCAD PR #34417</a><span>1 review</span></div>
+<h1>CAM: Fix the position of the bCNC block headers in the machine-based post</h1>
+</header>
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-11-14 22:49</span><span>Review 1 · head 4779c06 · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="34417-mine-20261114-221236" data-state="final">
+<details class="run" open>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-14 22:49 · PR head 4779c06bcb0 · main d956ec56163 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2138 tests · OK (skipped=11, expected failures=4)</code></p>
+
+
+
+<div class="summary"><h1>PR #34417 review: bCNC block headers in the machine-based post</h1>
+<h2>TL;DR</h2>
+<ul>
+<li>The fix works as described: operations now get their own bCNC block, and the <code>post_amble</code> block
+now comes before the post-job and postamble lines. The full CAM test suite passes, including the
+new test.</li>
+<li>From the code, not reproduced: the tool change for the next operation still ends up at the end of
+the previous operation's block. If you disable that block in bCNC, the next operation runs with
+the wrong tool.</li>
+<li>From the code, not reproduced: the same happens with the rotary move, the tilted-plane setup and
+the work-plane fixture change (G55...) of a multi-sided job. They land in the previous
+operation's block.</li>
+</ul>
+<h2>What the PR changes</h2>
+<p><code>Processor.export2()</code> called <code>_expand_bcnc_commands()</code> and dropped its result. That function
+rebuilds the postable list through <code>_edit_postable_list()</code>, so dropping the result meant no
+operation ever got a <code>(Block-name: &lt;op&gt;)</code> header. Only <code>(Block-name: post_amble)</code> came out, and it
+was appended after the post-job and postamble lines.</p>
+<p>The PR:</p>
+<ul>
+<li>keeps the returned list,</li>
+<li>moves the call before <code>_expand_pre_item()</code> and inserts the header <em>before</em> the operation (<code>-1</code>
+instead of <code>1</code>), so the header comes before the pre-operation lines,</li>
+<li>moves <code>_expand_bcnc_postamble()</code> before <code>_expand_trailing_lines()</code>, so the post_amble block
+contains the post-job and postamble lines,</li>
+<li>adds <code>test104_bcnc_block_position</code>.</li>
+</ul>
+<p>The PR text only links a forum report. The commit message describes the change.</p>
+<h2>What I checked</h2>
+<ul>
+<li><strong>Unit tests:</strong> the full CAM suite ran on the PR build: 2138 tests, OK (11 skipped, 4 expected
+failures). <code>test100</code> to <code>test104</code> (bCNC) all pass. Read against main's code, <code>test104</code> would fail
+there: main emits no operation headers, so <code>len(names) &gt; 1</code> fails. The test does cover the claim
+for one operation and the postamble.</li>
+<li><strong>Code reading:</strong> I traced where the header now lands relative to everything <code>export2()</code> puts
+between operations: fixture and tool-controller items from <code>PostList</code>, pre-tool-change and
+pre-fixture lines from <code>_expand_pre_item()</code>, and the pose-change postables (rotary move, TWP
+declare/cancel, work-plane fixture) from <code>_expand_workplane_frames()</code>. Compared with the legacy
+exporter (<code>UtilsExport.export_common</code> + <code>TestTestPost.test00120</code>), which gives Fixture, each TC
+and each operation its own block.</li>
+<li><strong>Run-time checks:</strong> I could not run the post. This session only allowed tools that don't
+execute code, and every probe that would build G-code (an A/B on the class-tray job with bCNC,
+pre/post-operation, pre-tool-change, post-job and postamble lines set) was refused. That is also
+why this review has no screenshots or video. The findings below are therefore from the code.</li>
+<li><strong>No toolpath or GUI change.</strong> The PR only touches the post, so there is nothing to A/B in path
+stats and no panel to check.</li>
+</ul>
+<h2>From the code (not reproduced)</h2>
+<p><strong>Tool changes land in the previous operation's block.</strong> <code>src/Mod/CAM/Path/Post/Processor.py:1716</code>
+only gives <code>operation</code> items a header. A tool-controller item, with its pre-tool-change lines and
+M6, sits in the list <em>before</em> the operation item. The operation's header is inserted right before
+the operation, so <code>M6 T2</code> for Op2 ends up at the end of Op1's block. In bCNC, disabling Op1 (a
+common way to re-run part of a job) also drops Op2's tool change, so Op2 runs with Op1's tool. The
+first fixture (G54) and the first tool change fall into bCNC's unnamed header block. The legacy
+exporter gives Fixture and each TC their own block (<code>TestTestPost.test00120</code>), so both blocks stay
+enabled when an operation is disabled.</p>
+<p><strong>Rotary moves and work-plane fixture changes land in the previous operation's block.</strong>
+<code>src/Mod/CAM/Path/Post/Processor.py:2894</code> vs <code>:2899</code>: <code>_expand_workplane_frames()</code> runs first and
+inserts the pose-change postables (pre/post-rotary lines, the rotary move, TWP declare, the
+work-plane fixture such as G55) as separate items just before each operation. The header is then
+inserted between those items and the operation. On a 3+2 or two-sided job, disabling Op1's block
+in bCNC drops Op2's rotary positioning and work offset, so Op2 cuts at the wrong angle or in the
+wrong coordinate system. This also affects three-axis jobs whose work planes name a fixture.</p>
+<p>A possible fix for both: insert the header before the first item that belongs to the operation
+(fixture/TC/pose items and their pre-lines), or give TC and fixture items their own blocks as the
+legacy exporter does.</p>
+<p>Dropped from the code review: the test's <code>startswith((&quot;G0&quot;, &quot;G1&quot;))</code> also matches <code>G17</code>, which is
+fragile but passes. Also dropped: the in-place vs returned-list API mix and the ordering being
+carried only by comments. These are style points, not defects. No in-tree post overrides
+<code>_expand_bcnc_commands()</code>.</p>
+<h2>Not in the PR description</h2>
+<p>The description is just a forum link, so every change below comes only from the commit message
+or the diff.</p>
+<ul>
+<li>Operation bCNC block headers now appear in machine-based post output; on main there were none
+(tested: unit test104 + suite).</li>
+<li>The operation block header now comes before the pre-operation lines (not tested).</li>
+<li>The <code>post_amble</code> block header moved from after to before the post-job and postamble lines
+(tested: unit test104 checks it precedes the final M2).</li>
+<li><code>_expand_bcnc_commands()</code> now has to return the postable list. A third-party post that
+overrides it and edits in place returning <code>None</code> would now fail (not tested; no in-tree
+override).</li>
+</ul>
+<h2>Media</h2>
+<p>None. Every code run was refused in this session, including <code>saveImage</code>, so no screenshots or
+video could be made.</p>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated reviews by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, reviews written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviewed PRs</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>

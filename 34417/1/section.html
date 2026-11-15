@@ -1,0 +1,99 @@
+<section class="review" id="review-1" data-job="34417-mine-20261114-221236" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-14 22:49 · PR head 4779c06bcb0 · main d956ec56163 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2138 tests · OK (skipped=11, expected failures=4)</code></p>
+
+
+
+<div class="summary"><h1>PR #34417 review: bCNC block headers in the machine-based post</h1>
+<h2>TL;DR</h2>
+<ul>
+<li>The fix works as described: operations now get their own bCNC block, and the <code>post_amble</code> block
+now comes before the post-job and postamble lines. The full CAM test suite passes, including the
+new test.</li>
+<li>From the code, not reproduced: the tool change for the next operation still ends up at the end of
+the previous operation's block. If you disable that block in bCNC, the next operation runs with
+the wrong tool.</li>
+<li>From the code, not reproduced: the same happens with the rotary move, the tilted-plane setup and
+the work-plane fixture change (G55...) of a multi-sided job. They land in the previous
+operation's block.</li>
+</ul>
+<h2>What the PR changes</h2>
+<p><code>Processor.export2()</code> called <code>_expand_bcnc_commands()</code> and dropped its result. That function
+rebuilds the postable list through <code>_edit_postable_list()</code>, so dropping the result meant no
+operation ever got a <code>(Block-name: &lt;op&gt;)</code> header. Only <code>(Block-name: post_amble)</code> came out, and it
+was appended after the post-job and postamble lines.</p>
+<p>The PR:</p>
+<ul>
+<li>keeps the returned list,</li>
+<li>moves the call before <code>_expand_pre_item()</code> and inserts the header <em>before</em> the operation (<code>-1</code>
+instead of <code>1</code>), so the header comes before the pre-operation lines,</li>
+<li>moves <code>_expand_bcnc_postamble()</code> before <code>_expand_trailing_lines()</code>, so the post_amble block
+contains the post-job and postamble lines,</li>
+<li>adds <code>test104_bcnc_block_position</code>.</li>
+</ul>
+<p>The PR text only links a forum report. The commit message describes the change.</p>
+<h2>What I checked</h2>
+<ul>
+<li><strong>Unit tests:</strong> the full CAM suite ran on the PR build: 2138 tests, OK (11 skipped, 4 expected
+failures). <code>test100</code> to <code>test104</code> (bCNC) all pass. Read against main's code, <code>test104</code> would fail
+there: main emits no operation headers, so <code>len(names) &gt; 1</code> fails. The test does cover the claim
+for one operation and the postamble.</li>
+<li><strong>Code reading:</strong> I traced where the header now lands relative to everything <code>export2()</code> puts
+between operations: fixture and tool-controller items from <code>PostList</code>, pre-tool-change and
+pre-fixture lines from <code>_expand_pre_item()</code>, and the pose-change postables (rotary move, TWP
+declare/cancel, work-plane fixture) from <code>_expand_workplane_frames()</code>. Compared with the legacy
+exporter (<code>UtilsExport.export_common</code> + <code>TestTestPost.test00120</code>), which gives Fixture, each TC
+and each operation its own block.</li>
+<li><strong>Run-time checks:</strong> I could not run the post. This session only allowed tools that don't
+execute code, and every probe that would build G-code (an A/B on the class-tray job with bCNC,
+pre/post-operation, pre-tool-change, post-job and postamble lines set) was refused. That is also
+why this review has no screenshots or video. The findings below are therefore from the code.</li>
+<li><strong>No toolpath or GUI change.</strong> The PR only touches the post, so there is nothing to A/B in path
+stats and no panel to check.</li>
+</ul>
+<h2>From the code (not reproduced)</h2>
+<p><strong>Tool changes land in the previous operation's block.</strong> <code>src/Mod/CAM/Path/Post/Processor.py:1716</code>
+only gives <code>operation</code> items a header. A tool-controller item, with its pre-tool-change lines and
+M6, sits in the list <em>before</em> the operation item. The operation's header is inserted right before
+the operation, so <code>M6 T2</code> for Op2 ends up at the end of Op1's block. In bCNC, disabling Op1 (a
+common way to re-run part of a job) also drops Op2's tool change, so Op2 runs with Op1's tool. The
+first fixture (G54) and the first tool change fall into bCNC's unnamed header block. The legacy
+exporter gives Fixture and each TC their own block (<code>TestTestPost.test00120</code>), so both blocks stay
+enabled when an operation is disabled.</p>
+<p><strong>Rotary moves and work-plane fixture changes land in the previous operation's block.</strong>
+<code>src/Mod/CAM/Path/Post/Processor.py:2894</code> vs <code>:2899</code>: <code>_expand_workplane_frames()</code> runs first and
+inserts the pose-change postables (pre/post-rotary lines, the rotary move, TWP declare, the
+work-plane fixture such as G55) as separate items just before each operation. The header is then
+inserted between those items and the operation. On a 3+2 or two-sided job, disabling Op1's block
+in bCNC drops Op2's rotary positioning and work offset, so Op2 cuts at the wrong angle or in the
+wrong coordinate system. This also affects three-axis jobs whose work planes name a fixture.</p>
+<p>A possible fix for both: insert the header before the first item that belongs to the operation
+(fixture/TC/pose items and their pre-lines), or give TC and fixture items their own blocks as the
+legacy exporter does.</p>
+<p>Dropped from the code review: the test's <code>startswith((&quot;G0&quot;, &quot;G1&quot;))</code> also matches <code>G17</code>, which is
+fragile but passes. Also dropped: the in-place vs returned-list API mix and the ordering being
+carried only by comments. These are style points, not defects. No in-tree post overrides
+<code>_expand_bcnc_commands()</code>.</p>
+<h2>Not in the PR description</h2>
+<p>The description is just a forum link, so every change below comes only from the commit message
+or the diff.</p>
+<ul>
+<li>Operation bCNC block headers now appear in machine-based post output; on main there were none
+(tested: unit test104 + suite).</li>
+<li>The operation block header now comes before the pre-operation lines (not tested).</li>
+<li>The <code>post_amble</code> block header moved from after to before the post-job and postamble lines
+(tested: unit test104 checks it precedes the final M2).</li>
+<li><code>_expand_bcnc_commands()</code> now has to return the postable list. A third-party post that
+overrides it and edits in place returning <code>None</code> would now fail (not tested; no in-tree
+override).</li>
+</ul>
+<h2>Media</h2>
+<p>None. Every code run was refused in this session, including <code>saveImage</code>, so no screenshots or
+video could be made.</p>
+</div>
+</div>
+</details>
+</section>
