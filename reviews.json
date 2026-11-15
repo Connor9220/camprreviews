@@ -1,5 +1,15 @@
 [
  {
+  "pr": 34417,
+  "run": 1,
+  "job": "34417-mine-20261114-231639-redo",
+  "title": "CAM: Fix the position of the bCNC block headers in the machine-based post",
+  "date": "2026-11-15 00:12",
+  "requester": "Connor9220",
+  "poster": true,
+  "head": "4779c06bcb0"
+ },
+ {
   "pr": 33275,
   "run": 1,
   "job": "33275-mine-20261114-221237",
@@ -38,16 +48,6 @@
   "requester": "Connor9220",
   "poster": true,
   "head": "a1733b72c09"
- },
- {
-  "pr": 34417,
-  "run": 1,
-  "job": "34417-mine-20261114-221236",
-  "title": "CAM: Fix the position of the bCNC block headers in the machine-based post",
-  "date": "2026-11-14 22:49",
-  "requester": "Connor9220",
-  "poster": false,
-  "head": "4779c06bcb0"
  },
  {
   "pr": 34410,
