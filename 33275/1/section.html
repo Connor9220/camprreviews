@@ -1,0 +1,107 @@
+<section class="review" id="review-1" data-job="33275-mine-20261114-221237" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-14 23:57 · PR head 4c0a91fdcf5 · main d956ec56163 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2137 tests · OK (skipped=11, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>The issue&#x27;s 0.002 mm arc (main: full loop, PR: fixed), then a reopened Helix job with a Boundary dressup: main keeps every ring inside the boundary, the PR writes a 307 degree arc outside it.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Issue #33146: the 0.002 mm arc from the issue</span><span class="det">Green = how main reads it: a full 15 mm loop (the extra loop in the issue). Orange dot = the PR reads it as the 0.002 mm arc it is. Fixed.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="9.28"><span class="t">0:09</span><span><span class="cap">Helix op on a 20 mm hole, saved and reopened</span><span class="det">Hole center X37.3457 Y28.7654. The reopened path holds 6-decimal coordinates; the bottom has three finishing rings, each two half-circle arcs.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="18.28"><span class="t">0:18</span><span><span class="cap">Main: Boundary dressup keeps the left half (green)</span><span class="det">Blue = boundary. Every ring is cut only on the left side of the hole.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="26.28"><span class="t">0:26</span><span><span class="cap">This PR: same dressup, same file (orange)</span><span class="det">The middle ring&#x27;s half circles are read the wrong way round, so the dressup writes G2 from 217.6 deg to 270 deg: a 307 deg clockwise arc through the right half, outside the boundary.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="34.28"><span class="t">0:34</span><span><span class="cap">Main (green) vs PR (orange) together</span><span class="det">Only the middle ring differs: the half-circle check now uses a 1e-6 limit, and 6-decimal rounding puts that ring at 4e-6.</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/issue33146_arc_main_vs_pr.png"><img src="1/issue33146_arc_main_vs_pr.png" alt="Issue #33146 arc G2 I-2.013849 J1.305531: main reads it as a full 15.08 mm loop (green), the PR as the 0.0021 mm arc it is (orange dot)."></a><figcaption>Issue #33146 arc G2 I-2.013849 J1.305531: main reads it as a full 15.08 mm loop (green), the PR as the 0.0021 mm arc it is (orange dot).</figcaption></figure><figure class="shot"><a href="1/main_boundary_reopened.png"><img src="1/main_boundary_reopened.png" alt="Main: Boundary dressup (blue = boundary, left half of the hole) on the reopened Helix job. All three finishing rings stay on the left (green)."></a><figcaption>Main: Boundary dressup (blue = boundary, left half of the hole) on the reopened Helix job. All three finishing rings stay on the left (green).</figcaption></figure><figure class="shot"><a href="1/pr_boundary_reopened.png"><img src="1/pr_boundary_reopened.png" alt="PR: same file, same dressup. The middle ring is written as a 307 degree G2 arc that crosses into the right half, outside the boundary (orange)."></a><figcaption>PR: same file, same dressup. The middle ring is written as a 307 degree G2 arc that crosses into the right half, outside the boundary (orange).</figcaption></figure></div>
+
+<div class="summary"><h1>Review of PR #33275 &quot;CAM: Fix edgeForCmd&quot;</h1>
+<h2>TL;DR</h2>
+<ul>
+<li><strong>Issue #33146 is fixed:</strong> the tiny 0.002 mm arc from the issue is no longer read as a full 15 mm loop.</li>
+<li><strong>New problem with saved files:</strong> the half-circle check is now so tight that half-circle arcs with normal 6-decimal rounding can be read going the wrong way. Reopen a saved Helix job, add a Boundary dressup, and on this PR the dressup writes a 307° arc outside its boundary. Main is fine.</li>
+<li>Full circles and arcs over 180° from Engrave, Vcarve and the Boundary/Tags dressups now come out as two G2/G3 commands. This changes posted G-code, and the PR text describes it only in code terms.</li>
+</ul>
+<h2>What the PR changes</h2>
+<p><code>src/Mod/CAM/Path/Geom.py</code>, plus tests in <code>TestPathGeom.py</code>:</p>
+<ol>
+<li><code>edgeForCmd()</code>: the &quot;is this a half circle?&quot; test <code>isRoughly(d, 0, 0.005)</code> becomes <code>isRoughly(d, 0)</code> (1e-6). The &quot;start == end, so full circle&quot; test drops its 0.001 tolerance and uses the 1e-6 default.</li>
+<li><code>cmdsForEdge()</code>: every circle edge whose parameter range is over π is split at its middle into two edges, so full circles and arcs over 180° become two G2/G3 commands.</li>
+</ol>
+<h2>Defects (reproduced)</h2>
+<h3>1. After reopening a file, half-circle arcs can be read the wrong way, and dressups then cut outside their boundary</h3>
+<p><code>d</code> in <code>edgeForCmd()</code> is an unnormalized cross product (it scales with R²). Paths are saved as G-code with 6 decimals, so for a real half circle <code>d</code> lands around R·1e-6, which is above the new absolute 1e-6 limit for any radius over about 1 mm. The arc then goes to the general branch, where the midpoint direction <code>A+B</code> is a near-zero vector made of rounding noise, and G2/G3 is ignored. About a third of such half circles are rebuilt on the wrong side of the circle, so they run the other way. Main's 0.005 limit caught these.</p>
+<p>Repro (Path/Geom.py:490):</p>
+<ol>
+<li>Plate 80×60×10 with a 20 mm through hole centered at X37.3456789 Y28.7654321. Add a Helix op with a 6 mm end mill and default settings. Save, close, reopen.</li>
+<li>Add a Boundary dressup to the Helix. Set its boundary to a box covering the left half of the hole (X from -10 to 37.35, the hole's center line; Y -10 to 70). Recompute only the dressup.</li>
+<li>Main: the middle finishing ring at Z0 comes out as <code>G2 I3.961172 J3.051085 X37.345679 Y33.765433</code>, a 128° arc inside the boundary.
+PR: <code>G2 I3.961172 J3.051085 X37.345679 Y23.765433</code>, a <strong>307° clockwise arc through the right half of the hole, outside the boundary</strong>. Only the middle ring changes. Its stored <code>d</code> is 3.96e-6; the other two rings round to <code>d</code> ≈ 1e-14.</li>
+</ol>
+<p>The Helix generator writes this middle ring itself, with the same output on main and the PR, so the regression comes only from the tolerance change. The PR's own <code>cmdsForEdge()</code> split also adds many more half circles (every engraved circle becomes two), and each of them is exposed the same way after a save.</p>
+<p>Synthetic check of the same thing (semicircles at 72 start angles, G2 and G3, center at a non-round position, coordinates written with 6 decimals, read back with <code>edgeForCmd</code>):</p>
+<table>
+<thead>
+<tr>
+<th>radius</th>
+<th>main wrong-way</th>
+<th>PR wrong-way</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.5 mm</td>
+<td>0 / 144</td>
+<td>0 / 144</td>
+</tr>
+<tr>
+<td>3 mm</td>
+<td>0 / 144</td>
+<td>30 / 144</td>
+</tr>
+<tr>
+<td>10 mm</td>
+<td>0 / 144</td>
+<td>44 / 144</td>
+</tr>
+<tr>
+<td>50 mm</td>
+<td>0 / 144</td>
+<td>50 / 144</td>
+</tr>
+<tr>
+<td>200 mm</td>
+<td>0 / 144</td>
+<td>48 / 144</td>
+</tr>
+</tbody>
+</table>
+<p><code>edgeForCmd()</code> is used by the Boundary, Boundary2, Tags, Plunge Milling and Z-Correct dressups, the old simulator, Lead In/Out, the dxf/svg posts and <code>Post/Utils.py</code>. All of them read the stored base path when only the dressup is recomputed after a file is opened.</p>
+<p>A fix that keeps the issue fixed: normalize the test (<code>d / (|A|·|B|)</code> against a small angle), or decide the side from the command direction (G2/G3) together with the sign of <code>d</code>, instead of a fixed absolute limit.</p>
+<p>Screenshots: <code>main_boundary_reopened.png</code>, <code>pr_boundary_reopened.png</code>; video <code>demo.mp4</code>, steps 2-5.</p>
+<h2>From the code (not reproduced)</h2>
+<ul>
+<li><strong><code>arcToHelix()</code> keeps only the first half of arcs over 180°</strong> (Path/Geom.py:642). It takes <code>cmdsForEdge(edge)[0]</code>, which is now half the arc. Called directly, a 270° arc gives a helix ending at (-7.07, 7.07) instead of (0, -10). <code>splitEdgeAt()</code> on a 300° helix (the Tags dressup path) returns pieces 26.5 mm long instead of 52.5 mm. I did not find an operation that sends a helix over 180° through Tags splitting, so this is not shown in a toolpath.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Engrave, Deburr and Vcarve now write every full circle and every arc over 180° as two G2/G3 commands (tested: Engrave of a 20 mm hole edge goes from 9 to 11 commands, with each circle split in two).</li>
+<li>The Boundary, Boundary2 and Tags dressups now split arcs over 180° in their output the same way (tested: Boundary2 on a Helix goes from 30 to 33 arcs).</li>
+<li><code>edgeForCmd()</code> no longer treats an arc whose end is within 0.001 mm of its start as a full circle (tested: an end 1e-4 mm off still reads as a 31.416 mm circle on both, so no visible change).</li>
+</ul>
+<p>No properties, enum options, task panel widgets, defaults or file formats change.</p>
+<h2>Included from other PRs</h2>
+<p>None referenced.</p>
+<h2>Issues</h2>
+<ul>
+<li><strong>#33146: fixed.</strong> The arc the PR's test takes from the issue, <code>G2 I-2.013849 J1.305531 X-195.122314 Y57.492542</code> from (-195.121182, 57.494287), reads as a 15.08 mm full loop on main (the extra loop) and as a 0.0021 mm arc on the PR (<code>issue33146_arc_main_vs_pr.png</code>). The issue's own attachment could not be downloaded in this run, so its full Boundary2 job was not replayed.</li>
+</ul>
+<h2>Toolpaths, A/B against the PR's parent commit</h2>
+<p>I ran <code>cam_ab</code> with every CAM object recomputed and every G2/G3 rebuilt by <code>edgeForCmd</code>, both fresh and after a 6-decimal round trip, checking length and direction:</p>
+<ul>
+<li>pocket-island-variants (26 ops, 449 arcs), twp-test-block-job (16 ops, 314 arcs), class-tray-A (67 arcs): identical arc counts, no misread arcs on either side, fresh or rounded. None of these ops contain a full circle written by <code>cmdsForEdge</code>, and their half circles happen to round cleanly.</li>
+<li>Helix + Boundary on a hole at a non-round position: see defect 1.</li>
+</ul>
+<h2>Unit tests</h2>
+<p>The full CAM suite passes: 2137 tests, OK (11 skipped, 4 expected failures). <code>test20</code> gains the issue's arc and checks its length, so it does test the claim. <code>test41</code> now expects two commands for a full circle. No test covers half circles with rounded coordinates or <code>arcToHelix</code> on arcs over 180°.</p>
+<h2>Other notes (not this PR)</h2>
+<ul>
+<li>On the reopened Helix file, Boundary2 fails with <code>Part.OCCError: BRep_API: command not done</code> in <code>wiresForPath</code>. This happens on main and the PR alike.</li>
+<li>In the test FreeCAD, <code>Path.Path(&lt;G-code text with &quot;; type:'linking'&quot; annotations&gt;)</code> hung the GUI twice; building the path from <code>Path.Command</code> lines with the annotations stripped worked. I did not check this further; it has nothing to do with this PR.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
