@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="34330-mine-20261114-221236">
+<title>PR #34330 campr</title>
+<meta property="og:title" content="PR #34330: CAM: Naive offset fix zero-length paths">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/34330">FreeCAD PR #34330</a><span>1 review</span></div>
+<h1>CAM: Naive offset fix zero-length paths</h1>
+</header>
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-11-14 23:08</span><span>Review 1 · head a1733b7 · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="34330-mine-20261114-221236" data-state="final">
+<details class="run" open>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-14 23:08 · PR head a1733b72c09 · main d956ec56163 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2139 tests · OK (skipped=11, expected failures=4)</code></p>
+
+<div class="shots"><figure class="shot"><a href="1/pocket_plunges_setup.png"><img src="1/pocket_plunges_setup.png" alt="Test setup on the PR: the pocket-island pocket path. Its straight vertical plunges (red) are the moves the PR now treats as a single cleared circle in rest machining."></a><figcaption>Test setup on the PR: the pocket-island pocket path. Its straight vertical plunges (red) are the moves the PR now treats as a single cleared circle in rest machining.</figcaption></figure><figure class="shot"><a href="1/rest_facing_pr.png"><img src="1/rest_facing_pr.png" alt="PR build, top view: the facing op with Rest Machining on skips the pocket the earlier ops cleared and still faces the island top, as expected."></a><figcaption>PR build, top view: the facing op with Rest Machining on skips the pocket the earlier ops cleared and still faces the island top, as expected.</figcaption></figure></div>
+
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li>No defects found. The fix is the same <code>NaiveOffset</code> change that was checked against the crash on the issue, and it moves the existing single-point handling below the segment loop.</li>
+<li>All 2139 CAM tests pass on the PR, including the two new Thicken tests and Adaptive's <code>testRestMachining</code> (the test that aborted in #34148).</li>
+<li>One behavior change the description doesn't spell out: rest machining now counts the bottom of every straight plunge as cleared, including plunges that start above the section height. That is physically right. I could not measure it against main here.</li>
+</ul>
+<h2>What the PR does</h2>
+<ol>
+<li><code>libarea/AreaClipper.cpp</code> (<code>CArea::NaiveOffset</code>): the &quot;curve of one point → circle&quot; block moves from before the segment loop to after it, and its condition changes from <code>curve.m_vertices.size() == 1</code> to <code>cPos.m_vertices.empty()</code>. A curve made only of zero-length segments (a repeated point, or a pure Z move flattened to XY) now becomes a circle instead of reaching <code>cPos.m_vertices.front()</code> on an empty list. That call was undefined behavior, and it aborts with <code>_GLIBCXX_ASSERTIONS</code> when libstdc++ checks <code>list::front</code> (#34148).</li>
+<li><code>App/Area.cpp</code> (<code>ClearedAreaSegmentVisitor::line</code>): a move with no XY travel goes to <code>point()</code> at its lower end instead of becoming a zero-length segment.</li>
+<li>Tests: <code>test_thicken_point</code> and <code>test_thicken_zero_length</code> in <code>TestAreaOperations</code>.</li>
+</ol>
+<h2>What I checked</h2>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full CAM suite on the PR build (campr)</td>
+<td>2139 ran, OK (11 skipped, 4 expected failures)</td>
+</tr>
+<tr>
+<td><code>TestAreaOperations</code>, <code>TestPathAdaptive</code>, <code>TestPathOpUtil</code> re-run</td>
+<td>88 ran, all pass; both new tests ran</td>
+</tr>
+<tr>
+<td>New tests exercise the claim</td>
+<td>Yes: <code>[(5,5),(5,5)]</code> thickened by 2 must give one curve of area 4π, which is exactly the empty-<code>cPos</code> path</td>
+</tr>
+<tr>
+<td>pocket-island-variants (26 Pocket / Profile / MillFace ops) recomputed on the PR</td>
+<td>All recompute without errors</td>
+</tr>
+<tr>
+<td>Pocket with Rest Machining after ops that already cleared it (<code>P_Line</code>)</td>
+<td>Empty path (correct)</td>
+</tr>
+<tr>
+<td>MillFace with Rest Machining after the pockets (<code>M_default</code>)</td>
+<td>Skips the cleared pocket, still faces the island top (screenshot)</td>
+</tr>
+<tr>
+<td>Code review (<code>/code-review medium</code>)</td>
+<td>8 findings, none survive (see below)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Main vs PR toolpaths: not measured.</strong> The PR changes only C++, and <code>cam_ab</code> swaps only CAM Python, so both sides would run the same library. This bot session could not build a separate main copy of <code>libarea-native.so</code> / <code>PathApp.so</code>, or run Python probes in FreeCAD. The saved paths in pocket-island-variants differ from the PR's recompute (for example, <code>P_Helix</code> loads as ZigZag). That comes from main's own Python since the file was saved: Pocket's <code>Helix</code> clearing pattern is gone from <code>PocketBase.py</code> and falls back to the first enum. The PR touches no op Python. By the code, the only toolpath effect is in rest machining (Pocket/MillFace &quot;Use Rest Machining&quot; and Adaptive rest machining), through the extra plunge circles below.</p>
+<p>No video: there is no GUI change and no toolpath difference I could show side by side.</p>
+<h2>Code review findings (all dropped)</h2>
+<ul>
+<li>Visitor constructor enlarges its parameter <code>bbox</code>, not the member (<code>App/Area.cpp:693-699</code>), so the stored box is never widened by the radius. Real, but <strong>also on main</strong>, and the PR doesn't make it worse: plunges went through the same unwidened box before.</li>
+<li>Exact <code>len == 0</code> / <code>sRadius == 0</code> tests (<code>AreaClipper.cpp:437, 459</code>): unchanged code, also on main.</li>
+<li>An arc with zero start radius as the only segment now becomes a circle: malformed input no CAM op produces; before, it hit the same undefined <code>front()</code> call.</li>
+<li>&quot;Negative offset of a point is empty&quot; comment vs <code>OpenOffset(-r)</code>: wrong. <code>NaiveOffset</code> always receives <code>abs(offset)</code>, and single-point curves behaved this way on main already.</li>
+<li>No tests for Offset/OpenOffset or for the cleared-area change, plus two duplication cleanups: not defects.</li>
+</ul>
+<h2>From the code (not reproduced)</h2>
+<p>None.</p>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Rest machining (Pocket, MillFace, Adaptive) now counts a straight plunge's bottom circle as cleared even when the plunge starts above the section height. Before, such moves were skipped entirely, because both ends had to be at or below it. Ramps and helixes that cross that height are still skipped (as on main). (tested on the PR only: rest-machining ops recompute correctly; not compared with main)</li>
+<li><code>Area.Offset()</code> / <code>OpenOffset()</code> (Python API) on a curve of only zero-length segments now return a circle instead of hitting undefined behavior, not just <code>Thicken()</code>. (not tested)</li>
+</ul>
+<p>No properties, enums, panels, defaults or file format change.</p>
+<h2>Issues</h2>
+<ul>
+<li>#34148 (CAM test suite aborts under <code>_GLIBCXX_ASSERTIONS</code>): <strong>not tested on this build.</strong> Reproducing it needs a libstdc++ with <code>list::front</code> checks plus <code>-D_GLIBCXX_ASSERTIONS</code>, which this build doesn't have. The <code>NaiveOffset</code> change is the same logic as the patch that cleared the abort under assertions in the earlier repro on the issue. <code>testRestMachining</code> and the new regression test pass here.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated reviews by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, reviews written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviewed PRs</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>

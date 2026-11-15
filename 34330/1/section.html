@@ -1,0 +1,86 @@
+<section class="review" id="review-1" data-job="34330-mine-20261114-221236" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-14 23:08 · PR head a1733b72c09 · main d956ec56163 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2139 tests · OK (skipped=11, expected failures=4)</code></p>
+
+<div class="shots"><figure class="shot"><a href="1/pocket_plunges_setup.png"><img src="1/pocket_plunges_setup.png" alt="Test setup on the PR: the pocket-island pocket path. Its straight vertical plunges (red) are the moves the PR now treats as a single cleared circle in rest machining."></a><figcaption>Test setup on the PR: the pocket-island pocket path. Its straight vertical plunges (red) are the moves the PR now treats as a single cleared circle in rest machining.</figcaption></figure><figure class="shot"><a href="1/rest_facing_pr.png"><img src="1/rest_facing_pr.png" alt="PR build, top view: the facing op with Rest Machining on skips the pocket the earlier ops cleared and still faces the island top, as expected."></a><figcaption>PR build, top view: the facing op with Rest Machining on skips the pocket the earlier ops cleared and still faces the island top, as expected.</figcaption></figure></div>
+
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li>No defects found. The fix is the same <code>NaiveOffset</code> change that was checked against the crash on the issue, and it moves the existing single-point handling below the segment loop.</li>
+<li>All 2139 CAM tests pass on the PR, including the two new Thicken tests and Adaptive's <code>testRestMachining</code> (the test that aborted in #34148).</li>
+<li>One behavior change the description doesn't spell out: rest machining now counts the bottom of every straight plunge as cleared, including plunges that start above the section height. That is physically right. I could not measure it against main here.</li>
+</ul>
+<h2>What the PR does</h2>
+<ol>
+<li><code>libarea/AreaClipper.cpp</code> (<code>CArea::NaiveOffset</code>): the &quot;curve of one point → circle&quot; block moves from before the segment loop to after it, and its condition changes from <code>curve.m_vertices.size() == 1</code> to <code>cPos.m_vertices.empty()</code>. A curve made only of zero-length segments (a repeated point, or a pure Z move flattened to XY) now becomes a circle instead of reaching <code>cPos.m_vertices.front()</code> on an empty list. That call was undefined behavior, and it aborts with <code>_GLIBCXX_ASSERTIONS</code> when libstdc++ checks <code>list::front</code> (#34148).</li>
+<li><code>App/Area.cpp</code> (<code>ClearedAreaSegmentVisitor::line</code>): a move with no XY travel goes to <code>point()</code> at its lower end instead of becoming a zero-length segment.</li>
+<li>Tests: <code>test_thicken_point</code> and <code>test_thicken_zero_length</code> in <code>TestAreaOperations</code>.</li>
+</ol>
+<h2>What I checked</h2>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Full CAM suite on the PR build (campr)</td>
+<td>2139 ran, OK (11 skipped, 4 expected failures)</td>
+</tr>
+<tr>
+<td><code>TestAreaOperations</code>, <code>TestPathAdaptive</code>, <code>TestPathOpUtil</code> re-run</td>
+<td>88 ran, all pass; both new tests ran</td>
+</tr>
+<tr>
+<td>New tests exercise the claim</td>
+<td>Yes: <code>[(5,5),(5,5)]</code> thickened by 2 must give one curve of area 4π, which is exactly the empty-<code>cPos</code> path</td>
+</tr>
+<tr>
+<td>pocket-island-variants (26 Pocket / Profile / MillFace ops) recomputed on the PR</td>
+<td>All recompute without errors</td>
+</tr>
+<tr>
+<td>Pocket with Rest Machining after ops that already cleared it (<code>P_Line</code>)</td>
+<td>Empty path (correct)</td>
+</tr>
+<tr>
+<td>MillFace with Rest Machining after the pockets (<code>M_default</code>)</td>
+<td>Skips the cleared pocket, still faces the island top (screenshot)</td>
+</tr>
+<tr>
+<td>Code review (<code>/code-review medium</code>)</td>
+<td>8 findings, none survive (see below)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Main vs PR toolpaths: not measured.</strong> The PR changes only C++, and <code>cam_ab</code> swaps only CAM Python, so both sides would run the same library. This bot session could not build a separate main copy of <code>libarea-native.so</code> / <code>PathApp.so</code>, or run Python probes in FreeCAD. The saved paths in pocket-island-variants differ from the PR's recompute (for example, <code>P_Helix</code> loads as ZigZag). That comes from main's own Python since the file was saved: Pocket's <code>Helix</code> clearing pattern is gone from <code>PocketBase.py</code> and falls back to the first enum. The PR touches no op Python. By the code, the only toolpath effect is in rest machining (Pocket/MillFace &quot;Use Rest Machining&quot; and Adaptive rest machining), through the extra plunge circles below.</p>
+<p>No video: there is no GUI change and no toolpath difference I could show side by side.</p>
+<h2>Code review findings (all dropped)</h2>
+<ul>
+<li>Visitor constructor enlarges its parameter <code>bbox</code>, not the member (<code>App/Area.cpp:693-699</code>), so the stored box is never widened by the radius. Real, but <strong>also on main</strong>, and the PR doesn't make it worse: plunges went through the same unwidened box before.</li>
+<li>Exact <code>len == 0</code> / <code>sRadius == 0</code> tests (<code>AreaClipper.cpp:437, 459</code>): unchanged code, also on main.</li>
+<li>An arc with zero start radius as the only segment now becomes a circle: malformed input no CAM op produces; before, it hit the same undefined <code>front()</code> call.</li>
+<li>&quot;Negative offset of a point is empty&quot; comment vs <code>OpenOffset(-r)</code>: wrong. <code>NaiveOffset</code> always receives <code>abs(offset)</code>, and single-point curves behaved this way on main already.</li>
+<li>No tests for Offset/OpenOffset or for the cleared-area change, plus two duplication cleanups: not defects.</li>
+</ul>
+<h2>From the code (not reproduced)</h2>
+<p>None.</p>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Rest machining (Pocket, MillFace, Adaptive) now counts a straight plunge's bottom circle as cleared even when the plunge starts above the section height. Before, such moves were skipped entirely, because both ends had to be at or below it. Ramps and helixes that cross that height are still skipped (as on main). (tested on the PR only: rest-machining ops recompute correctly; not compared with main)</li>
+<li><code>Area.Offset()</code> / <code>OpenOffset()</code> (Python API) on a curve of only zero-length segments now return a circle instead of hitting undefined behavior, not just <code>Thicken()</code>. (not tested)</li>
+</ul>
+<p>No properties, enums, panels, defaults or file format change.</p>
+<h2>Issues</h2>
+<ul>
+<li>#34148 (CAM test suite aborts under <code>_GLIBCXX_ASSERTIONS</code>): <strong>not tested on this build.</strong> Reproducing it needs a libstdc++ with <code>list::front</code> checks plus <code>-D_GLIBCXX_ASSERTIONS</code>, which this build doesn't have. The <code>NaiveOffset</code> change is the same logic as the patch that cleared the abort under assertions in the earlier repro on the issue. <code>testRestMachining</code> and the new regression test pass here.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
