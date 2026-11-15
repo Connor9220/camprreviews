@@ -1,5 +1,15 @@
 [
  {
+  "pr": 33938,
+  "run": 1,
+  "job": "33938-mine-20261114-221237",
+  "title": "CAM_Adaptive use RampFeed for helix entry",
+  "date": "2026-11-14 23:36",
+  "requester": "Connor9220",
+  "poster": true,
+  "head": "55f9a41075f"
+ },
+ {
   "pr": 33954,
   "run": 1,
   "job": "33954-mine-20261114-231639",

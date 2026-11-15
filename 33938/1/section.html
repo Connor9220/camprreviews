@@ -1,0 +1,131 @@
+<section class="review" id="review-1" data-job="33938-mine-20261114-221237" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-14 23:36 · PR head 55f9a41075f · main d956ec56163 · requested by @Connor9220</span></summary>
+<div class="body">
+
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2144 tests · OK (skipped=11, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Old test file (saved by main) opened on the PR: the Adaptive op is migrated to Helix Feed Version 0 and its helix drops from 180 to 59.4 in/min (Vertical feed); setting Ramp feed does nothing until Helix Feed Version is set to 1, then the helix, finish circle and the straight move down all run at Ramp feed.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Old file (saved by main) opened on the PR</span><span class="det">Adaptive Top Pocket gets a new property: Helix Feed Version = 0</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="7.55"><span class="t">0:07</span><span><span class="cap">Old ops now run the helix at the Vertical feed</span><span class="det">main: helix at 180 in/min (Horizontal feed). PR: 59.4 in/min (Vertical feed). Cycle 2:12 -&gt; 2:20</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="12.55"><span class="t">0:12</span><span><span class="cap">Set the tool controller&#x27;s Ramp feed to 30 in/min</span><span class="det">The old op still uses the Vertical feed (59.4 in/min) for its helix</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="17.55"><span class="t">0:17</span><span><span class="cap">Opt in: Helix Feed Version = 1</span><span class="det">Helix and finish circle now run at Ramp feed (30 in/min); clearing stays at 180</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="26.05"><span class="t">0:26</span><span><span class="cap">The straight move down to the helix start also takes Ramp feed</span><span class="det">First move of each helix block is a vertical G1; main gives it the Vertical feed</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/adaptive_top_pocket_path.png"><img src="1/adaptive_top_pocket_path.png" alt="The Adaptive Top Pocket toolpath used for the tests (twp test block, model at 80% transparency); the two vertical lines at the right lead down to the helical entry."></a><figcaption>The Adaptive Top Pocket toolpath used for the tests (twp test block, model at 80% transparency); the two vertical lines at the right lead down to the helical entry.</figcaption></figure><figure class="shot"><a href="1/helix_feeds_report.png"><img src="1/helix_feeds_report.png" alt="Report view: helix-block feeds of the same Adaptive op on main, on the PR after migration (version 0), and on the PR after opting in (version 1, Ramp feed 30 in/min). The Property View shows the new Helix Feed Version property."></a><figcaption>Report view: helix-block feeds of the same Adaptive op on main, on the PR after migration (version 0), and on the PR after opting in (version 1, Ramp feed 30 in/min). The Property View shows the new Helix Feed Version property.</figcaption></figure><figure class="shot"><a href="1/legacy_op_property.png"><img src="1/legacy_op_property.png" alt="Old Adaptive op on the PR: the new, editable Helix Feed Version = 0 property in the Adaptive Helix Entry group."></a><figcaption>Old Adaptive op on the PR: the new, editable Helix Feed Version = 0 property in the Adaptive Helix Entry group.</figcaption></figure><figure class="shot"><a href="1/tc_rampfeed_tooltip.png"><img src="1/tc_rampfeed_tooltip.png" alt="Tool Controller Editor: the new Ramp feed tooltip, &#x27;Feed rate for ramp and helical entry moves&#x27;."></a><figcaption>Tool Controller Editor: the new Ramp feed tooltip, &#x27;Feed rate for ramp and helical entry moves&#x27;.</figcaption></figure></div>
+
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li>Fixes #33470 for new Adaptive operations: the helical entry now runs at the tool controller's Ramp feed, and the clearing keeps the Horizontal feed.</li>
+<li>Minor defect: the straight vertical move down to the start of each helix also gets the Ramp feed. Before the PR it used the Vertical feed. With the default Ramp feed (= Horizontal feed), that plunge now runs at the Horizontal feed.</li>
+<li>Not in the description: existing Adaptive operations opened on the PR switch their helix from the Horizontal feed (main) to the Vertical feed. On the test block that is 180 to 59.4 in/min and adds 8 s of cycle time. They also get a new, visible &quot;Helix Feed Version&quot; property.</li>
+</ul>
+<h2>What was checked</h2>
+<ul>
+<li>PR diff (3 commits: <code>CAM: Use RampFeed for Adaptive helical entry</code>, <code>CAM: Add migration for CAM_Adaptive changed Helix feed rate</code>, <code>CAM: Review comments</code>), the description and the whole review thread. #34184 is only cited as a similar approach; its changes are not in this diff.</li>
+<li><code>/code-review medium 33938</code>; each finding was checked in FreeCAD or dropped (see below).</li>
+<li>A/B against the PR base (<code>HEAD~3</code>) and <code>main</code> with <code>cam_ab</code>, on:
+<ul>
+<li><code>twp-test-block-job.FCStd</code> (saved by main, two Adaptive ops: Adaptive Top Pocket and Adaptive Facet30 Pocket on a 30 degree work plane),</li>
+<li>a new Adaptive op built on the <code>pocket-island-job-only</code> job with HorizFeed 1000, VertFeed 100, RampFeed 300 mm/min.</li>
+</ul>
+</li>
+<li>GUI on the review build: the old file opened with the CAM workbench, the Property View, the Tool Controller Editor, and opting in through the Property View.</li>
+<li>Unit tests: the full CAM suite.</li>
+</ul>
+<h2>Findings</h2>
+<h3>Straight move down to the helix start now uses the Ramp feed (minor)</h3>
+<p><code>_applyFeedRate(helixCommands, entryFeed)</code> (<code>src/Mod/CAM/Path/Op/Adaptive.py:282</code>) overwrites F on every G1/G2/G3 of the helix block. That includes <code>helixCommands[2]</code>, the straight <code>G1 Z&lt;pass start&gt;</code> from Safe Height down to the top of the helix. Before the PR, <code>PathFeedRate.setFeedRate</code> classified that move as vertical and gave it VertFeed. On new ops it now gets RampFeed. A new tool controller's RampFeed is the expression <code>HorizFeed</code>, so by default the vertical plunge runs at the horizontal feed.</p>
+<p>New op, pocket-island job, HorizFeed 1000 / VertFeed 100 / RampFeed 300 mm/min:</p>
+<table>
+<thead>
+<tr>
+<th>first helix-block move <code>G1 Z23.175</code></th>
+<th>PR base</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>feed</td>
+<td>100 mm/min (VertFeed)</td>
+<td>300 mm/min (RampFeed)</td>
+</tr>
+<tr>
+<td>helix arcs</td>
+<td>1000 mm/min (HorizFeed)</td>
+<td>300 mm/min (RampFeed)</td>
+</tr>
+<tr>
+<td>clearing</td>
+<td>1000</td>
+<td>1000</td>
+</tr>
+<tr>
+<td>op cycle time</td>
+<td>10:07</td>
+<td>10:26</td>
+</tr>
+</tbody>
+</table>
+<p>On the twp block after opting in (version 1, RampFeed 30 in/min) the same move runs at 30 in/min, against 59.4 (VertFeed) on main. The move usually ends at stock top or inside the bore cut by the previous pass, so it is mostly in air. It is still a straight Z feed that ignores the Vertical feed, and the PR only meant to change the helix. Skipping the first mill move (or only overwriting moves that change XY) would keep VertFeed there.</p>
+<p>Repro:</p>
+<ol>
+<li>Create a new Adaptive op with a tool controller where Ramp feed differs from Vertical feed.</li>
+<li>Recompute and look at the first G1 after <code>(Helix to depth: ...)</code>: it is a Z-only move at the Ramp feed.</li>
+</ol>
+<h3>From the code (not reproduced)</h3>
+<ul>
+<li><code>src/Mod/CAM/CAMTests/TestPathAdaptive.py:1329-1335</code>: after <code>adaptive.HelixFeedVersion = 1</code> the test reads <code>helixFeeds, _ = ...</code> and then asserts on <code>adaptiveFeeds</code> left over from the version 0 run. The last two assertions never check the clearing feeds after opting in.</li>
+<li><code>src/Mod/CAM/Path/Op/Adaptive.py:166-172</code>: <code>HelixFeedVersion</code> is a free integer whose tooltip is not wrapped in <code>QT_TRANSLATE_NOOP</code> like the other Adaptive properties. Any non-zero value (2, -1) means &quot;use RampFeed&quot;. A boolean or a two-item enumeration would be clearer for the users who see it on old ops.</li>
+</ul>
+<p>Dropped: an early <code>recompute()</code> in <code>Base.onDocumentRestored</code> before <code>opOnDocumentRestored</code> adds the property. It only applies to very old files with a LinkSubList Base, and the same applies to <code>HelixConeAngle</code> on main. Also dropped: the redundant <code>setFeedRate</code> pass and the over-broad migration tests, which are cleanups, not defects.</p>
+<h2>Not in the PR description</h2>
+<p>The description says the Ramp feed tooltip &quot;is now the only user visible change in the UI&quot;. The diff also brings:</p>
+<ul>
+<li>
+<p><strong>Old Adaptive ops change their helix feed (tested).</strong> Any Adaptive op saved without <code>HelixFeedVersion</code> (all files from main / 26.3rc) is migrated to version 0, which uses VertFeed for the whole helix block. On main since #22357 the helix arcs use HorizFeed. On <code>twp-test-block-job.FCStd</code> (HorizFeed 180, VertFeed 59.4 in/min):</p>
+<table>
+<thead>
+<tr>
+<th>op</th>
+<th>main helix feeds</th>
+<th>PR helix feeds</th>
+<th>cycle time main / PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Adaptive Top Pocket</td>
+<td>59.4 (straight move) + 180 (arcs)</td>
+<td>59.4</td>
+<td>2:12 / 2:20</td>
+</tr>
+<tr>
+<td>Adaptive Facet30 Pocket</td>
+<td>59.4 + 180</td>
+<td>59.4</td>
+<td>0:21 / 0:24</td>
+</tr>
+</tbody>
+</table>
+<p>Clearing feeds are unchanged (180). This matches what reviewers asked for in the thread (restore the 1.1 behavior). But the code comment &quot;Operations saved without a version retain their legacy entry feed&quot; is only true against 1.1, not against main or 26.3rc files, and users opening those files get a slower helix without notice.</p>
+</li>
+<li>
+<p><strong>New property <code>Helix Feed Version</code> (group &quot;Adaptive Helix Entry&quot;) (tested).</strong> It is visible and editable on migrated ops (0) and hidden on new ops (1). Setting it to 1 on an old op switches the helix to RampFeed. Checked in the Property View and on a scripted new op (<code>HelixFeedVersion = 1</code>, editor mode Hidden).</p>
+</li>
+<li>
+<p><strong>The flat finish circle at the bottom of the helix and the straight move down to it use the entry feed (tested).</strong> See the finding above.</p>
+</li>
+<li>
+<p><strong>The connecting spiral used with Helix Cone Angle &gt; 0 also uses the entry feed (not tested in FreeCAD).</strong> Only the new unit test covers it.</p>
+</li>
+</ul>
+<h2>Issues</h2>
+<ul>
+<li>#33470 (Adaptive: no separate feed for the helical plunge): <strong>fixed for new ops.</strong> On the base, a new op's helix used VertFeed and HorizFeed (100 / 1000 mm/min) with no separate control. On the PR it follows RampFeed (300) while the clearing stays at 1000. Old ops need Helix Feed Version set to 1 first (shown in the video).</li>
+</ul>
+<h2>Unit tests</h2>
+<p>Full CAM suite: 2144 tests, OK (11 skipped, 4 expected failures). New tests: <code>TestPathAdaptive.testHelixEntryUsesRampFeed</code> (tests the claim: helix at RampFeed, clearing unchanged, legacy at VertFeed, opt-in) and <code>TestAdaptiveHelixFeedMigration</code> (6 tests, all pass). Several of the migration tests check tool-controller state that the current code never touches, which is left over from an earlier design.</p>
+<h2>GUI</h2>
+<ul>
+<li>Tool Controller Editor: the Ramp feed field shows the new tooltip, and the field is enabled.</li>
+<li>Property View on an old op: <code>Helix Feed Version = 0</code> under Adaptive Helix Entry. Changing it to 1 through the Property View and recomputing moves the helix to the Ramp feed (30 in/min) and leaves the clearing at 180 in/min.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
