@@ -196,15 +196,11 @@ block.</li>
 tool-controller and pose-change items with their pre-lines), or give those items their own blocks
 as the legacy exporter did.</p>
 <h2>From the code (not reproduced)</h2>
-<ul>
-<li><code>src/Mod/CAM/Path/Post/Processor.py:2899</code>: <code>export2()</code> now uses the return value of
-<code>_expand_bcnc_commands()</code>, which the docstring calls overridable. An out-of-tree post that
-overrides it and edits in place (returning <code>None</code>) now fails in <code>_expand_pre_item()</code>. No in-tree
-post overrides it.</li>
-</ul>
+<p>None.</p>
 <p>Dropped from the code review: the last operation's post-operation lines staying in its own block
-(correct; tool return is emitted with each tool change, not at the end), test-strength and
-docstring/style remarks.</p>
+(correct; tool return is emitted with each tool change, not at the end), <code>export2()</code> now keeping
+the list <code>_expand_bcnc_commands()</code> returns (it always built and returned a new list; dropping it
+was the bug), test-strength and docstring/style remarks.</p>
 <h2>Prior run (same PR head 4779c06bcb0)</h2>
 <ul>
 <li>&quot;Tool changes land in the previous operation's block&quot;: <strong>still there, now reproduced.</strong></li>
@@ -218,8 +214,6 @@ there, now reproduced</strong> (G68.2 / G53.1 and G54/G55 both shown above).</li
 (tested).</li>
 <li>The operation block header now comes before the pre-operation lines (tested).</li>
 <li>The <code>post_amble</code> block moved from after to before the post-job and postamble lines (tested).</li>
-<li><code>_expand_bcnc_commands()</code> must now return the postable list; overrides returning <code>None</code> break
-posting (not tested; no in-tree override).</li>
 </ul>
 <h2>Media</h2>
 <ul>
