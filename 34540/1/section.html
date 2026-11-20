@@ -1,0 +1,91 @@
+<section class="review" id="review-1" data-job="34540-7050308041" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-20 16:27 · PR head ee62c01efda · main 33a22d8bb12 · requested by @davidgilkaufman</span></summary>
+<div class="body">
+<section class="notes"><h2>Requested by @davidgilkaufman</h2><p>please</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2230 tests · OK (skipped=11, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>CAM Area sections every 3 mm through a plate built like a STEP import: main (red) misses the bottom outline at Z 0, the PR (green) has it; regular ops are unchanged.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Test plate built like a STEP import</span><span class="det">B-spline faces, 1e-5 mm edge tolerance; pocket with a round island, 12 mm tall</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="5.65"><span class="t">0:05</span><span><span class="cap">main: CAM Area sections every 3 mm (red)</span><span class="det">Levels at Z 9, 6, 3 only: the bottom outline at Z 0 is missing</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="10.15"><span class="t">0:10</span><span><span class="cap">PR #34540: same sections (green)</span><span class="det">Levels at Z 9, 6, 3 and 0: the bottom outline is back</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="14.65"><span class="t">0:14</span><span><span class="cap">Overlay: thick red = main, thin green = PR</span><span class="det">Every level has a red border except the bottom loop: only the PR finds it</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="19.15"><span class="t">0:19</span><span><span class="cap">Pocket, 3D Pocket, Profile and the test models: same toolpaths on main and PR</span><span class="det">Those ops already got their bottom level on main in these tests</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="24.15"><span class="t">0:24</span><span><span class="cap">Done</span><span class="det"></span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/area_sections_main.png"><img src="1/area_sections_main.png" alt="main: sections at Z 9, 6 and 3 only; no outline at the bottom of the plate."></a><figcaption>main: sections at Z 9, 6 and 3 only; no outline at the bottom of the plate.</figcaption></figure><figure class="shot"><a href="1/area_sections_overlay.png"><img src="1/area_sections_overlay.png" alt="Overlay, thick red = main, thin green = PR: every level has a red border except the bottom loop."></a><figcaption>Overlay, thick red = main, thin green = PR: every level has a red border except the bottom loop.</figcaption></figure><figure class="shot"><a href="1/area_sections_pr.png"><img src="1/area_sections_pr.png" alt="PR #34540: the same sections plus the bottom outline at Z 0."></a><figcaption>PR #34540: the same sections plus the bottom outline at Z 0.</figcaption></figure><figure class="shot"><a href="1/setup_pr_paths.png"><img src="1/setup_pr_paths.png" alt="Test setup: the imported-style plate with its Profile toolpath (Z 8, 4, 0), the same on main and the PR."></a><figcaption>Test setup: the imported-style plate with its Profile toolpath (Z 8, 4, 0), the same on main and the PR.</figcaption></figure></div>
+
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>No defects found.</strong> The new face lookup gave the same or better section outlines than main in every case tried.</li>
+<li><strong>The fix works:</strong> on a plate built like a STEP import (B-spline faces, loose tolerance), main's CAM Area sectioning drops the bottom outline. With the PR it is back.</li>
+<li><strong>No change to normal jobs:</strong> every op in the four prepared test documents, plus Profile, Pocket and 3D Pocket on the imported-style plate, gives the same toolpath on main and the PR.</li>
+</ul>
+<p>The requester's note (&quot;please&quot;) asked for nothing beyond a normal review.</p>
+<h2>What the PR changes</h2>
+<p>One function: <code>Part::CrossSection::sliceSolid</code> (<code>src/Mod/Part/App/CrossSection.cpp</code>). Before, after cutting the solid with a half-space, it looked through every planar face of the result and kept those lying on the slice plane within the edge tolerance plus fuzz. Now it asks the boolean for the images of the half-space face (<code>mkCut.Modified(face)</code>) and uses those faces' wires.</p>
+<p>Who uses it: CAM's Area sectioning (<code>Area::makeSections</code> in <code>src/Mod/CAM/App/Area.cpp</code>), so Pocket, 3D Pocket, MillFace, Profile with slicing, and the CAM Area feature. It also feeds the C++ <code>TopoShape::slice</code>. Python's <code>Shape.slice</code> and the Part Cross-sections tool go through <code>TopoCrossSection</code> (element-map version), which this PR does not touch.</p>
+<h2>Reproducing the claim</h2>
+<p>The forum model could not be downloaded on this machine, so I built a stand-in: a 100 x 60 x 12 mm plate with rounded corners, a 60 x 30 x 6 mm filleted pocket and a 10 mm round island, converted to B-spline faces (<code>toNurbs()</code>) with its tolerance raised to 1e-5 mm, as many STEP imports come in.</p>
+<p>CAM Area sections of the plate (SectionMode BoundBox, SectionCount -1), main build vs PR build:</p>
+<table>
+<thead>
+<tr>
+<th>Step-down</th>
+<th>main levels (Z)</th>
+<th>PR levels (Z)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4 mm</td>
+<td>8, 4</td>
+<td>8, 4, <strong>0</strong></td>
+</tr>
+<tr>
+<td>3 mm</td>
+<td>9, 6, 3</td>
+<td>9, 6, 3, <strong>0</strong></td>
+</tr>
+<tr>
+<td>2 mm</td>
+<td>10, 8, 6, 4, 2</td>
+<td>10, 8, 6, 4, 2, <strong>0</strong></td>
+</tr>
+</tbody>
+</table>
+<p>At every step-down, main loses the bottom section: the &quot;bottom pass missing&quot; from the forum thread. The PR restores it (one wire, 5978.5 mm², the full plate outline). See <code>area_sections_main.png</code>, <code>area_sections_pr.png</code>, <code>area_sections_overlay.png</code> and the video.</p>
+<p>The same pattern shows in a direct slicer probe: a stepped solid converted to B-spline with tolerance 1e-5 or 1e-3, and a B-spline pocket with an island, return an empty section at the bottom on main and the full 2000 mm² outline on the PR. At 1e-7 tolerance both agree.</p>
+<h2>Main vs PR (all with <code>--build-a</code> = main's own C++)</h2>
+<ul>
+<li><strong>pocket-island-variants</strong> (26 ops: every Pocket pattern, finishing, helix ramp, Profile multi-pass, ramps, MillFace): IDENTICAL.</li>
+<li><strong>class-tray A and B</strong>: IDENTICAL.</li>
+<li><strong>twp-test-block-job</strong> (16 ops on four work planes): IDENTICAL. &quot;Face Top: No shape found at final depth&quot; fails on both builds.</li>
+<li><strong>planar-pocket-floor</strong>: IDENTICAL.</li>
+<li><strong>imported-style plate</strong> with Profile (Z 8/4/0), Pocket Shape and 3D Pocket on the pocket floor (Z 10/8/6): IDENTICAL. These ops already get their bottom level on main. Profile projects instead of slicing, and the pocket removal solids get plain planar floors, so the missing-section case does not reach them in this model.</li>
+<li><strong>Slicer probe</strong>, Area sections at, just above and just below existing faces: box top and bottom, a step ledge, a pocket floor, an island top, a filleted pocket, a cone, a sphere, a torus, a tilted box, a two-solid compound, ledges tilted by 1e-6 and 1e-5 rad with 1e-4 tolerance. All the same on both builds, except:
+<ul>
+<li>the B-spline/loose-tolerance bottoms above (fixed by the PR);</li>
+<li>a ledge 5e-6 mm above the slice with 2e-5 edge tolerance: same 2000 mm² area, but the PR returns a clean 4-edge rectangle where main returned 6 edges.</li>
+</ul>
+</li>
+</ul>
+<h2>Unit tests</h2>
+<p>The full CAM suite passes: 2230 tests OK (11 skipped, 4 expected failures). The PR adds no test. A regression test slicing a B-spline, loose-tolerance solid at its bottom (as above) would protect this against future OCC changes; this is the third rework of this check.</p>
+<h2>From the code (not reproduced)</h2>
+<ul>
+<li><code>CrossSection.cpp:152</code>: the review asked whether <code>Modified(face)</code> could come back empty when the slice plane lies exactly on an existing face, because the boolean might keep the solid's own coplanar face. Not reproduced: slices exactly on box tops and bottoms, step ledges, pocket floors and island tops, in plain and B-spline/loose-tolerance versions, all matched main or improved on it.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Section outlines next to loose-tolerance faces can come out with fewer edges (4 instead of 6 on the ledge case above, same area). (tested)</li>
+<li>The change also reaches C++ callers of <code>TopoShape::slice</code>/<code>slices</code>. Python <code>Shape.slice</code> and the Part Cross-sections tool are not affected. (tested for Python <code>Shape.slice</code>)</li>
+<li>No properties, task panels, defaults or file format change. Saved documents open and recompute the same on both builds. (tested)</li>
+</ul>
+<h2>Notes (not caused by this PR)</h2>
+<ul>
+<li>Python <code>Shape.slice</code> uses <code>TopoCrossSection::sliceSolid</code>, which still has the old strict <code>Precision::Confusion()</code> plane test. On the imported-style plate it returns no wires at Z 1e-6 and 1e-5 on main and on the PR. Python CAM code that slices with it (Profile.py, PocketShape.py, MillFacing.py, Slot.py, Waterline/Surface support) could still miss a bottom on such models. The same idea could be applied there in a follow-up.</li>
+<li><code>#include &lt;BRep_Tool.hxx&gt;</code> in <code>CrossSection.cpp</code> is no longer used.</li>
+<li>The comment in <code>Area.cpp</code> (around line 2037) that says slicing &quot;already handles boolean tolerances correctly&quot; referred to the tolerance logic this PR removes.</li>
+</ul>
+<h2>Not tested</h2>
+<ul>
+<li>The forum thread's own baffle model: it could not be downloaded from this machine.</li>
+<li>GUI task panels: the PR changes none.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>

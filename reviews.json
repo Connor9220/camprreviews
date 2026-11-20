@@ -1,5 +1,15 @@
 [
  {
+  "pr": 34540,
+  "run": 1,
+  "job": "34540-7050308041",
+  "title": "Part/CAM: reimplement/simplify logic for finding faces from the cut plane",
+  "date": "2026-11-20 16:27",
+  "requester": "davidgilkaufman",
+  "poster": true,
+  "head": "ee62c01efda"
+ },
+ {
   "pr": 33275,
   "run": 2,
   "job": "33275-7045494046",
