@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="campr-job" content="33275-mine-20261114-221237">
+<meta name="campr-job" content="33275-7045494046">
 <title>PR #33275 campr</title>
 <meta property="og:title" content="PR #33275: CAM: Fix edgeForCmd">
-<meta property="og:image" content="1/poster.jpg">
+<meta property="og:image" content="2/poster.jpg">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
@@ -62,12 +62,141 @@ footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); p
 <body>
 <div class="wrap">
 <header style="display:grid;gap:6px">
-<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33275">FreeCAD PR #33275</a><span>1 review</span></div>
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/33275">FreeCAD PR #33275</a><span>2 reviews</span></div>
 <h1>CAM: Fix edgeForCmd</h1>
 </header>
-<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-11-14 23:57</span><span>Review 1 · head 4c0a91f · requested by @Connor9220</span></a></li></ol></nav>
-<section class="review" id="review-1" data-job="33275-mine-20261114-221237" data-state="final">
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-2"><span class="t">2026-11-20 12:30</span><span>Review 2 · head 8cf9a2c · requested by @davidgilkaufman</span></a></li><li><a href="#review-1"><span class="t">2026-11-14 23:57</span><span>Review 1 · head 4c0a91f · requested by @Connor9220</span></a></li></ol></nav>
+<section class="review" id="review-2" data-job="33275-7045494046" data-state="final">
 <details class="run" open>
+<summary><span class="rn">Review 2</span><span class="meta">2026-11-20 12:30 · PR head 8cf9a2c4b15 · main e046e64dd31 · requested by @davidgilkaufman</span></summary>
+<div class="body">
+<section class="notes"><h2>Requested by @davidgilkaufman</h2><p>I think it&#x27;s updated since your last review, please look again, check for the problem you found before, check a lot of edge cases in general. Including the effects of save/load rounding, I guess, and small arcs, and nearly complete circles, and actually complete circles. I&#x27;m surprised half circles are an edge case, but i guess it makes sense given the strategy to split at half circle if it&#x27;s more than a half circle, so look at the code for where splits happen and test edge cases around that valu</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2223 tests · OK (skipped=11, expected failures=4)</code></p>
+<figure class="player"><video id="vid-2" src="2/demo.mp4" controls preload="metadata" playsinline poster="2/poster.jpg"></video><figcaption>Deburr on a rotated plate, saved and reopened: a Boundary2 dressup that covers the whole job reverses hole 3 to counter-clockwise on this PR, because the PR reads the saved half circle as the opposite half.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-2" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Deburr on three holes, plate rotated 23 degrees</span><span class="det">On this PR each hole is written as two half-circle G2 moves. The file was saved and reopened.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="7.65"><span class="t">0:07</span><span><span class="cap">Hole 3 (upper right): Deburr cuts it clockwise (G2)</span><span class="det">Blue arrows: the Deburr operation&#x27;s own direction.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="14.65"><span class="t">0:14</span><span><span class="cap">Add a Boundary2 dressup whose box covers the whole job</span><span class="det">Nothing should change. On this PR, hole 3 comes out as G3: counter-clockwise (red arrows).</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="21.65"><span class="t">0:21</span><span><span class="cap">Main reads the saved first half circle as the near half, clockwise</span><span class="det">Blue: main&#x27;s edgeForCmd on the stored 6-decimal G2 command, as it was cut.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-2" data-t="28.65"><span class="t">0:28</span><span><span class="cap">The PR reads the same command as the far half, counter-clockwise</span><span class="det">Red: the PR&#x27;s edgeForCmd. Its half-circle check (1e-6) is smaller than the rounding error.</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="2/main_reads_half_circle.png"><img src="2/main_reads_half_circle.png" alt="Main: the saved first half circle of hole 3, read back by main&#x27;s code (blue). It lies on the near side and runs clockwise, as the Deburr cut it."></a><figcaption>Main: the saved first half circle of hole 3, read back by main&#x27;s code (blue). It lies on the near side and runs clockwise, as the Deburr cut it.</figcaption></figure><figure class="shot"><a href="2/pr_boundary2_hole3_reversed.png"><img src="2/pr_boundary2_hole3_reversed.png" alt="PR: Boundary2 output around hole 3 (red arrows). The whole hole now runs counter-clockwise (G3); the Deburr cut it clockwise (G2)."></a><figcaption>PR: Boundary2 output around hole 3 (red arrows). The whole hole now runs counter-clockwise (G3); the Deburr cut it clockwise (G2).</figcaption></figure><figure class="shot"><a href="2/pr_reads_half_circle.png"><img src="2/pr_reads_half_circle.png" alt="PR: the same saved G2 command, read back by the PR&#x27;s code (red). It is the far half, running counter-clockwise."></a><figcaption>PR: the same saved G2 command, read back by the PR&#x27;s code (red). It is the far half, running counter-clockwise.</figcaption></figure><figure class="shot"><a href="2/setup_deburr_rotated_plate.png"><img src="2/setup_deburr_rotated_plate.png" alt="Test setup: 120x80 plate with three holes, rotated 23 degrees, one Deburr operation (yellow). On this PR each hole is written as two half-circle G2 moves."></a><figcaption>Test setup: 120x80 plate with three holes, rotated 23 degrees, one Deburr operation (yellow). On this PR each hole is written as two half-circle G2 moves.</figcaption></figure></div>
+
+<div class="summary"><h1>Review of PR #33275 &quot;CAM: Fix edgeForCmd&quot; (head 8cf9a2c4b15)</h1>
+<h2>TL;DR</h2>
+<ul>
+<li><strong>Issue #33146 is fixed.</strong> Short arcs (0.0005 to 0.02 mm) are no longer read as full loops, whether the coordinates are exact or rounded as in a saved file.</li>
+<li><strong>Still broken: half circles in saved files can be read backwards.</strong> On this PR every full circle is written as two half circles. After a save and reopen, some of them are read as the opposite half, running the other way. A Boundary2 dressup added to a reopened Deburr cuts one hole counter-clockwise when the Deburr cut it clockwise. Main reads the same saved commands correctly.</li>
+<li><strong>Fixed by the split: arcs over 180°</strong>, including flipped ones and nearly complete circles, now come back correctly. Main reads them as the short way around.</li>
+<li><strong>Unlisted fix in the Boundary dressup:</strong> it no longer writes bare <code>G2</code> moves with no center (I/J) when it clips a helix ramp. Main does.</li>
+</ul>
+<h2>What changed since the last review (head 4c0a91fdcf5)</h2>
+<ul>
+<li>The split test is <code>isStrictlyGreater(sweep, π)</code> (1e-6 rad tolerance) instead of <code>&gt; π</code>.</li>
+<li><code>Boundary.py</code>: after clipping, the last command is renamed only when the original move was a rapid.</li>
+<li><code>arcToHelix()</code> is rewritten to build the helix directly instead of going through <code>cmdsForEdge()[0]</code> and <code>edgeForCmd()</code>.</li>
+<li>The half-circle check in <code>edgeForCmd()</code> (<code>isRoughly(d, 0)</code>, 1e-6 absolute) and the full-circle check (<code>pointsCoincide</code>, 1e-6) are unchanged.</li>
+</ul>
+<p>Status of the earlier findings:</p>
+<ul>
+<li><strong>Half circles read backwards after save: still there.</strong> The old repro (Helix plus Boundary on a hole at X37.3456789 Y28.7654321) no longer shows it, because main's Helix generator has changed and that ring now ends on a point that rounds cleanly. The cause is unchanged, and a new repro is below.</li>
+<li><strong><code>arcToHelix()</code> returning only half of an arc over 180°: fixed.</strong> <code>splitEdgeAt()</code> on 90°, 180°, 270° and 300° helixes now gives the same pieces as main (for example 18.888 + 28.332 mm for a 47.219 mm helix).</li>
+</ul>
+<h2>Defect</h2>
+<h3>Half circles from a saved file are read on the wrong side, so dressups reverse or misplace them</h3>
+<p><code>edgeForCmd()</code> treats an arc as a half circle when <code>d = A×B</code> is within 1e-6. <code>d</code> grows with R², and paths are saved as G-code with 6 decimals, so a real half circle in a reopened file has <code>|d|</code> around R·1e-6. For any radius over about 1 mm that misses the 1e-6 check. The arc then goes to the general branch, where <code>A+B</code> is just rounding noise and G2/G3 is ignored. When the noise points the wrong way, the arc is rebuilt as the other half, running the other way. Main's 0.005 limit catches these.</p>
+<p>The PR makes this more likely, not less. <code>cmdsForEdge()</code> now writes every full circle (Engrave, Deburr, Boundary/Boundary2/Tags output) as two exact half circles. Circles whose seam lies on the X axis round cleanly. Rotated ones do not.</p>
+<p>Repro (in the GUI):</p>
+<ol>
+<li>Make a 120×80×12 plate with three through holes (r 4, 10, 6.5) at non-round positions, and rotate it 23° about Z. Create a Job and add a Deburr on the three top hole edges (default 5 mm tool). Save, close, reopen.</li>
+<li>Add a Boundary2 dressup to the Deburr, with a box boundary that covers the whole job.</li>
+<li>The Deburr writes hole 3 as <code>G2 I-4.602551 J-1.953695 X82.091897 Y66.155611</code> followed by the matching second half: clockwise. On this PR the Boundary2 output for that hole is two <code>G3</code> moves, so the chamfer is cut counter-clockwise (conventional instead of climb). Nothing was clipped.</li>
+<li>With main's <code>Path/Geom.py</code> loaded in the same session and the same stored commands, Boundary2 writes hole 3 as <code>G2</code>, unchanged.</li>
+</ol>
+<p>The direct cause: <code>edgeForCmd()</code> on the stored first half (start X91.297 Y70.063) returns an arc whose middle is at (84.74, 72.71), the far side of the hole. Main returns (88.65, 63.51), the near side.</p>
+<p>How often this happens, measured:</p>
+<table>
+<thead>
+<tr>
+<th>test (6-decimal round trip, main vs PR)</th>
+<th>main</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>hand-written semicircles, 144 per radius, R 3 / 10 / 50 / 200 mm</td>
+<td>0 / 0 / 0 / 0 wrong</td>
+<td>8 / 8 / 8 / 24 wrong</td>
+</tr>
+<tr>
+<td>same with 4-decimal coordinates (imported G-code)</td>
+<td>0 / 0 / 4 / 68</td>
+<td>72 / 80 / 44 / 80</td>
+</tr>
+<tr>
+<td>rotated plate, Engrave: half circles misread</td>
+<td>(writes full circles, 0)</td>
+<td>2 of 6</td>
+</tr>
+<tr>
+<td>rotated plate, Deburr</td>
+<td>(writes full circles, 0)</td>
+<td>2 of 6</td>
+</tr>
+<tr>
+<td>rotated plate, Helix (its own half circles, same output on both)</td>
+<td>0 of 48</td>
+<td>2 of 48</td>
+</tr>
+</tbody>
+</table>
+<p>Misreads always come in pairs (both halves of one circle), so an unclipped circle comes out reversed. A clipped one keeps the wrong piece. The earlier review showed a Boundary dressup keeping a 307° arc outside its boundary this way.</p>
+<p>The same check also misfires just above the split threshold, with no rounding at all. An arc of π+5e-7 rad (R 5 or 50 mm), or π+1e-8 rad at R 50, is not split by <code>isStrictlyGreater</code> and is read back on the wrong side. Main reads both correctly.</p>
+<p>A fix that keeps #33146 fixed: test the normalized cross product (<code>d / (|A|·|B|)</code>, i.e. a small angle) instead of an absolute 1e-6, or pick the midpoint side from G2/G3 together with the sign of <code>d</code>.</p>
+<p>Screenshots: <code>setup_deburr_rotated_plate.png</code>, <code>main_reads_half_circle.png</code>, <code>pr_reads_half_circle.png</code>, <code>pr_boundary2_hole3_reversed.png</code>. Video: <code>demo.mp4</code>.</p>
+<h2>From the code (not reproduced)</h2>
+<ul>
+<li><strong><code>arcToHelix()</code> raises on a flat arc</strong> (<code>Path/Geom.py:645</code>). With <code>z0 == z1</code>, <code>Part.makeHelix</code> throws &quot;Pitch of helix too small&quot;. The old code returned a flat arc. Its only caller, <code>splitEdgeAt()</code> from the Tags dressup, splits only at points away from the start, so no operation reached it. A direct call fails for every sweep I tried.</li>
+</ul>
+<h2>Edge cases the requester asked about</h2>
+<p>All of these come from one A/B probe, main vs PR. Arcs are built by <code>cmdsForEdge()</code> or written by hand, then read back with <code>edgeForCmd()</code>, exact and rounded to 6 decimals. &quot;Correct&quot; means right length and the midpoint lies on the original arc.</p>
+<ul>
+<li><strong>Small arcs (the issue):</strong> main reads arcs of 0.0005 to 0.002 mm (R 2.4) and 0.0005 to 0.001 mm (R 10, R 100) as full circles of 15 to 628 mm. The PR reads all of them correctly, exact and rounded. Fixed.</li>
+<li><strong>Nearly complete circles from <code>cmdsForEdge</code></strong> (2π − 1e-8 up to 2π − 1e-3): main reads 2π − 0.001 as a 0.01 mm arc (it loses 31.4 mm at R 5, 314 mm at R 50). The PR splits them and reads every case correctly. Fixed.</li>
+<li><strong>Nearly complete circles written as one command</strong> (end a little off the start): main reads an end up to 0.0005 mm off as a full circle. On the PR, any end 0.000001 mm or more off is read as a zero-length arc. This follows the &quot;full circles have exactly equal end points&quot; rule from the discussion. I found no CAM producer that writes such a move, and old files keep exactly equal end points after rounding.</li>
+<li><strong>Complete circles:</strong> <code>cmdsForEdge</code> now writes two half circles. These read back correctly when the seam is on the X axis (all 72 test circles). They fail with rotated seams after a save (the defect above). A main-saved single-command full circle opened on the PR still reads as a full circle.</li>
+<li><strong>Exactly half circles and the split threshold:</strong> π − 1e-3 down to π − 1e-8: correct on both, exact and rounded. π exactly at R 50: wrong on the PR after rounding. π + 1e-8 and π + 5e-7: not split, wrong on the PR (see above). π + 1e-6 and up: split, correct on the PR. Main reads π + 1e-5 and up as the short arc (pre-existing, fixed by the split).</li>
+<li><strong><code>flip=True</code> arcs of 200°, 270° and 359°:</strong> main reads them short (6.98 to 62.5 mm missing). The PR reads them correctly. Fixed.</li>
+<li><strong><code>arcToHelix</code></strong>: 30° to 360°, CW and CCW, rising and falling: start, end and middle all match main to 0.0001 mm. Flat arcs raise (above).</li>
+</ul>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Engrave, Deburr and any op that writes circles through <code>cmdsForEdge</code> now emit full circles and arcs over 180° as two G2/G3 moves (tested: rotated-plate Deburr and Engrave, 3 to 6 arcs each).</li>
+<li>Boundary, Boundary2 and Tags dressup output is split the same way (tested on Boundary2; Boundary and Tags not retested this round).</li>
+<li>The Boundary dressup no longer turns the last straight piece of a clipped helix into a <code>G2</code>/<code>G3</code> with no I/J (tested: Helix plus Boundary, main writes 12 bare <code>G2 X Y Z</code> moves, which its own reader cannot even rebuild; the PR writes none).</li>
+<li>A single G2/G3 whose end is within 0.001 mm of its start is no longer a full circle (tested, see edge cases).</li>
+<li><code>arcToHelix()</code> is rewritten (tested, matches main except for flat arcs).</li>
+</ul>
+<p>No properties, enum options, panel widgets, defaults or file formats change.</p>
+<h2>Toolpaths, A/B against main (default settings, every op recomputed)</h2>
+<ul>
+<li>pocket-island-variants (26 ops): identical.</li>
+<li>twp-test-block-job (16 ops): identical. &quot;Face Top&quot; fails with &quot;No shape found at final depth&quot; on both sides.</li>
+<li>class-tray-A: identical.</li>
+</ul>
+<p>None of these models has a full circle or an arc over 180° written by <code>cmdsForEdge</code>, so the split does not show up in them.</p>
+<h2>Issues</h2>
+<ul>
+<li><strong>#33146: fixed.</strong> The issue's arc (from the PR's test) and every short arc I tried now read at their real length. The issue's attached file could not be downloaded in this run, so its Boundary2 job was not replayed.</li>
+</ul>
+<h2>Unit tests</h2>
+<p>Full CAM suite: 2223 tests, OK (11 skipped, 4 expected failures). <code>test20</code> adds the issue's arc and checks its length. <code>test41</code> now expects two moves for a full circle. No test covers half circles with rounded coordinates, arcs just over π, or <code>arcToHelix</code> on a flat arc.</p>
+<h2>Other notes (also on main, not this PR)</h2>
+<ul>
+<li>A single G2/G3 over 180° that was not written by <code>cmdsForEdge</code> is still read the short way around (<code>G3 X0 Y-10 I-10 J0</code> from (10, 0) reads as 15.7 mm instead of 47.1 mm). The general branch in <code>edgeForCmd()</code> ignores G2/G3 on both main and the PR. The split only protects arcs that FreeCAD writes itself.</li>
+<li>In headless runs, main's code did not finish a Boundary2 recompute on the reopened rotated-plate file within 300 to 600 s. I did not look into it further.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<section class="review" id="review-1" data-job="33275-mine-20261114-221237" data-state="final">
+<details class="run">
 <summary><span class="rn">Review 1</span><span class="meta">2026-11-14 23:57 · PR head 4c0a91fdcf5 · main d956ec56163 · requested by @Connor9220</span></summary>
 <div class="body">
 
