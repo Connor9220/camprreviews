@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="campr-job" content="34536-7048989483-r1">
+<title>PR #34536 campr</title>
+<meta property="og:title" content="PR #34536: CAM: backport Naive offset fix zero-length paths (#34330)">
+<meta property="og:image" content="1/poster.jpg">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root { --bg:#f3f5f8; --surface:#fff; --ink:#1b2330; --muted:#5b6678; --line:#d9dee7; --accent:#2f5d9e; --soft:#e3ebf6; color-scheme:light; }
+@media (prefers-color-scheme: dark) { :root { --bg:#12161d; --surface:#1a2029; --ink:#e4e8ef; --muted:#9aa5b6; --line:#2c3440; --accent:#7fa8e0; --soft:#1f2d42; color-scheme:dark; } }
+*,*::before,*::after { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.6 "IBM Plex Sans", system-ui, sans-serif; padding-inline:16px; padding-block:28px 48px; }
+.wrap { max-width:960px; margin:0 auto; display:grid; gap:22px; }
+.eyebrow { font:12px "IBM Plex Mono", ui-monospace, monospace; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); display:flex; flex-wrap:wrap; gap:6px 14px; }
+a { color:var(--accent); }
+h1 { margin:0; font-size:clamp(22px,3.2vw,30px); line-height:1.2; font-weight:600; text-wrap:balance; }
+h2 { font-size:13px; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+.req, .tests { margin:0; color:var(--muted); }
+code { font-family:"IBM Plex Mono", ui-monospace, monospace; font-size:.92em; }
+.notes { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.notes p { margin:0; white-space:pre-wrap; }
+.draft { border:2px dashed #c77d1a; border-radius:8px; padding:12px 16px; display:grid; gap:10px; }
+.draft h2 { color:#c77d1a; margin:0; }
+.draft > p { margin:0; color:var(--muted); }
+.player { margin:0; background:#000; border-radius:8px; overflow:hidden; border:1px solid var(--line); }
+.player video { display:block; width:100%; height:auto; max-width:100%; }
+figcaption { padding:8px 12px; font-size:13.5px; color:var(--muted); background:var(--surface); }
+.chapters { list-style:none; margin:0; padding:0; display:grid; gap:2px; }
+.chapter { display:grid; grid-template-columns:52px minmax(0,1fr); gap:12px; width:100%; text-align:left; background:none; border:0; border-radius:6px; padding:8px 10px; color:inherit; font:inherit; cursor:pointer; }
+.chapter:hover, .chapter[aria-current="true"] { background:var(--soft); }
+.chapter:focus-visible { outline:2px solid var(--accent); }
+.t { font-family:"IBM Plex Mono", monospace; font-size:13px; color:var(--accent); font-variant-numeric:tabular-nums; }
+.cap { display:block; font-weight:500; }
+.det { display:block; color:var(--muted); font-size:13.5px; }
+.shots { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:14px; }
+.shot { margin:0; border:1px solid var(--line); border-radius:8px; overflow:hidden; background:var(--surface); }
+.shot img { display:block; width:100%; }
+.summary { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:4px 20px; overflow-wrap:anywhere; }
+.summary pre { overflow-x:auto; background:var(--bg); padding:10px; border-radius:6px; }
+.summary table { border-collapse:collapse; display:block; overflow-x:auto; }
+.summary th, .summary td { border:1px solid var(--line); padding:4px 8px; }
+footer { color:var(--muted); font-size:13px; border-top:1px solid var(--line); padding-top:14px; }
+.toc { background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:12px 16px; }
+.toc ol { list-style:none; margin:0; padding:0; display:grid; gap:4px; }
+.toc a { display:grid; grid-template-columns:150px minmax(0,1fr); gap:12px; text-decoration:none; color:inherit; padding:4px 6px; border-radius:6px; }
+.toc a:hover, .toc a:focus-visible { background:var(--soft); }
+.review { border-top:1px solid var(--line); padding-top:18px; scroll-margin-top:12px; }
+.run { display:grid; gap:18px; }
+.run > summary { cursor:pointer; list-style:none; display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; }
+.run > summary::-webkit-details-marker { display:none; }
+.run > summary::before { content:"▸"; color:var(--accent); }
+.run[open] > summary::before { content:"▾"; }
+.rn { font-size:20px; font-weight:600; }
+.meta { font:12px "IBM Plex Mono", ui-monospace, monospace; color:var(--muted); }
+.body { display:grid; gap:18px; margin-top:14px; }
+@media (max-width:480px) { .toc a { grid-template-columns:1fr; gap:0; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+<header style="display:grid;gap:6px">
+<div class="eyebrow"><a href="https://github.com/FreeCAD/FreeCAD/pull/34536">FreeCAD PR #34536</a><span>1 review</span></div>
+<h1>CAM: backport Naive offset fix zero-length paths (#34330)</h1>
+</header>
+<nav class="toc" aria-label="Reviews"><h2>Reviews, newest first</h2><ol><li><a href="#review-1"><span class="t">2026-11-20 17:03</span><span>Review 1 · head 4f70cc0 · requested by @davidgilkaufman</span></a></li></ol></nav>
+<section class="review" id="review-1" data-job="34536-7048989483-r1" data-state="final">
+<details class="run" open>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-20 17:03 · PR head 4f70cc0795e · main d3513cc17df · requested by @davidgilkaufman</span></summary>
+<div class="body">
+<section class="notes"><h2>Requested by @davidgilkaufman</h2><p>can you check that I did this backport/resolved the merge conflict sensibly, and that it still fixes the bug?</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2185 tests · OK (skipped=13, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>36 s walkthrough: the rest-machining test setup, then the same plunge/slot/drill path with its cleared area on 26.3 (left plunge missing) and with this PR (plunge counted).</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Rest machining test: 6 mm roughing (blue), 3 mm rest pass (green)</span><span class="det">Rest passes use the cleared area of earlier ops. On this model 26.3 and the PR differ by less than 0.02 mm.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="8.55"><span class="t">0:08</span><span><span class="cap">Test path: a plunge + retract, a plunge into a short slot, a drill cycle</span><span class="det">6 mm tool. Cleared area taken below Z = 5, above the drill&#x27;s R plane.</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="17.55"><span class="t">0:17</span><span><span class="cap">FreeCAD 26.3: the plunge + retract on the left clears nothing</span><span class="det">A move with no XY travel becomes a zero-length segment; offsetting it reads an empty list (the -D_GLIBCXX_ASSERTIONS abort in #34148).</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="26.55"><span class="t">0:26</span><span><span class="cap">This PR: the plunge counts as a tool-sized circle</span><span class="det">Same path, same settings. Area 118.3 mm2 on 26.3, 147.1 mm2 with the PR.</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/main_cleared_area.png"><img src="1/main_cleared_area.png" alt="FreeCAD 26.3 (d3513cc17df): cleared area of a 6 mm path. The plunge + retract on the left counts as nothing; only the slot and the drill cycle show."></a><figcaption>FreeCAD 26.3 (d3513cc17df): cleared area of a 6 mm path. The plunge + retract on the left counts as nothing; only the slot and the drill cycle show.</figcaption></figure><figure class="shot"><a href="1/pr_cleared_area.png"><img src="1/pr_cleared_area.png" alt="This PR, same path and view: the plunge on the left now counts as a tool-sized circle."></a><figcaption>This PR, same path and view: the plunge on the left now counts as a tool-sized circle.</figcaption></figure><figure class="shot"><a href="1/setup_rest_machining.png"><img src="1/setup_rest_machining.png" alt="Test setup on the pocket-island model: 6 mm ZigZag roughing (blue) and a 3 mm rest-machining Pocket (green). The rest pass differs from 26.3 by under 0.02 mm."></a><figcaption>Test setup on the pocket-island model: 6 mm ZigZag roughing (blue) and a 3 mm rest-machining Pocket (green). The rest pass differs from 26.3 by under 0.02 mm.</figcaption></figure></div>
+
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>The backport is faithful.</strong> Apart from the conflicted doc-string context in <code>AreaParams.h</code>, its diff is line for line the same as #34330 on main. The conflict was resolved by keeping 26.3's own help text and making the same one-line move. Nothing was dropped and nothing extra came in.</li>
+<li><strong>It still fixes the bug.</strong> On 26.3, a move with no XY travel (a plunge or retract) took the code path that reads an empty list, the path behind the <code>-D_GLIBCXX_ASSERTIONS</code> abort in #34148. Such a move also cleared nothing. With the PR it clears a tool-sized circle. All four new tests fail on 26.3 and pass here, and the full CAM suite passes (2185 tests).</li>
+<li><strong>No defects found.</strong> Default-setting toolpaths are unchanged on 44 operations across three test models. A rest-machining pass moves by less than 0.02 mm.</li>
+</ul>
+<p>Requester's question (&quot;did I backport / resolve the conflict sensibly, and does it still fix the bug?&quot;): <strong>yes to both</strong>, details below.</p>
+<h2>Backport vs #34330</h2>
+<ul>
+<li>The tree is <code>releases/FreeCAD-26-3</code> at <code>d3513cc17df</code> with the PR's single commit <code>280e32a2472</code> (cherry-pick of <code>e046e64dd31</code>) on top.</li>
+<li>I compared <code>git diff e046e64dd31~1 e046e64dd31</code> (the main merge) with <code>git diff HEAD~1 HEAD</code> (the backport), with index lines and hunk offsets stripped. The only differences are three context lines in <code>src/Mod/CAM/App/AreaParams.h</code>:
+<ul>
+<li>main: <code>&quot;'Edges' means separate to edges before Union. Clipper assumes wires are\n&quot; &quot;closed unless otherwise specified.&quot;</code> and <code>&quot;Clipper operate on integers…&quot;</code></li>
+<li>26.3: <code>&quot;… ClipperLib seems to have an.\n&quot; &quot;urge to close open wires.&quot;</code> and <code>&quot;ClipperLib operate on integers…&quot;</code></li>
+</ul>
+</li>
+<li>The changed lines themselves are identical: <code>AREA_PARAMS_CLIPPER_FILL</code> comes off the end of <code>AREA_PARAMS_BASE</code> and goes onto the end of <code>AREA_PARAMS_CAREA</code>. The resolution kept 26.3's wording, which is correct for a backport. All other files (<code>App/Area.cpp</code>, <code>libarea/Area.cpp</code>, <code>Area.h</code>, <code>AreaClipper.cpp</code>, <code>pyarea.cpp</code>, both test files) match exactly.</li>
+</ul>
+<h2>Does it still fix #34148?</h2>
+<p>The issue is an abort in <code>TestPathAdaptive.testRestMachining</code> under <code>-D_GLIBCXX_ASSERTIONS</code>. <code>CArea::NaiveOffset</code> called <code>front()</code> on an empty offset curve when the input curve had only zero-length segments. I ran the PR's own checks against a full 26.3 build (<code>mainref</code>, its own C++) and against the PR build:</p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>26.3</th>
+<th>PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Thicken a one-point curve, r = 2</td>
+<td>1 curve, 12.566</td>
+<td>1 curve, 12.566</td>
+</tr>
+<tr>
+<td>Thicken a zero-length segment <code>(5,5)-(5,5)</code>, r = 2</td>
+<td><strong>0 curves</strong> (the empty-offset path)</td>
+<td>1 curve, 12.566</td>
+</tr>
+<tr>
+<td><code>getClearedArea</code>: plunge / plunge+retract / plunge+retract+plunge</td>
+<td><strong>&quot;no shape added&quot;</strong> ×3</td>
+<td>3.333 ×3 (the tool circle plus buffer)</td>
+</tr>
+<tr>
+<td><code>area.FillRule</code> exists</td>
+<td>no</td>
+<td>yes</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>With the PR, <code>testRestMachining</code>, <code>test_thicken_point</code>, <code>test_thicken_zero_length</code>, <code>test_union_duplicate_circles</code> and <code>test_cleared_area_plunge_retract</code> all pass. The full suite: <code>Ran 2185 tests … OK (skipped=13, expected failures=4)</code>.</li>
+<li>Not repeated here: the assertion-enabled build itself. Our pixi libstdc++ 13 has no <code>std::list::front</code> empty check, so it needs a patched-header rebuild. The 0-curve result above shows 26.3 still reaches that code; the PR no longer does.</li>
+</ul>
+<p>Cleared area with drill cycles and plunges, 6 mm tool, at three height limits (26.3 → PR, mm²):</p>
+<table>
+<thead>
+<tr>
+<th>Height limit</th>
+<th>G81 R2</th>
+<th>G83 R2 Q0.5</th>
+<th>Plunge + retract</th>
+<th>Plunge only</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z 0</td>
+<td>3.333 → 3.333</td>
+<td>3.333 → 3.333</td>
+<td>error → 3.333</td>
+<td>error → 3.333</td>
+</tr>
+<tr>
+<td>Z 5 (above the R plane)</td>
+<td><strong>error → 3.333</strong></td>
+<td><strong>error → 3.333</strong></td>
+<td>error → 3.333</td>
+<td>error → 3.333</td>
+</tr>
+<tr>
+<td>Z 20</td>
+<td>3.333 → 3.333</td>
+<td>3.333 → 3.333</td>
+<td>error → 3.333</td>
+<td>error → 3.333</td>
+</tr>
+</tbody>
+</table>
+<p>At Z 5, 26.3 loses the drilled hole completely: the drill cycle adds an even number of identical circles and the old EvenOdd union cancels them. The fill-rule part of the PR (<code>Positive</code> in <code>getClearedArea</code>) fixes that too.</p>
+<h2>Toolpaths: 26.3 vs PR (cam-ab, side A = full 26.3 build)</h2>
+<table>
+<thead>
+<tr>
+<th>Model</th>
+<th>Ops</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pocket-island-variants (every Pocket pattern, Profile, MillFace)</td>
+<td>26</td>
+<td>identical</td>
+</tr>
+<tr>
+<td>twp-test-block-job (adaptive, drilling, helix, profile, deburr, engrave, 4 work planes)</td>
+<td>16</td>
+<td>identical (&quot;Face Top: No shape found at final depth&quot; fails on both sides)</td>
+</tr>
+<tr>
+<td>class-tray-A (multi-pass Profile, Lead In/Out, pocket)</td>
+<td>—</td>
+<td>identical</td>
+</tr>
+<tr>
+<td>pocket-island + 3 mm rest-machining Pocket and Adaptive after the 6 mm ZigZag</td>
+<td>4</td>
+<td>rest Pocket only: 1325 → 1349 commands, feed 1803.93 → 1803.89 mm, same cycle time, matching points within 0.018 mm. Rest Adaptive identical.</td>
+</tr>
+</tbody>
+</table>
+<p>The rest-Pocket changes sit at the 6 mm roughing pass's plunge/retract spots: next to the island, near X38.98 Y35.44, and in the corner at X47 Y18. The PR now counts the tool there as cleared. Only arc splits change, by hundredths of a millimeter. The cleared-area polygons differ by a 0.001 mm² arc-fitting sliver.</p>
+<p>I also added a Custom op that plunges a 3 mm tool into the four pocket corners. The rest pass still visits the corners on both builds. That is correct: the 6 mm roughing leaves scallops along the walls beyond each plunge circle, so the 3 mm tool still has to reach them.</p>
+<h2>Code review (<code>/code-review medium 34536</code>)</h2>
+<p>The review raised 8 items. All are in the upstream commit as well. None survived checking:</p>
+<ul>
+<li><em>Non-default <code>SubjectFill</code> now drives libarea's internal booleans (Negative empties a ZigZag pocket).</em> Tested <code>Path.Area.makePocket</code> ZigZag and Offset with SubjectFill 0-3 on both builds: identical results, and Negative is empty on 26.3 too. Dropped.</li>
+<li><em>Default fill for internal booleans changes from EvenOdd to NonZero.</em> A/B on 44 default ops: identical. Listed below as a scope item, not a defect.</li>
+<li><em><code>ClearedAreaSegmentVisitor</code> enlarges the constructor parameter, not the member <code>bbox</code>.</em> Unchanged code, also on 26.3. Dropped.</li>
+<li><em>Exact float compare for &quot;no XY travel&quot;.</em> Such moves were dropped before the PR as well, so this is not a regression. Translating or rotating both endpoints gives identical results, so it holds for moved work planes. Dropped.</li>
+<li><em>Zero-length open curves in <code>OpenOffset</code> land on one side only.</em> This is the same output 26.3 already gives a single-point curve. Dropped.</li>
+<li><em><code>assertAlmostEqual</code> with 7 places in the new test.</em> Passes here and on main's CI. Dropped.</li>
+<li><em><code>Xor</code> has no Python binding.</em> It had none before either. Dropped.</li>
+<li><em>SubjectFill moves property group.</em> Real, listed below.</li>
+</ul>
+<h2>Not in the PR description</h2>
+<p>The PR text says only &quot;backport of #34330&quot;. #34330's own text covers the NaiveOffset fix, the tests and &quot;avoid generating zero-length segments when computing cleared area&quot;. These user-visible changes are not described in either:</p>
+<ul>
+<li>Path.Area operations now really apply the <code>SubjectFill</code> setting (default NonZero) to libarea's internal unions and subtractions, which were hard-wired to EvenOdd. <strong>Tested:</strong> 44 default ops identical.</li>
+<li>Rest machining (Pocket and Adaptive) now counts plunges, retracts and low-R drill cycles of earlier ops as cleared. This brings small toolpath changes (≤ 0.02 mm here). <strong>Tested.</strong></li>
+<li>The <code>SubjectFill</code> property of Path Area objects (<code>Path::FeatureArea</code>) moves from the &quot;Area&quot; group to the &quot;libarea&quot; group. A file saved by 26.3 with SubjectFill = Positive opens with the value kept and recomputes to the same 64 edges. <strong>Tested.</strong></li>
+<li>Python <code>area</code> module: new <code>area.FillRule</code> enum, and a <code>fill=</code> keyword on <code>Area.Union</code>, <code>Subtract</code> and <code>Intersect</code>. <strong>Tested</strong> (present, used by the new test).</li>
+</ul>
+<h2>Media</h2>
+<ul>
+<li><code>demo.mp4</code>: the rest-machining test setup, then the same path's cleared area on 26.3 and on the PR.</li>
+<li><code>setup_rest_machining.png</code>, <code>main_cleared_area.png</code>, <code>pr_cleared_area.png</code>.</li>
+</ul>
+<h2>Not tested</h2>
+<ul>
+<li>A <code>-D_GLIBCXX_ASSERTIONS</code> build with list checks (see above).</li>
+<li>No GUI panels changed, so there was no panel check.</li>
+</ul>
+</div>
+</div>
+</details>
+</section>
+
+<footer>Automated reviews by Billy Huddleston's campr harness: FreeCAD built from source with the PR applied, GUI checks on an off-screen display, reviews written by Claude. <a href="https://connor9220.github.io/camprreviews/">All reviewed PRs</a></footer>
+</div>
+<script>
+document.querySelectorAll(".chapter").forEach(b => b.addEventListener("click", () => {
+  const v = document.getElementById(b.dataset.vid);
+  if (v) { v.currentTime = +b.dataset.t; v.play().catch(() => {}); }
+}));
+document.querySelectorAll("video").forEach(v => {
+  const btns = [...document.querySelectorAll(`.chapter[data-vid="${v.id}"]`)];
+  if (!btns.length) return;
+  v.addEventListener("timeupdate", () => {
+    let i = 0;
+    btns.forEach((b, k) => { if (v.currentTime + 0.05 >= +b.dataset.t) i = k; });
+    btns.forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  });
+});
+// a link to #review-N opens that review
+const open = () => { const s = document.querySelector(location.hash + " details"); if (s) s.open = true; };
+if (/^#review-\d+$/.test(location.hash)) open();
+window.addEventListener("hashchange", () => { if (/^#review-\d+$/.test(location.hash)) open(); });
+</script>
+</body>
+</html>
