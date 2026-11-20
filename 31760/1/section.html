@@ -1,0 +1,132 @@
+<section class="review" id="review-1" data-job="31760-7045249383-r1" data-state="final">
+<details class="run"<!--open-->>
+<summary><span class="rn">Review 1</span><span class="meta">2026-11-20 16:38 · PR head dd8cd90376b · main 33a22d8bb12 · requested by @davidgilkaufman</span></summary>
+<div class="body">
+<section class="notes"><h2>Requested by @davidgilkaufman</h2><p>Please test this out. Also check the migrations: a document made before this feature opened in a build with it, a document saved with this feature opened in old FreeCAD, and the round trip new -&gt; old -&gt; new.</p></section>
+<p class="tests">CAM unit tests with the PR applied: <code>Ran 2230 tests · OK (skipped=11, expected failures=4)</code></p>
+<figure class="player"><video id="vid-1" src="1/demo.mp4" controls preload="metadata" playsinline poster="1/poster.jpg"></video><figcaption>Class tray: a 5 mm bigger profile loses all tags with auto-generate off (as on main), keeps them with it on; with auto-generate on, a tag removed in the panel comes back on the next recompute.</figcaption></figure><ol class="chapters"><li><button type="button" class="chapter" data-vid="vid-1" data-t="0.25"><span class="t">0:00</span><span><span class="cap">Tray profile with 4 holding tags (red, auto-generate off)</span><span class="det">class-tray model, Tag dressup on the outer profile</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="4.9"><span class="t">0:04</span><span><span class="cap">Make the profile 5 mm bigger (Offset Extra = 5 mm)</span><span class="det">Auto-generate off, as on main: all 4 tags are disabled, the path has no tags left</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="13.45"><span class="t">0:13</span><span><span class="cap">Same change, Automatically Generate = true (green)</span><span class="det">The PR&#x27;s new option: tags are regenerated on the new outline</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="17.95"><span class="t">0:17</span><span><span class="cap">With auto-generate on: remove tag 0 in the panel and Apply</span><span class="det">The panel list now has 3 tags</span></span></button></li><li><button type="button" class="chapter" data-vid="vid-1" data-t="23.45"><span class="t">0:23</span><span><span class="cap">Press OK: the next recompute brings all 4 tags back</span><span class="det">Hand edits are silently thrown away while auto-generate is on</span></span></button></li></ol>
+<div class="shots"><figure class="shot"><a href="1/main_behavior_tags_lost.png"><img src="1/main_behavior_tags_lost.png" alt="Auto-generate off (main behavior): after Offset Extra = 5 mm all 4 tags are disabled and the red path has no tags."></a><figcaption>Auto-generate off (main behavior): after Offset Extra = 5 mm all 4 tags are disabled and the red path has no tags.</figcaption></figure><figure class="shot"><a href="1/pr_after_manual_recompute.png"><img src="1/pr_after_manual_recompute.png" alt="Same dressup after a manual recompute: only now the 20 mm tags appear. On main, OK does this by itself."></a><figcaption>Same dressup after a manual recompute: only now the 20 mm tags appear. On main, OK does this by itself.</figcaption></figure><figure class="shot"><a href="1/pr_after_ok_stale.png"><img src="1/pr_after_ok_stale.png" alt="PR: tag Width set to 20 mm in the panel and OK pressed. The path still has the old narrow tags; the dressup stays touched."></a><figcaption>PR: tag Width set to 20 mm in the panel and OK pressed. The path still has the old narrow tags; the dressup stays touched.</figcaption></figure><figure class="shot"><a href="1/pr_auto_tags_follow.png"><img src="1/pr_auto_tags_follow.png" alt="PR, Automatically Generate = true: the same change regenerates 4 tags on the new outline (green)."></a><figcaption>PR, Automatically Generate = true: the same change regenerates 4 tags on the new outline (green).</figcaption></figure></div>
+
+<div class="summary"><h2>TL;DR</h2>
+<ul>
+<li><strong>OK in the Holding Tag panel no longer updates the toolpath.</strong> Change a tag's width, move or remove a tag, press OK: the dressup keeps the old path and stays marked for recompute. This hits everyone, with the new option off too. On main, OK rebuilds the path.</li>
+<li><strong>With Automatically Generate on, hand edits to tags are silently thrown away.</strong> A tag removed or moved in the panel comes back on the next recompute, and the panel gives no hint that its edits won't stick.</li>
+<li>The feature itself works: with it on, tags follow a changed profile, where on main (and with it off) the tags end up disabled and the part is cut free.</li>
+<li>Migrations are clean both ways: before-feature files open unchanged, PR files open in old FreeCAD unchanged, and the round trip keeps the setting.</li>
+</ul>
+<h2>What the PR does</h2>
+<p>It adds a <code>AutomaticallyGenerate</code> property (group &quot;Tag&quot;, default off) to the Holding Tag dressup. When it is on, <code>execute()</code> calls <code>generateTags()</code> on every recompute, so the tag positions are rebuilt from the current base path. To keep the task panel's own previews from regenerating, the panel's Apply / Generate / Copy now call <code>execute(obj, False)</code>, and the <code>recompute()</code> calls in the panel's <code>accept()</code> and <code>cleanup()</code> are removed. <code>doExecute()</code> is folded into <code>execute()</code>. Old files get the property added (off) in <code>onDocumentRestored()</code>.</p>
+<h2>Setup</h2>
+<ul>
+<li>Review tree on main <code>e046e64dd31</code> + PR head <code>dd8cd90376b</code>, built.</li>
+<li>Model: the CAM 101 class tray (<code>class-tray-A-no-workplane</code>), Tag dressup added on top of the outer profile's Lead In/Out dressup (through the <code>CAM_DressupTag</code> command in the GUI, and through <code>Path.Dressup.Tags.Create</code> headless).</li>
+<li>A/B: <code>cam-ab</code> with side A = the PR's base commit (only the two Tags files differ), headless. The GUI comparisons for the panel swapped main's <code>accept()</code> / <code>cleanup()</code> into the running FreeCAD for one run.</li>
+</ul>
+<h2>Feature check (the PR's claim)</h2>
+<p>Two Tag dressups on the same outer profile, one with Automatically Generate on, one off. Then the profile's Offset Extra goes from 0 to 5 mm:</p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>positions</th>
+<th>disabled</th>
+<th>path commands</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>auto off (= main behavior), before</td>
+<td>4</td>
+<td>none</td>
+<td>28</td>
+</tr>
+<tr>
+<td>auto off, after +5 mm</td>
+<td>4 (old ring)</td>
+<td>0, 1, 2, 3</td>
+<td>16 (no tags)</td>
+</tr>
+<tr>
+<td>auto on, after +5 mm</td>
+<td>4 (moved 5 mm out)</td>
+<td>none</td>
+<td>28</td>
+</tr>
+</tbody>
+</table>
+<p>With max count raised to 6, auto-on regenerated 6 tags, and after the +5 mm change still 6 tags on the new outline. So the option does what it says, and it fixes a real hazard: without it, a changed profile quietly drops all tags.</p>
+<p>Pictures: <code>main_behavior_tags_lost.png</code>, <code>pr_auto_tags_follow.png</code>, and steps 1-3 of <code>demo.mp4</code>.</p>
+<h2>Defects</h2>
+<h3>1. OK in the Holding Tag panel no longer updates the toolpath</h3>
+<p>The PR removed both <code>FreeCAD.ActiveDocument.recompute()</code> calls from <code>PathDressupTagTaskPanel.accept()</code> / <code>cleanup()</code> (<code>src/Mod/CAM/Path/Dressup/Gui/Tags.py</code> around lines 101-112). <code>accept()</code> still calls <code>getFields()</code>, which writes Width/Height/Angle/Radius/Positions/Disabled onto the dressup, but nothing rebuilds the path afterwards. The dressup is left Touched with the old path. Simulator, post and anything reading <code>Path</code> see the old tags until the user recomputes by hand. This happens with Automatically Generate off, i.e. for every existing user.</p>
+<p>Repro (GUI, class tray):</p>
+<ol>
+<li>Select the outer profile's dressup, CAM &gt; Holding Tag, OK (4 tags).</li>
+<li>Double-click the Tag dressup, set Width to 20 mm, press OK (no Apply).</li>
+<li>The path still shows the narrow tags; the dressup is Touched. Recompute: now the 20 mm tags appear.</li>
+</ol>
+<p>Measured: PR after OK: <code>Width = 20 mm</code>, state <code>Touched</code>, path unchanged. Same steps with main's <code>accept()</code>/<code>cleanup()</code>: state <code>Up-to-date</code>, path changed. Cancel after Apply also leaves the dressup Touched on the PR (the path itself is restored correctly by the transaction abort).</p>
+<p>Pictures: <code>pr_after_ok_stale.png</code> (after OK) and <code>pr_after_manual_recompute.png</code> (after a manual recompute).</p>
+<p>The likely reason for the removal is defect 2: a recompute on OK would regenerate the tags and drop the panel's edits. Keeping the recompute on OK (and deciding what the panel should do when auto-generate is on, see below) avoids breaking the default case.</p>
+<h3>2. With Automatically Generate on, hand edits are silently lost</h3>
+<p>With the option on, every recompute calls <code>generateTags()</code>, which overwrites <code>Positions</code> and sets <code>Disabled = []</code> (<code>src/Mod/CAM/Path/Dressup/Tags.py:1228</code>). The panel still offers Add / Remove / Edit / Generate / Copy, and Apply previews the edit (it runs <code>execute(obj, False)</code>), so the user sees their edit take effect. The next recompute of anything upstream throws it away.</p>
+<p>Repro:</p>
+<ol>
+<li>Set the Tag dressup's Automatically Generate to true, recompute (4 tags).</li>
+<li>Open the panel, select tag 0, Remove, Apply: 3 tags, path shows 3.</li>
+<li>OK, then change anything upstream (e.g. the profile's Offset Extra) or press Recompute: 4 tags again.</li>
+</ol>
+<p>That's a natural consequence of the option, but the panel has no checkbox for it and no hint that edits won't stick. Suggestion: show the option in the panel and disable the manual tag editing while it is on (or turn the option off when the user edits tags by hand). Steps 4-5 of <code>demo.mp4</code>.</p>
+<h2>From the code (not reproduced)</h2>
+<ul>
+<li><code>generateTags()</code> falls back to <code>self.execute(obj)</code> (now with <code>regen=True</code>) when <code>pathData</code> is missing, and <code>execute()</code> calls <code>generateTags()</code> again when the option is on, a possible endless recursion (<code>src/Mod/CAM/Path/Dressup/Tags.py:1035</code>). Not reachable today: <code>execute()</code> sets <code>pathData</code> before it calls <code>generateTags()</code>, and <code>setup()</code> failing makes <code>supportsTagGeneration()</code> raise first. Passing <code>regen=False</code> there would make it safe.</li>
+</ul>
+<p>Other code-review notes were checked and dropped: the empty-base-wires branch can't happen (<code>findBottomWires()</code> always returns a list); OK committing the transaction before <code>getFields()</code> is the same on main.</p>
+<h2>Migrations (requested)</h2>
+<p>&quot;Old FreeCAD&quot; here is this same build with main's versions of the two Tags files (the PR changes only these two Python files), run headless through <code>cam-ab</code>. Each open did a forced recompute (<code>touch()</code> on every op) and compared the dressup's G-code with what was stored.</p>
+<table>
+<thead>
+<tr>
+<th>Scenario</th>
+<th>Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Before-feature file (main, 4 tags) opened on the PR</td>
+<td>Property added, value off; 4 tags, Disabled empty; path identical to stored after recompute. No errors.</td>
+</tr>
+<tr>
+<td>PR file (auto on, max count 6, 6 tags) opened on main</td>
+<td>Loads with no errors; main keeps <code>AutomaticallyGenerate = true</code> as an unused property; 6 tags, path identical after recompute (main doesn't regenerate).</td>
+</tr>
+<tr>
+<td>PR → main (saved) → PR</td>
+<td><code>AutomaticallyGenerate</code> is still true, min/max count still 4/6, 6 tags, path identical. After a +5 mm profile change the 6 tags regenerate on the new outline.</td>
+</tr>
+<tr>
+<td>main → PR (saved) → main</td>
+<td>Loads fine; the extra property is kept, value off; path identical.</td>
+</tr>
+</tbody>
+</table>
+<p>Nothing changes or disappears silently in any direction. One limit: these saves were made headless (no GUI view-provider data), so the GUI side of the round trip was not part of it.</p>
+<h2>Not in the PR description</h2>
+<ul>
+<li>Task panel OK and Cancel no longer recompute the document (tested: defect 1).</li>
+<li>Panel Apply / Generate / Copy now run the dressup without regeneration, so their preview can differ from the next recompute when the option is on (tested: defect 2).</li>
+<li>With the option on, <code>Positions</code> and <code>Disabled</code> are rewritten on every recompute, so removed, moved, added or disabled tags are reset (tested: defect 2).</li>
+<li>The new option exists only in the Property View; the task panel has no control for it (tested).</li>
+<li>Auto-generation uses the min/max tag counts stored in the dressup from the panel's spin boxes; these are saved in the file and survive the round trip (tested).</li>
+<li><code>ObjectTagDressup.doExecute()</code> is removed and <code>execute()</code> takes a new <code>regen</code> argument; no caller in the tree uses <code>doExecute</code>, outside scripts would break (not tested).</li>
+</ul>
+<h2>Also on main (not this PR)</h2>
+<ul>
+<li>Unchecking a tag in the panel (Disabled) does not stick: <code>createTagsPositionDisabled()</code> sets <code>tag.enabled = self.pathData.checkTag(tag)</code>, overwriting the user's disabled flag, so the next recompute re-enables it. Same on the PR's base commit.</li>
+</ul>
+<h2>Unit tests</h2>
+<p>Full CAM suite on the PR: 2230 tests, OK (11 skipped, 4 expected failures). The PR adds no tests for the new option.</p>
+</div>
+</div>
+</details>
+</section>
